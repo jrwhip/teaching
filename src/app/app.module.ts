@@ -3,13 +3,13 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { MenuComponent } from './menu/menu.component';
+import { MainMenuComponent } from './main-menu/main-menu.component';
 import { ErrorComponent } from './error/error.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MenuComponent,
+    MainMenuComponent,
     ErrorComponent
   ],
   imports: [

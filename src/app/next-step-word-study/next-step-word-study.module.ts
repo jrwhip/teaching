@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 
 import { NextStepWordStudyRoutingModule } from './next-step-word-study-routing.module';
 import { NextStepWordStudyComponent } from './next-step-word-study.component';
-import { MainMenuComponent } from './main-menu/main-menu.component';
+import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
 
 
 @NgModule({
-  declarations: [NextStepWordStudyComponent, MainMenuComponent],
+  declarations: [NextStepWordStudyComponent, WordStudyMenuComponent],
   imports: [
     CommonModule,
     NextStepWordStudyRoutingModule
