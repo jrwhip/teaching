@@ -1,0 +1,13 @@
+.link-list {
+  display: flex;
+  flex-direction: row;
+}
+
+a {
+  background-color: red;
+  margin: 15px;
+  padding: 10px 30px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}

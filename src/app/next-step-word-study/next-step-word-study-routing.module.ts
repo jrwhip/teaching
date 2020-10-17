@@ -3,7 +3,10 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { NextStepWordStudyComponent } from './next-step-word-study.component';
 
-const routes: Routes = [{ path: '', component: NextStepWordStudyComponent }];
+const routes: Routes = [
+  { path: ':sectionName', component: NextStepWordStudyComponent },
+  { path: '', component: NextStepWordStudyComponent }
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],

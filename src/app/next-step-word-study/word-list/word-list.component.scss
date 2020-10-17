@@ -1,0 +1,13 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(100px, 1fr));
+  gap: 5px;
+}
+
+.item {
+  display: grid;
+  background-color: purple;
+  border-radius: 5px;
+  padding: 40px;
+  text-align: center;
+}

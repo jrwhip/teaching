@@ -1,2 +1,9 @@
 <app-word-study-menu></app-word-study-menu>
-<p>next-step-word-study works!</p>
+
+<div class="link-list" *ngIf="wordGroups$ | async as wordGroups">
+  <ng-container *ngFor="let wordGroup of wordGroups | keyvalue">
+    <a role="button" (click)="words = wordGroup.value">{{ wordGroup.key }}</a>
+  </ng-container>
+</div>
+
+<app-word-list [words]="words"></app-word-list>
