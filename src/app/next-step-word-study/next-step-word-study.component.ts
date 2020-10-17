@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { mergeMap, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { mergeMap, map, tap } from 'rxjs/operators';
 
 import { WordService } from '../word.service';
 
@@ -12,12 +12,13 @@ import { WordService } from '../word.service';
 })
 export class NextStepWordStudyComponent implements OnInit {
   wordGroups$: Observable<any>;
-  words: [];
+  words: string[];
 
   constructor(private route: ActivatedRoute, private wordService: WordService) { }
 
   ngOnInit(): void {
     this.wordGroups$ = this.route.params.pipe(
+      tap(_ => this.words = []),
       mergeMap(({ sectionName }) => {
         console.log('sectionName: ', sectionName);
         return this.wordService.getAllWords().pipe(
@@ -25,6 +26,16 @@ export class NextStepWordStudyComponent implements OnInit {
         );
       })
     );
+  }
+
+  suffleWords(wordsArr: string[]) {
+    wordsArr.forEach((_, i) => {
+      const j = Math.floor(Math.random() * i);
+      const temp = wordsArr[i];
+      wordsArr[i] = wordsArr[j];
+      wordsArr[j] = temp;
+    });
+    this.words = wordsArr;
   }
 
 }
