@@ -1,1 +1,79 @@
-/* You can add global styles to this file, and also import other style files */
+// @import url('https://fonts.googleapis.com/css2?family=Kalam&display=swap');/* You can add global styles to this file, and also import other style files */
+
+// body {
+//   font-family: 'Kalam', cursive;
+// }
+
+$red: #ff4880;
+$orange: #ffae00;
+$blue: #5798fe;
+$dark-blue: #393d72;
+$green: #7cbe47;
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  // background-color: lightcyan;
+  background-color: $dark-blue;
+}
+
+.section-menu {
+  display: flex;
+  flex-direction: row;
+  &__button {
+    flex: 1 1 150px;
+    // background-color: #4caf50; /* Green */
+    // background-color: #4866a3;
+    background-color: $blue;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    &--active {
+      background-color: lighten($blue, 10%);
+    }
+    &--nowrap {
+      white-space: nowrap;
+    }
+  }
+}
+
+.link-list {
+  display: flex;
+  flex-direction: row;
+}
+
+a {
+  background-color: $green;
+  margin: 15px;
+  padding: 10px 30px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin: 10px;
+}
+
+.item {
+  display: grid;
+  font-size: 3.5em !important;
+  background-color: $orange;
+  // border-radius: 5px;
+  padding: 10px;
+  margin: 0px;
+  text-align: center;
+  box-shadow: 5px 7px 7px 5px rgba(0, 0, 0, 0.1);
+}
+
+p {
+  margin: 0px;
+}
