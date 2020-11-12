@@ -28,7 +28,23 @@ export class NextStepWordStudyComponent implements OnInit {
     );
   }
 
-  suffleWords(wordsArr: string[]) {
+  suffleWords(newWordsArr: string[]) {
+    const wordsArr = this.words.concat(newWordsArr);
+    wordsArr.forEach((_, i) => {
+      const j = Math.floor(Math.random() * i);
+      const temp = wordsArr[i];
+      wordsArr[i] = wordsArr[j];
+      wordsArr[j] = temp;
+    });
+    this.words = wordsArr;
+  }
+
+  clearWordsArr() {
+    this.words = [];
+  }
+
+  randomize() {
+    const wordsArr = [...this.words];
     wordsArr.forEach((_, i) => {
       const j = Math.floor(Math.random() * i);
       const temp = wordsArr[i];
