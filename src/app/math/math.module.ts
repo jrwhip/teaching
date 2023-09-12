@@ -7,7 +7,7 @@ import { MathRoutingModule } from './math-routing.module';
 
 
 @NgModule({
-  declarations: [],
+  declarations: [MathComponent],
   imports: [
     CommonModule,
     MathRoutingModule

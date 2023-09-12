@@ -6,7 +6,7 @@ import { mergeMap, map, tap } from 'rxjs/operators';
 import { WordService } from '../word.service';
 
 @Component({
-  selector: 'app-next-step-word-study',
+  selector: 'app-math',
   templateUrl: './math.component.html',
 })
 export class MathComponent implements OnInit {
