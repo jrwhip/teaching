@@ -6,12 +6,14 @@ import { AppComponent } from './app.component';
 import { MainMenuComponent } from './main-menu/main-menu.component';
 import { ErrorComponent } from './error/error.component';
 import { MathModule } from './math/math.module';
+import { NthPlainPipe } from './nth-plain.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     MainMenuComponent,
-    ErrorComponent
+    ErrorComponent,
+    NthPlainPipe
   ],
   imports: [
     BrowserModule,
