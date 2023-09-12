@@ -1,2 +1,30 @@
-<p>Hi</p>
-<h1>Math</h1>
+<div>
+  <h1>Number Rounding Game</h1>
+  <div id="number-container">
+      <p>Round the number below to the nearest:</p>
+      <p id="random-number">{{ randomNumber }}</p>
+      <input type="number" id="round-input" placeholder="Enter your answer" [(ngModel)]="userAnswer">
+      <button (click)="checkAnswer(userAnswer)">Check Answer</button>
+      <p id="result" [style.color]="resultColor">{{ result }}</p>
+      <div id="streak">
+          Streak: <span id="correct-streak">{{ correctStreak }}</span>
+      </div>
+      <div id="rounding-options">
+          <button (click)="changeRoundingFactor(10)">Tens</button>
+          <button (click)="changeRoundingFactor(100)">Hundreds</button>
+          <button (click)="changeRoundingFactor(0.1)">Tenths</button>
+          <button (click)="changeRoundingFactor(0.01)">Hundredths</button>
+          <button (click)="randomizeRoundingFactor()">Random</button>
+      </div>
+  </div>
+
+  <div id="rounded-numbers-container">
+      <h2>Rounded Numbers:</h2>
+      <ul id="rounded-numbers-list">
+          <li *ngFor="let numberPair of roundedNumbers" [style.color]="numberPair.isCorrect ? 'green' : 'red'">
+              {{ numberPair.original }} rounded to the nearest {{ getPlaceText(numberPair.roundingFactor) }} was {{ numberPair.rounded }} ({{ numberPair.isCorrect ? 'Correct' : 'Incorrect' }})
+          </li>
+      </ul>
+  </div>
+</div>
+
