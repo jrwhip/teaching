@@ -1,7 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { NthPlainTextPipe } from '../nth-plain-text.pipe';
 
 @Component({
-  selector: 'app-math',
+  standalone: true,
+  imports: [CommonModule, NthPlainTextPipe, FormsModule, ReactiveFormsModule],
   templateUrl: './math.component.html',
   styleUrls: ['./math.component.scss']
 })

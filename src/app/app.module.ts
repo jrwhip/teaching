@@ -1,26 +1,17 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
-import { AppRoutingModule } from './app-routing.module';
+import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
-import { MainMenuComponent } from './main-menu/main-menu.component';
-import { ErrorComponent } from './error/error.component';
-import { MathModule } from './math/math.module';
-import { NthPlainPipe } from './nth-plain.pipe';
+import { appRoutes } from './app.routes';
+import { NthPlainTextPipe } from './nth-plain-text.pipe';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    MainMenuComponent,
-    ErrorComponent,
-    NthPlainPipe
-  ],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
-    AppRoutingModule,
-    MathModule
+    RouterModule.forRoot(appRoutes, { initialNavigation: 'enabledBlocking' }),
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

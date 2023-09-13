@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -5,14 +6,20 @@ import { mergeMap, map, tap } from 'rxjs/operators';
 
 import { WordService } from '../word.service';
 
+import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
+import { WordListComponent } from './word-list/word-list.component';
+import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
+
 @Component({
   selector: 'app-next-step-word-study',
+  standalone: true,
+  imports: [CommonModule, WordStudyMenuComponent, WordListComponent],
   templateUrl: './next-step-word-study.component.html',
   styleUrls: ['./next-step-word-study.component.scss']
 })
 export class NextStepWordStudyComponent implements OnInit {
-  wordGroups$: Observable<any>;
-  words: string[];
+  wordGroups$!: Observable<any>;
+  words!: string[];
 
   constructor(private route: ActivatedRoute, private wordService: WordService) { }
 
@@ -28,7 +35,7 @@ export class NextStepWordStudyComponent implements OnInit {
     );
   }
 
-  suffleWords(newWordsArr: string[]) {
+  suffleWords(newWordsArr: string[] | any) {
     const wordsArr = this.words.concat(newWordsArr);
     wordsArr.forEach((_, i) => {
       const j = Math.floor(Math.random() * i);

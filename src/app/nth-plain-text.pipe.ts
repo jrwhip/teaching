@@ -1,12 +1,12 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'nthplain'
+  standalone: true,
+  name: 'nthPlainText',
 })
-export class NthPlainPipe implements PipeTransform {
-
+export class NthPlainTextPipe implements PipeTransform {
   transform(value: number): string {
-    switch (value) {
+     switch (value) {
       case 10:
         return 'tens';
       case 100:
