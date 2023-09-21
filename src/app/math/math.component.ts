@@ -17,6 +17,7 @@ export class MathComponent implements OnInit, AfterViewInit {
 
   roundedNumbers: any[] = [];
   correctStreak: number = 0;
+  highestStreak: number = 0;
   roundingFactor: number = 10;
   randomNumber: string = '';
   userAnswer: number | null = null;
@@ -24,11 +25,16 @@ export class MathComponent implements OnInit, AfterViewInit {
   resultColor: string = '';
 
   columnDefs: ColDef[] = [
-    { field: 'original', headerName: 'Original Number' },
-    { field: 'roundingFactor', headerName: 'Rounding Factor', valueFormatter: this.getPlaceText },
-    { field: 'rounded', headerName: 'Correct Answer' },
-    { field: 'userAnswer', headerName: 'User Answer' },
-    { field: 'isCorrect', headerName: 'Is Correct?', cellRenderer: this.correctRenderer }
+    { field: 'original', headerName: 'Original Number', filter: 'agNumberColumnFilter' },
+    { field: 'roundingFactor', headerName: 'Rounding Factor', valueFormatter: this.getPlaceText, filter: 'agTextColumnFilter' },
+    { field: 'rounded', headerName: 'Correct Answer', filter: 'agNumberColumnFilter' },
+    { field: 'userAnswer', headerName: 'User Answer', filter: 'agNumberColumnFilter' },
+    { field: 'isCorrect', headerName: 'Is Correct?', cellRenderer: this.correctRenderer, filter: 'agBooleanColumnFilter' },
+    { field: 'dateEntered', headerName: 'Date Entered', filter: 'agDateColumnFilter',
+      valueFormatter: (params) => {
+        return params.value ? new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(params.value)) : '';
+      }
+    }
   ];
 
   gridApi: any;
@@ -38,12 +44,16 @@ export class MathComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.generateNewNumber();
+    const storedHighestStreak = localStorage.getItem('highestStreak');
+    if (storedHighestStreak) {
+        this.highestStreak = JSON.parse(storedHighestStreak);
+    }
   }
 
   ngAfterViewInit(): void {
-    const storedNumbers = localStorage.getItem('roundedNumbers');
-    if (storedNumbers) {
-        this.roundedNumbers = JSON.parse(storedNumbers);
+    const storedData = localStorage.getItem('roundedNumbers');
+    if (storedData) {
+        this.roundedNumbers = JSON.parse(storedData);
         this.gridApi.setRowData(this.roundedNumbers);
     }
   }
@@ -94,19 +104,31 @@ export class MathComponent implements OnInit, AfterViewInit {
             this.result = "Correct!";
             this.resultColor = "green";
             this.correctStreak++;
+
+            if (this.correctStreak > this.highestStreak) {
+                this.highestStreak = this.correctStreak;
+                localStorage.setItem('highestStreak', JSON.stringify(this.highestStreak));
+            }
         } else {
             this.result = "Incorrect. The correct answer is " + roundedNumber;
             this.resultColor = "red";
             this.correctStreak = 0;
         }
 
-        const newEntry = { original: parsedRandomNumber, rounded: roundedNumber, roundingFactor: this.roundingFactor, isCorrect, userAnswer: Number(userAnswer) };
+        const newEntry = {
+            dateEntered: new Date().toISOString(),
+            original: parsedRandomNumber,
+            rounded: roundedNumber,
+            roundingFactor: this.roundingFactor,
+            isCorrect,
+            userAnswer: Number(userAnswer)
+        };
 
         if (this.gridApi) {
-            const newRowData = [newEntry, ...this.roundedNumbers];
+            const newRowData = [ newEntry, ...this.roundedNumbers ];
             this.gridApi.setRowData(newRowData);
             this.roundedNumbers = newRowData;
-            localStorage.setItem('roundedNumbers', JSON.stringify(this.roundedNumbers));
+            localStorage.setItem('roundedNumbers', JSON.stringify(newRowData));
         }
 
         this.userAnswer = null;
@@ -137,4 +159,5 @@ export class MathComponent implements OnInit, AfterViewInit {
       return "unknown";
     }
   }
+
 }
