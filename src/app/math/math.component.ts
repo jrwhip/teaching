@@ -2,17 +2,24 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { AgGridModule } from 'ag-grid-angular';
+import { ColDef } from 'ag-grid-community';
+
 import { NthPlainTextPipe } from '../nth-plain-text.pipe';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, NthPlainTextPipe, FormsModule, ReactiveFormsModule],
+  imports: [AgGridModule, CommonModule, NthPlainTextPipe, FormsModule, ReactiveFormsModule],
   templateUrl: './math.component.html',
   styleUrls: ['./math.component.scss']
 })
 export class MathComponent implements OnInit {
 
-  roundedNumbers: any[] = [];
+  // roundedNumbers: any[] = [];
+roundedNumbers: any[] = [
+    { original: 123.456, rounded: 123, roundingFactor: 10, isCorrect: true, userAnswer: 123 }
+];
+
   correctStreak: number = 0;
   roundingFactor: number = 10; // Default rounding factor is tens
   randomNumber: string = '';
@@ -20,10 +27,31 @@ export class MathComponent implements OnInit {
   result: string = '';
   resultColor: string = '';
 
+ columnDefs: ColDef[] = [
+    { field: 'original', headerName: 'Original Number' },
+    { field: 'roundingFactor', headerName: 'Rounding Factor', valueFormatter: this.getPlaceText },
+    { field: 'rounded', headerName: 'Rounded Number' },
+    { field: 'isCorrect', headerName: 'Is Correct?', cellRenderer: this.correctRenderer },
+    { field: 'userAnswer', headerName: 'User Answer' }
+  ];
+
+  gridApi: any;
+  gridColumnApi: any;
+
   constructor() { }
 
   ngOnInit(): void {
     this.generateNewNumber();
+  }
+
+  onGridReady(params: any) {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+}
+
+
+  correctRenderer(params: { value: any; }) {
+    return params.value ? 'Correct' : 'Incorrect';
   }
 
   generateRandomNumber(): string {
@@ -47,41 +75,50 @@ export class MathComponent implements OnInit {
     const parsedRandomNumber = parseFloat(this.randomNumber);
 
     if (userAnswer !== null && !isNaN(userAnswer)) {
-      let roundedNumber;
+        let roundedNumber;
 
-      if (this.roundingFactor === 0.1) {
-        // When rounding to tenths, round to one decimal place
-        roundedNumber = Math.round(parsedRandomNumber * 10) / 10;
-      } else if (this.roundingFactor === 0.01) {
-        // When rounding to hundredths, round to two decimal places
-        roundedNumber = Math.round(parsedRandomNumber * 100) / 100;
-      } else {
-        // For other rounding factors, use the previous method
-        roundedNumber = Math.round(parsedRandomNumber / this.roundingFactor) * this.roundingFactor;
-      }
+        if (this.roundingFactor === 0.1) {
+            // When rounding to tenths, round to one decimal place
+            roundedNumber = Math.round(parsedRandomNumber * 10) / 10;
+        } else if (this.roundingFactor === 0.01) {
+            // When rounding to hundredths, round to two decimal places
+            roundedNumber = Math.round(parsedRandomNumber * 100) / 100;
+        } else {
+            // For other rounding factors, use the previous method
+            roundedNumber = Math.round(parsedRandomNumber / this.roundingFactor) * this.roundingFactor;
+        }
 
-      const isCorrect = userAnswer === roundedNumber;
+        const isCorrect = userAnswer === roundedNumber;
 
-      if (isCorrect) {
-        this.result = "Correct!";
-        this.resultColor = "green";
-        this.correctStreak++;
-      } else {
-        this.result = "Incorrect. The correct answer is " + roundedNumber;
-        this.resultColor = "red";
-        this.correctStreak = 0; // Reset streak on incorrect answer
-      }
+        if (isCorrect) {
+            this.result = "Correct!";
+            this.resultColor = "green";
+            this.correctStreak++;
+        } else {
+            this.result = "Incorrect. The correct answer is " + roundedNumber;
+            this.resultColor = "red";
+            this.correctStreak = 0; // Reset streak on incorrect answer
+        }
 
-      // Add the rounded number, original rounding factor, and whether it was correct or incorrect to the list
-      this.roundedNumbers.unshift({ original: parsedRandomNumber, rounded: roundedNumber, roundingFactor: this.roundingFactor, isCorrect, userAnswer: userAnswer });
+        const newEntry = { original: parsedRandomNumber, rounded: roundedNumber, roundingFactor: this.roundingFactor, isCorrect, userAnswer: Number(userAnswer) };
 
-      // Clear the input box
-      this.userAnswer = null;
+        if (this.gridApi) {
+            const newRowData = [
+                newEntry,
+                ...this.roundedNumbers
+            ];
+            this.gridApi.setRowData(newRowData);
+            this.roundedNumbers = newRowData;
+        }
 
-      // Randomly assign a new rounding factor
-      this.randomizeRoundingFactor();
+        // Clear the input box
+        this.userAnswer = null;
+
+        // Randomly assign a new rounding factor
+        this.randomizeRoundingFactor();
     }
-  }
+}
+
 
   generateNewNumber(): void {
     this.randomNumber = this.generateRandomNumber();
@@ -92,17 +129,19 @@ export class MathComponent implements OnInit {
     this.generateNewNumber();
   }
 
-  getPlaceText(factor: number): string {
-    if (factor === 10) {
-      return "tens";
-    } else if (factor === 100) {
-      return "hundreds";
-    } else if (factor === 0.1) {
-      return "tenths";
-    } else if (factor === 0.01) {
-      return "hundredths";
-    } else {
-      return "unknown";
-    }
+getPlaceText(params: { value: number }): string {
+  const factor = params.value;
+  if (factor === 10) {
+    return "tens";
+  } else if (factor === 100) {
+    return "hundreds";
+  } else if (factor === 0.1) {
+    return "tenths";
+  } else if (factor === 0.01) {
+    return "hundredths";
+  } else {
+    return "unknown";
   }
+}
+
 }

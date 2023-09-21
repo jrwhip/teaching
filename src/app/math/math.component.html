@@ -1,38 +1,167 @@
-<header class="container">
-  <h1>Number Rounding Game</h1>
-</header>
-<div class="container">
-  <div id="number-container">
-    <p>
-      Round the number below to the nearest: {{ roundingFactor | nthPlainText }}
-    </p>
-    <p id="random-number">{{ randomNumber }}</p>
-    <input
-      type="number"
-      id="round-input"
-      placeholder="Enter your answer"
-      [(ngModel)]="userAnswer"
-    />
-    <button (click)="checkAnswer(userAnswer)">Check Answer</button>
-    <p id="result" [style.color]="resultColor">{{ result }}</p>
-    <div id="streak">
-      Streak: <span id="correct-streak">{{ correctStreak }}</span>
-    </div>
-  </div>
+<section class="pt-0">
+  <div class="container">
+    <div class="row">
+      <!-- Left sidebar START -->
+      <div class="col-xl-3">
+        <!-- Responsive offcanvas body START -->
+        <div
+          class="offcanvas-xl offcanvas-end"
+          tabindex="-1"
+          id="offcanvasSidebar"
+        >
+          <!-- Offcanvas header -->
+          <div class="offcanvas-header bg-light">
+            <h5 class="offcanvas-title" id="offcanvasNavbarLabel">
+              My profile
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="offcanvas"
+              data-bs-target="#offcanvasSidebar"
+              aria-label="Close"
+            ></button>
+          </div>
+          <!-- Offcanvas body -->
+          <div class="offcanvas-body p-3 p-xl-0">
+            <div class="bg-dark border rounded-3 p-3 w-100">
+              <!-- Dashboard menu -->
+              <div
+                class="list-group list-group-dark list-group-borderless collapse-list"
+              >
+                <a class="list-group-item" href="student-dashboard.html"
+                  ><i class="bi bi-ui-checks-grid fa-fw me-2"></i>Rounding</a
+                >
+                <a class="list-group-item" href="student-subscription.html"
+                  ><i class="bi bi-card-checklist fa-fw me-2"></i>My
+                  Subscriptions</a
+                >
+                <a class="list-group-item" href="student-course-list.html"
+                  ><i class="bi bi-basket fa-fw me-2"></i>My Courses</a
+                >
+                <a class="list-group-item" href="student-course-resume.html"
+                  ><i class="far fa-fw fa-file-alt me-2"></i>Course Resume</a
+                >
+                <a class="list-group-item" href="student-quiz.html"
+                  ><i class="bi bi-question-diamond fa-fw me-2"></i>Quiz</a
+                >
+                <a class="list-group-item" href="student-payment-info.html"
+                  ><i class="bi bi-credit-card-2-front fa-fw me-2"></i>Payment
+                  Info</a
+                >
+                <a class="list-group-item active" href="student-bookmark.html"
+                  ><i class="bi bi-cart-check fa-fw me-2"></i>Wishlist</a
+                >
+                <a class="list-group-item" href="instructor-edit-profile.html"
+                  ><i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile</a
+                >
+                <a class="list-group-item" href="instructor-setting.html"
+                  ><i class="bi bi-gear fa-fw me-2"></i>Settings</a
+                >
+                <a class="list-group-item" href="instructor-delete-account.html"
+                  ><i class="bi bi-trash fa-fw me-2"></i>Delete Profile</a
+                >
+                <a
+                  class="list-group-item text-danger bg-danger-soft-hover"
+                  href="#"
+                  ><i class="fas fa-sign-out-alt fa-fw me-2"></i>Sign Out</a
+                >
+                <!-- Collapse menu -->
+                <a
+                  class="list-group-item"
+                  data-bs-toggle="collapse"
+                  href="#collapseauthentication"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseauthentication"
+                >
+                  <i class="bi bi-lock fa-fw me-2"></i>Dropdown level
+                </a>
+                <!-- Submenu -->
+                <ul
+                  class="nav collapse flex-column"
+                  id="collapseauthentication"
+                  data-bs-parent="#navbar-sidebar"
+                >
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Dropdown item</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Dropdown item</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Responsive offcanvas body END -->
+      </div>
+      <!-- Left sidebar END -->
 
-  <div id="rounded-numbers-container">
-    <h2>Rounded Numbers:</h2>
-    <ul id="rounded-numbers-list">
-      <li
-        *ngFor="let numberPair of roundedNumbers"
-        [style.color]="numberPair.isCorrect ? 'green' : 'red'"
-      >
-        {{ numberPair.original }} rounded to the nearest
-        {{ getPlaceText(numberPair.roundingFactor) }} was
-        {{ numberPair.rounded }} ({{
-          numberPair.isCorrect ? 'Correct' : 'Incorrect'
-        }}) your Answer: {{ numberPair.userAnswer }}
-      </li>
-    </ul>
+      <!-- Main content START -->
+      <div class="col-xl-9">
+        <div class="card bg-transparent border rounded-3">
+          <!-- Card header START -->
+          <div class="card-header bg-transparent border-bottom">
+            <h3 class="mb-0">Number Rounding Game</h3>
+          </div>
+          <!-- Card header END -->
+          <div>
+            <h4>
+              Round the number below to the nearest:
+              {{ roundingFactor | nthPlainText }}
+            </h4>
+            <p class="display-5">{{ randomNumber }}</p>
+            <div class="input-group mb-3" style="width: 50%">
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="userAnswer"
+                placeholder="Enter your answer"
+                aria-label="Enter your answer"
+                (keydown.enter)="checkAnswer(userAnswer)"
+              />
+              <button
+                class="btn btn-outline-primary"
+                type="button"
+                (click)="checkAnswer(userAnswer)"
+              >
+                Check Answer
+              </button>
+            </div>
+            <p id="result" [style.color]="resultColor">{{ result }}</p>
+            <p class="display-6">
+              Streak: <span id="correct-streak">{{ correctStreak }}</span>
+            </p>
+          </div>
+
+          <div id="rounded-numbers-container">
+            <h2>Rounded Numbers:</h2>
+            <ag-grid-angular
+              style="width: 100%; height: 500px"
+              class="ag-theme-alpine"
+              [rowData]="roundedNumbers"
+              [columnDefs]="columnDefs"
+              (gridReady)="onGridReady($event)"
+            >
+            </ag-grid-angular>
+            <ul id="rounded-numbers-list">
+              <li
+                *ngFor="let numberPair of roundedNumbers"
+                [style.color]="numberPair.isCorrect ? 'green' : 'red'"
+              >
+                {{ numberPair.original }} rounded to the nearest
+                {{ getPlaceText(numberPair.roundingFactor) }} was
+                {{ numberPair.rounded }} ({{
+                  numberPair.isCorrect ? 'Correct' : 'Incorrect'
+                }}) your Answer: {{ numberPair.userAnswer }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- Main content END -->
+    </div>
+    <!-- Row END -->
   </div>
-</div>
+</section>

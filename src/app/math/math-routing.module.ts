@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { MathComponent } from './math.component';
-
 const routes: Routes = [
-  { path: '', component: MathComponent }
+  { path: '', loadComponent: () => import('./math.component').then(c => c.MathComponent)}
 ];
 
 @NgModule({
