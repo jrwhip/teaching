@@ -1,5 +1,7 @@
-<div class="container">
+<header class="container">
   <h1>Number Rounding Game</h1>
+</header>
+<div class="container">
   <div id="number-container">
     <p>
       Round the number below to the nearest: {{ roundingFactor | nthPlainText }}
@@ -29,7 +31,7 @@
         {{ getPlaceText(numberPair.roundingFactor) }} was
         {{ numberPair.rounded }} ({{
           numberPair.isCorrect ? 'Correct' : 'Incorrect'
-        }})
+        }}) your Answer: {{ numberPair.userAnswer }}
       </li>
     </ul>
   </div>

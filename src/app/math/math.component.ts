@@ -73,7 +73,7 @@ export class MathComponent implements OnInit {
       }
 
       // Add the rounded number, original rounding factor, and whether it was correct or incorrect to the list
-      this.roundedNumbers.unshift({ original: parsedRandomNumber, rounded: roundedNumber, roundingFactor: this.roundingFactor, isCorrect });
+      this.roundedNumbers.unshift({ original: parsedRandomNumber, rounded: roundedNumber, roundingFactor: this.roundingFactor, isCorrect, userAnswer: userAnswer });
 
       // Clear the input box
       this.userAnswer = null;
