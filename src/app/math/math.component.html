@@ -12,7 +12,7 @@
           <!-- Offcanvas header -->
           <div class="offcanvas-header bg-light">
             <h5 class="offcanvas-title" id="offcanvasNavbarLabel">
-              My profile
+              Math Activities
             </h5>
             <button
               type="button"
@@ -29,37 +29,36 @@
               <div
                 class="list-group list-group-dark list-group-borderless collapse-list"
               >
-                <a class="list-group-item" href="student-dashboard.html"
+                <a class="list-group-item active" href="#"
                   ><i class="bi bi-ui-checks-grid fa-fw me-2"></i>Rounding</a
                 >
-                <a class="list-group-item" href="student-subscription.html"
-                  ><i class="bi bi-card-checklist fa-fw me-2"></i>My
-                  Subscriptions</a
+                <a class="list-group-item" href="#"
+                  ><i class="bi bi-card-checklist fa-fw me-2"></i>Algebra</a
                 >
-                <a class="list-group-item" href="student-course-list.html"
-                  ><i class="bi bi-basket fa-fw me-2"></i>My Courses</a
+                <a class="list-group-item" href="#"
+                  ><i class="bi bi-basket fa-fw me-2"></i>Geometry</a
                 >
-                <a class="list-group-item" href="student-course-resume.html"
-                  ><i class="far fa-fw fa-file-alt me-2"></i>Course Resume</a
+                <a class="list-group-item" href="#"
+                  ><i class="far fa-fw fa-file-alt me-2"></i>Trigonometry</a
                 >
-                <a class="list-group-item" href="student-quiz.html"
-                  ><i class="bi bi-question-diamond fa-fw me-2"></i>Quiz</a
+                <a class="list-group-item" href="#"
+                  ><i class="bi bi-question-diamond fa-fw me-2"></i>Calculus</a
                 >
-                <a class="list-group-item" href="student-payment-info.html"
-                  ><i class="bi bi-credit-card-2-front fa-fw me-2"></i>Payment
-                  Info</a
+                <a class="list-group-item" href="#"
+                  ><i class="bi bi-credit-card-2-front fa-fw me-2"></i
+                  >Statistics</a
                 >
-                <a class="list-group-item active" href="student-bookmark.html"
-                  ><i class="bi bi-cart-check fa-fw me-2"></i>Wishlist</a
+                <a class="list-group-item" href="#"
+                  ><i class="bi bi-cart-check fa-fw me-2"></i>Linear Algebra</a
                 >
-                <a class="list-group-item" href="instructor-edit-profile.html"
-                  ><i class="bi bi-pencil-square fa-fw me-2"></i>Edit Profile</a
+                <a class="list-group-item" href="#"
+                  ><i class="bi bi-pencil-square fa-fw me-2"></i>Probability</a
                 >
-                <a class="list-group-item" href="instructor-setting.html"
-                  ><i class="bi bi-gear fa-fw me-2"></i>Settings</a
+                <a class="list-group-item" href="#"
+                  ><i class="bi bi-gear fa-fw me-2"></i>Number Theory</a
                 >
-                <a class="list-group-item" href="instructor-delete-account.html"
-                  ><i class="bi bi-trash fa-fw me-2"></i>Delete Profile</a
+                <a class="list-group-item" href="#"
+                  ><i class="bi bi-trash fa-fw me-2"></i>Combinatorics</a
                 >
                 <a
                   class="list-group-item text-danger bg-danger-soft-hover"
@@ -75,7 +74,7 @@
                   aria-expanded="false"
                   aria-controls="collapseauthentication"
                 >
-                  <i class="bi bi-lock fa-fw me-2"></i>Dropdown level
+                  <i class="bi bi-lock fa-fw me-2"></i>More Math Topics
                 </a>
                 <!-- Submenu -->
                 <ul
@@ -84,10 +83,10 @@
                   data-bs-parent="#navbar-sidebar"
                 >
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Dropdown item</a>
+                    <a class="nav-link" href="#">Differential Equations</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Dropdown item</a>
+                    <a class="nav-link" href="#">Topology</a>
                   </li>
                 </ul>
               </div>
@@ -111,7 +110,7 @@
               Round the number below to the nearest:
               {{ roundingFactor | nthPlainText }}
             </h4>
-            <p class="display-5">{{ randomNumber }}</p>
+            <p class="display-5">{{ randomNumber | number }}</p>
             <div class="input-group mb-3" style="width: 50%">
               <input
                 type="text"
@@ -129,7 +128,7 @@
                 Check Answer
               </button>
             </div>
-            <p id="result" [style.color]="resultColor">{{ result }}</p>
+            <p class="display-6" [style.color]="resultColor">{{ result }}</p>
             <p class="display-6">
               Streak: <span id="correct-streak">{{ correctStreak }}</span>
             </p>
@@ -145,18 +144,6 @@
               (gridReady)="onGridReady($event)"
             >
             </ag-grid-angular>
-            <ul id="rounded-numbers-list">
-              <li
-                *ngFor="let numberPair of roundedNumbers"
-                [style.color]="numberPair.isCorrect ? 'green' : 'red'"
-              >
-                {{ numberPair.original }} rounded to the nearest
-                {{ getPlaceText(numberPair.roundingFactor) }} was
-                {{ numberPair.rounded }} ({{
-                  numberPair.isCorrect ? 'Correct' : 'Incorrect'
-                }}) your Answer: {{ numberPair.userAnswer }}
-              </li>
-            </ul>
           </div>
         </div>
       </div>

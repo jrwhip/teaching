@@ -15,11 +15,7 @@ import { NthPlainTextPipe } from '../nth-plain-text.pipe';
 })
 export class MathComponent implements OnInit {
 
-  // roundedNumbers: any[] = [];
-roundedNumbers: any[] = [
-    { original: 123.456, rounded: 123, roundingFactor: 10, isCorrect: true, userAnswer: 123 }
-];
-
+  roundedNumbers: any[] = [];
   correctStreak: number = 0;
   roundingFactor: number = 10; // Default rounding factor is tens
   randomNumber: string = '';
@@ -30,9 +26,9 @@ roundedNumbers: any[] = [
  columnDefs: ColDef[] = [
     { field: 'original', headerName: 'Original Number' },
     { field: 'roundingFactor', headerName: 'Rounding Factor', valueFormatter: this.getPlaceText },
-    { field: 'rounded', headerName: 'Rounded Number' },
-    { field: 'isCorrect', headerName: 'Is Correct?', cellRenderer: this.correctRenderer },
-    { field: 'userAnswer', headerName: 'User Answer' }
+    { field: 'rounded', headerName: 'Correct Answer' },
+    { field: 'userAnswer', headerName: 'User Answer' },
+    { field: 'isCorrect', headerName: 'Is Correct?', cellRenderer: this.correctRenderer }
   ];
 
   gridApi: any;
@@ -88,7 +84,8 @@ roundedNumbers: any[] = [
             roundedNumber = Math.round(parsedRandomNumber / this.roundingFactor) * this.roundingFactor;
         }
 
-        const isCorrect = userAnswer === roundedNumber;
+        const isCorrect = Number(userAnswer) === roundedNumber;
+
 
         if (isCorrect) {
             this.result = "Correct!";
