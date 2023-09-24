@@ -113,7 +113,9 @@
             <p class="display-5">{{ randomNumber | number }}</p>
             <div class="input-group mb-3" style="width: 50%">
               <input
-                type="text"
+                type="number"
+                pattern="[0-9]*"
+                inputmode="numeric"
                 class="form-control"
                 [(ngModel)]="userAnswer"
                 placeholder="Enter your answer"
