@@ -19,6 +19,18 @@ const routes: Routes = [
     loadChildren: () =>
       import('./teacher/teacher.module').then((m) => m.TeacherModule),
   },
+  {
+    path: 'sign-in',
+    loadComponent: () => import('./sign-in/sign-in.component').then((c) => c.SignInComponent),
+  },
+  {
+    path: 'sign-up',
+    loadComponent: () => import('./sign-up/sign-up.component').then((c) => c.SignUpComponent),
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./forgot-password/forgot-password.component').then((c) => c.ForgotPasswordComponent),
+  }
 ];
 
 @NgModule({
