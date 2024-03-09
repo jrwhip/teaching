@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AgGridModule } from 'ag-grid-angular';
@@ -19,7 +19,7 @@ import { NthPlainTextPipe } from '../../nth-plain-text.pipe';
   templateUrl: './math.component.html',
   styleUrls: ['./math.component.scss'],
 })
-export class MathComponent implements OnInit, AfterViewInit {
+export class MathComponent implements OnInit {
   roundedNumbers: any[] = [];
   correctStreak = 0;
   highestStreak = 0;
@@ -85,18 +85,18 @@ export class MathComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    const storedData = localStorage.getItem('roundedNumbers');
-    if (storedData) {
+onGridReady(params: any) {
+  this.gridApi = params.api;
+  this.gridColumnApi = params.columnApi;
+
+  // Load stored data once the grid is ready
+  const storedData = localStorage.getItem('roundedNumbers');
+  if (storedData) {
       this.roundedNumbers = JSON.parse(storedData);
       this.gridApi.setRowData(this.roundedNumbers);
-    }
   }
+}
 
-  onGridReady(params: any) {
-    this.gridApi = params.api;
-    this.gridColumnApi = params.columnApi;
-  }
 
   correctRenderer(params: { value: any }) {
     return params.value ? 'Correct' : 'Incorrect';
