@@ -85,18 +85,17 @@ export class MathComponent implements OnInit {
     }
   }
 
-onGridReady(params: any) {
-  this.gridApi = params.api;
-  this.gridColumnApi = params.columnApi;
+  onGridReady(params: any) {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
 
-  // Load stored data once the grid is ready
-  const storedData = localStorage.getItem('roundedNumbers');
-  if (storedData) {
+    // Load stored data once the grid is ready
+    const storedData = localStorage.getItem('roundedNumbers');
+    if (storedData) {
       this.roundedNumbers = JSON.parse(storedData);
       this.gridApi.setRowData(this.roundedNumbers);
+    }
   }
-}
-
 
   correctRenderer(params: { value: any }) {
     return params.value ? 'Correct' : 'Incorrect';

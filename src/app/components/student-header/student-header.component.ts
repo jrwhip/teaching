@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-student-dashboard-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './student-header.component.html',
   styles: ``,
 })
-export class StudentDashboardHeaderComponent {}
+export class StudentHeaderComponent {}
