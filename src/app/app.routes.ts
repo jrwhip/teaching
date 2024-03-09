@@ -6,16 +6,24 @@ export const appRoutes: Route[] = [
     loadComponent: () => import('./main-menu/main-menu.component').then(c => c.MainMenuComponent),
   },
   {
+    path: 'student',
+    loadChildren: () => import('./student/student.module').then(m => m.StudentModule),
+  },
+  {
+    path: 'teacher',
+    loadChildren: () => import('./teacher/teacher.module').then(m => m.TeacherModule),
+  },
+  {
     path: 'next-step-word-study/:sectionName',
-    loadComponent: () => import('./next-step-word-study/next-step-word-study.component').then(c => c.NextStepWordStudyComponent),
+    loadComponent: () => import('./student/next-step-word-study/next-step-word-study.component').then(c => c.NextStepWordStudyComponent),
   },
   {
     path: 'next-step-word-study',
-    loadComponent: () => import('./next-step-word-study/next-step-word-study.component').then(c => c.NextStepWordStudyComponent),
+    loadComponent: () => import('./student/next-step-word-study/next-step-word-study.component').then(c => c.NextStepWordStudyComponent),
   },
   {
     path: 'math',
-    loadComponent: () => import('./math/math.component').then(c => c.MathComponent),
+    loadComponent: () => import('./student/math/math.component').then(c => c.MathComponent),
   },
   {
     path: '**',

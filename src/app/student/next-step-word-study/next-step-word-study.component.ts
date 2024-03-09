@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { mergeMap, map, tap } from 'rxjs/operators';
 
-import { WordService } from '../word.service';
+import { WordService } from '../../word.service';
 
 import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
 import { WordListComponent } from './word-list/word-list.component';
