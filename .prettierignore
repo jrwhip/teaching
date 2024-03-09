@@ -1,6 +1,22 @@
 # Add files here to ignore them from prettier formatting
 /dist
 /coverage
-.angular
+e2e/*
+node_modules/
+dist/
+node_modules/*
+./node_modules/**
+**/node_modules/**
+**/dist
+**/coverage
+**/.vscode
+**/.github
+**/package-lock.json
+**/package.json
+tmp
+angular/cache
+src/sass/layout
+src/sass/theme
+.angular/cache/**
 
-/.nx/cache
+.angular

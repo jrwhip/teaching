@@ -5,11 +5,11 @@ import { NextStepWordStudyComponent } from './next-step-word-study.component';
 
 const routes: Routes = [
   { path: ':sectionName', component: NextStepWordStudyComponent },
-  { path: '', component: NextStepWordStudyComponent }
+  { path: '', component: NextStepWordStudyComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class NextStepWordStudyRoutingModule { }
+export class NextStepWordStudyRoutingModule {}

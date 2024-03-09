@@ -15,22 +15,25 @@ import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
   standalone: true,
   imports: [CommonModule, WordStudyMenuComponent, WordListComponent],
   templateUrl: './next-step-word-study.component.html',
-  styleUrls: ['./next-step-word-study.component.scss']
+  styleUrls: ['./next-step-word-study.component.scss'],
 })
 export class NextStepWordStudyComponent implements OnInit {
   wordGroups$!: Observable<any>;
   words!: string[];
 
-  constructor(private route: ActivatedRoute, private wordService: WordService) { }
+  constructor(
+    private route: ActivatedRoute,
+    private wordService: WordService
+  ) {}
 
   ngOnInit(): void {
     this.wordGroups$ = this.route.params.pipe(
-      tap(_ => this.words = []),
+      tap((_) => (this.words = [])),
       mergeMap(({ sectionName }) => {
         console.log('sectionName: ', sectionName);
-        return this.wordService.getAllWords().pipe(
-          map(value => (value[sectionName]))
-        );
+        return this.wordService
+          .getAllWords()
+          .pipe(map((value) => value[sectionName]));
       })
     );
   }
@@ -60,5 +63,4 @@ export class NextStepWordStudyComponent implements OnInit {
     });
     this.words = wordsArr;
   }
-
 }

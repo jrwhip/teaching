@@ -7,10 +7,10 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './word-study-menu.component.html',
-  styleUrls: ['./word-study-menu.component.scss']
+  styleUrls: ['./word-study-menu.component.scss'],
 })
 export class WordStudyMenuComponent {
   constructor() {
-  console.log('Hello from WordStudyMenuComponent');
+    console.log('Hello from WordStudyMenuComponent');
   }
 }

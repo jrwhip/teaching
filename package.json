@@ -6,7 +6,9 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "lint": "nx lint"
+    "lint": "npm run prelint && nx lint",
+    "prelint": "npm run format:write",        
+    "format:write": "nx format:write"
   },
   "private": true,
   "dependencies": {
@@ -23,6 +25,7 @@
     "ag-grid-angular": "^30.1.0",
     "ag-grid-community": "^30.1.0",
     "bootstrap": "^5.3.2",
+    "eslint-config-airbnb-typescript": "17.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "typeface-roboto": "^1.1.13",
@@ -48,8 +51,8 @@
     "@types/node": "^18.16.9",
     "@typescript-eslint/eslint-plugin": "6.13.2",
     "@typescript-eslint/parser": "6.13.2",
-    "eslint": "8.48.0",
-    "eslint-config-prettier": "9.0.0",
+    "eslint": "^8.48.0",
+    "eslint-config-prettier": "^9.1.0",
     "jest": "^29.4.1",
     "jest-environment-jsdom": "^29.4.1",
     "jest-preset-angular": "13.1.6",
