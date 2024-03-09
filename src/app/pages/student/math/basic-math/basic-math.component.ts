@@ -1,6 +1,8 @@
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-math-basics',
@@ -10,12 +12,16 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrl: './basic-math.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BasicMathComponent {
-  operation: string;
+export class BasicMathComponent implements OnInit {
+  operation = '';
 
   constructor(private route: ActivatedRoute) {
-    this.operation = this.route.snapshot.paramMap.get('operation') ?? '';
-    console.log('BasicMathComponent created');
-    console.log('Operation:', this.operation);
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
+      this.operation = params.get('operation') ?? '';
+      console.log('Operation:', this.operation);
+    });
+  }
+
+  ngOnInit(): void {
   }
 }
