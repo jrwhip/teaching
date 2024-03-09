@@ -1,14 +1,15 @@
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+
+import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 import { Observable } from 'rxjs';
-import { mergeMap, map, tap } from 'rxjs/operators';
+import { map, mergeMap, tap } from 'rxjs/operators';
 
 import { WordService } from '../../word.service';
 
-import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
 import { WordListComponent } from './word-list/word-list.component';
-import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
+import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
 
 @Component({
   selector: 'app-next-step-word-study',

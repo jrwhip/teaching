@@ -1,10 +1,10 @@
-import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { NthPlainTextPipe } from './nth-plain-text.pipe';
 import { HeaderComponent } from './components/header/header.component';
+import { NthPlainTextPipe } from './nth-plain-text.pipe';
 import { StudentDashboardHeaderComponent } from './components/student-header/student-header.component';
 
 @NgModule({

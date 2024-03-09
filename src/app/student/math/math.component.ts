@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AgGridModule } from 'ag-grid-angular';
@@ -21,13 +21,13 @@ import { NthPlainTextPipe } from '../../nth-plain-text.pipe';
 })
 export class MathComponent implements OnInit, AfterViewInit {
   roundedNumbers: any[] = [];
-  correctStreak: number = 0;
-  highestStreak: number = 0;
-  roundingFactor: number = 10;
-  randomNumber: string = '';
+  correctStreak = 0;
+  highestStreak = 0;
+  roundingFactor = 10;
+  randomNumber = '';
   userAnswer: number | null = null;
-  result: string = '';
-  resultColor: string = '';
+  result = '';
+  resultColor = '';
 
   columnDefs: ColDef[] = [
     {
@@ -61,8 +61,8 @@ export class MathComponent implements OnInit, AfterViewInit {
       field: 'dateEntered',
       headerName: 'Date Entered',
       filter: 'agDateColumnFilter',
-      valueFormatter: (params) => {
-        return params.value
+      valueFormatter: (params) =>
+        params.value
           ? new Intl.DateTimeFormat('en-US', {
               year: 'numeric',
               month: '2-digit',
@@ -70,15 +70,12 @@ export class MathComponent implements OnInit, AfterViewInit {
               hour: '2-digit',
               minute: '2-digit',
             }).format(new Date(params.value))
-          : '';
-      },
+          : '',
     },
   ];
 
   gridApi: any;
   gridColumnApi: any;
-
-  constructor() {}
 
   ngOnInit(): void {
     this.generateNewNumber();
@@ -125,7 +122,7 @@ export class MathComponent implements OnInit, AfterViewInit {
   checkAnswer(userAnswer: number | null): void {
     const parsedRandomNumber = parseFloat(this.randomNumber);
 
-    if (userAnswer !== null && !isNaN(userAnswer)) {
+    if (userAnswer !== null && !Number.isNaN(userAnswer)) {
       let roundedNumber;
 
       if (this.roundingFactor === 0.1) {
@@ -143,7 +140,7 @@ export class MathComponent implements OnInit, AfterViewInit {
       if (isCorrect) {
         this.result = 'Correct!';
         this.resultColor = 'green';
-        this.correctStreak++;
+        this.correctStreak += 1;
 
         if (this.correctStreak > this.highestStreak) {
           this.highestStreak = this.correctStreak;
@@ -153,7 +150,7 @@ export class MathComponent implements OnInit, AfterViewInit {
           );
         }
       } else {
-        this.result = 'Incorrect. The correct answer is ' + roundedNumber;
+        this.result = `Incorrect. The correct answer is ${roundedNumber}`;
         this.resultColor = 'red';
         this.correctStreak = 0;
       }
@@ -192,14 +189,16 @@ export class MathComponent implements OnInit, AfterViewInit {
     const factor = params.value;
     if (factor === 10) {
       return 'tens';
-    } else if (factor === 100) {
-      return 'hundreds';
-    } else if (factor === 0.1) {
-      return 'tenths';
-    } else if (factor === 0.01) {
-      return 'hundredths';
-    } else {
-      return 'unknown';
     }
+    if (factor === 100) {
+      return 'hundreds';
+    }
+    if (factor === 0.1) {
+      return 'tenths';
+    }
+    if (factor === 0.01) {
+      return 'hundredths';
+    }
+    return 'unknown';
   }
 }

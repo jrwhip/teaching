@@ -20,6 +20,10 @@ tsconfig.json
 **/project.json
 
 vendor/**
+**/vendor/**
+./vendor/**
+
+jest.preset.js
 
 fixtures
 coverage
