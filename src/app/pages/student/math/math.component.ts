@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -15,6 +16,7 @@ import { NthPlainTextPipe } from '../../../nth-plain-text.pipe';
     NthPlainTextPipe,
     FormsModule,
     ReactiveFormsModule,
+    RouterModule,
   ],
   templateUrl: './math.component.html',
   styleUrls: ['./math.component.scss'],
@@ -76,6 +78,10 @@ export class MathComponent implements OnInit {
 
   gridApi: any;
   gridColumnApi: any;
+
+  constructor() {
+    console.log('MathComponent created');
+  }
 
   ngOnInit(): void {
     this.generateNewNumber();
