@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-sign-in',
@@ -10,8 +10,9 @@ import { RouterModule } from '@angular/router';
   styleUrl: './sign-in.component.scss',
 })
 export class SignInComponent {
+  constructor(private router: Router) {}
   login() {
-    // ...
+    this.router.navigate(['/student', 'math']);
   }
 
   loginWithGoogle() {

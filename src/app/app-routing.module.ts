@@ -30,6 +30,10 @@ const routes: Routes = [
   {
     path: 'forgot-password',
     loadComponent: () => import('./forgot-password/forgot-password.component').then((c) => c.ForgotPasswordComponent),
+  },
+  {
+    path: 'pricing',
+    loadComponent: () => import('./pages/pricing/pricing.component').then((c) => c.PricingComponent),
   }
 ];
 
