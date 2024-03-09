@@ -6,7 +6,7 @@ import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 import { Observable } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
 
-import { WordService } from '../../word.service';
+import { WordService } from '../../../word.service';
 
 import { WordListComponent } from './word-list/word-list.component';
 import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';

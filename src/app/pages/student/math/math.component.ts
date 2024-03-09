@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AgGridModule } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 
-import { NthPlainTextPipe } from '../../nth-plain-text.pipe';
+import { NthPlainTextPipe } from '../../../nth-plain-text.pipe';
 
 @Component({
   standalone: true,
