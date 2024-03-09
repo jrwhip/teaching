@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 @Component({
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './main-menu.component.html',
-  styleUrls: ['./main-menu.component.scss'],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
 })
-export class MainMenuComponent {}
+export class HomeComponent {}

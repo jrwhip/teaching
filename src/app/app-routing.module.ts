@@ -5,8 +5,8 @@ const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./main-menu/main-menu.component').then(
-        (c) => c.MainMenuComponent
+      import('./pages/home/home.component').then(
+        (c) => c.HomeComponent
       ),
   },
   {
