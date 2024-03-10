@@ -59,70 +59,55 @@ export class MathQuestionGenerationService {
     const num2 = Math.floor(Math.random() * 50) + 5; // Generate a random number between 5 and 54
     const questionType = Math.floor(Math.random() * 15) + 1; // Randomly choose the type of problem
 
-    let question: string;
-    let answer: string;
+    const operation = questionType <= 8 ? 'n' : '';
+    let question;
+    let answer;
+    let operator;
 
-    switch (questionType) {
-      case 1:
-        question = `The sum of a number and ${num1} is ${num2}.  <br> Use n as the variable`;
-        answer = `n + ${num1} = ${num2}`;
+    switch (true) {
+      case questionType <= 4:
+        operator = '+';
         break;
-      case 2:
-        question = `${num1} more than a number is ${num2}.  <br> Use n as the variable`;
-        answer = `n + ${num1} = ${num2}`;
+      case questionType <= 8:
+        operator = '-';
         break;
-      case 3:
-        question = `Increasing a number by ${num1} gives ${num2}.  <br> Use n as the variable`;
-        answer = `n + ${num1} = ${num2}`;
-        break;
-      case 4:
-        question = `${num1} added to a number equals ${num2}.  <br> Use n as the variable`;
-        answer = `n + ${num1} = ${num2}`;
-        break;
-      case 5:
-        question = `${num1} less than a number equals ${num2}.  <br> Use n as the variable`;
-        answer = `n - ${num1} = ${num2}`;
-        break;
-      case 6:
-        question = `The difference between a number and ${num1} is ${num2}.  <br> Use n as the variable`;
-        answer = `n - ${num1} = ${num2}`;
-        break;
-      case 7:
-        question = `Subtracting ${num1} from a number leaves ${num2}.  <br> Use n as the variable`;
-        answer = `n - ${num1} = ${num2}`;
-        break;
-      case 8:
-        question = `${num1} subtracted from a number results in ${num2}.  <br> Use n as the variable`;
-        answer = `n - ${num1} = ${num2}`;
-        break;
-      case 9:
-        question = `The product of a number and ${num1} gives ${num2}.  <br> Use n as the variable`;
-        answer = `${num1}n = ${num2}`;
-        break;
-      case 10:
-        question = `${num1} times a number is ${num2}.  <br> Use n as the variable`;
-        answer = `${num1}n = ${num2}`;
-        break;
-      case 11:
-        question = `Dividing a number by ${num1} is ${num2}.  <br> Use n as the variable`;
-        answer = `n/${num1} = ${num2}`;
-        break;
-      case 12:
-        question = `When a number is divided by ${num1}, the result is ${num2}.  <br> Use n as the variable`;
-        answer = `n/${num1} = ${num2}`;
-        break;
-      case 13:
-        question = `${num1} divided by a number equals ${num2}.  <br> Use n as the variable`;
-        answer = `${num1}/n = ${num2}`;
-        break;
-      case 14:
-        question = `${num1} divided by ${num2} equals n.  <br> Use n as the variable`;
-        answer = `${num1}/${num2} = n`;
+      case questionType <= 10:
+        operator = '*';
         break;
       default:
-        question = `A number n divided by ${num1}.  <br> Use n as the variable`;
-        answer = `n / ${num1}`;
-        break;
+        operator = '/';
+    }
+
+    const rightSide = questionType === 14 ? 'n' : `${num2}`;
+    const variablePart =
+      questionType >= 9 && questionType <= 12
+        ? `${num1}n`
+        : `n ${operator} ${num1}`;
+
+    if (questionType <= 8) {
+      question = `
+        ${num1} ${questionType % 2 === 0 ? 'more than ' : ''}
+        ${operation} a number ${questionType > 4 ? 'less ' : ''}
+        equals ${num2}.
+        <br> Use n as the variable
+      `;
+      answer = `${variablePart} = ${rightSide}`;
+    } else if (questionType <= 12) {
+      question = `
+        A number ${operator === '*' ? 'times' : 'divided by'}
+        ${num1} ${questionType % 2 === 0 ? 'is' : 'gives'} ${num2}.
+        <br> Use n as the variable
+      `;
+      answer = `${variablePart} = ${rightSide}`;
+    } else if (questionType === 13) {
+      question = `${num1} divided by a number equals ${num2}. <br> Use n as the variable`;
+      answer = `${num1}/n = ${num2}`;
+    } else if (questionType === 14) {
+      question = `${num1} divided by ${num2} equals n. <br> Use n as the variable`;
+      answer = `${num1} / ${num2} = n`;
+    } else {
+      question = `A number n divided by ${num1}. <br> Use n as the variable`;
+      answer = `n / ${num1}`;
     }
 
     return {
