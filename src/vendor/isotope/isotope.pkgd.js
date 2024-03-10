@@ -1,11 +1,11 @@
 /*!
- * Isotope PACKAGED v3.0.6
+ * Isotope PACKAGED v3.0.5
  *
  * Licensed GPLv3 for open source use
  * or Isotope Commercial License for commercial use
  *
  * https://isotope.metafizzy.co
- * Copyright 2010-2018 Metafizzy
+ * Copyright 2017 Metafizzy
  */
 
 /**
@@ -266,19 +266,22 @@ return EvEmitter;
 }));
 
 /*!
- * getSize v2.0.3
+ * getSize v2.0.2
  * measure size of elements
  * MIT license
  */
 
-/* jshint browser: true, strict: true, undef: true, unused: true */
-/* globals console: false */
+/*jshint browser: true, strict: true, undef: true, unused: true */
+/*global define: false, module: false, console: false */
 
 ( function( window, factory ) {
-  /* jshint strict: false */ /* globals define, module */
+  'use strict';
+
   if ( typeof define == 'function' && define.amd ) {
     // AMD
-    define( 'get-size/get-size',factory );
+    define( 'get-size/get-size',[],function() {
+      return factory();
+    });
   } else if ( typeof module == 'object' && module.exports ) {
     // CommonJS
     module.exports = factory();
@@ -353,7 +356,7 @@ function getStyle( elem ) {
   if ( !style ) {
     logError( 'Style returned ' + style +
       '. Are you running this code in a hidden iframe on Firefox? ' +
-      'See https://bit.ly/getsizebug1' );
+      'See http://bit.ly/getsizebug1' );
   }
   return style;
 }
@@ -379,8 +382,8 @@ function setup() {
   // -------------------------- box sizing -------------------------- //
 
   /**
-   * Chrome & Safari measure the outer-width on style.width on border-box elems
-   * IE11 & Firefox<29 measures the inner-width
+   * WebKit measures the outer-width on style.width on border-box elems
+   * IE & Firefox<29 measures the inner-width
    */
   var div = document.createElement('div');
   div.style.width = '200px';
@@ -392,11 +395,10 @@ function setup() {
   var body = document.body || document.documentElement;
   body.appendChild( div );
   var style = getStyle( div );
-  // round value for browser zoom. desandro/masonry#928
-  isBoxSizeOuter = Math.round( getStyleSize( style.width ) ) == 200;
-  getSize.isBoxSizeOuter = isBoxSizeOuter;
 
+  getSize.isBoxSizeOuter = isBoxSizeOuter = getStyleSize( style.width ) == 200;
   body.removeChild( div );
+
 }
 
 // -------------------------- getSize -------------------------- //
@@ -528,7 +530,7 @@ return getSize;
 }));
 
 /**
- * Fizzy UI utils v2.0.7
+ * Fizzy UI utils v2.0.5
  * MIT license
  */
 
@@ -583,27 +585,23 @@ utils.modulo = function( num, div ) {
 
 // ----- makeArray ----- //
 
-var arraySlice = Array.prototype.slice;
-
 // turn element or nodeList into an array
 utils.makeArray = function( obj ) {
+  var ary = [];
   if ( Array.isArray( obj ) ) {
     // use object if already an array
-    return obj;
-  }
-  // return empty array if undefined or null. #6
-  if ( obj === null || obj === undefined ) {
-    return [];
-  }
-
-  var isArrayLike = typeof obj == 'object' && typeof obj.length == 'number';
-  if ( isArrayLike ) {
+    ary = obj;
+  } else if ( obj && typeof obj == 'object' &&
+    typeof obj.length == 'number' ) {
     // convert nodeList to array
-    return arraySlice.call( obj );
+    for ( var i=0; i < obj.length; i++ ) {
+      ary.push( obj[i] );
+    }
+  } else {
+    // array of single index
+    ary.push( obj );
   }
-
-  // array of single index
-  return [ obj ];
+  return ary;
 };
 
 // ----- removeFrom ----- //
@@ -682,21 +680,22 @@ utils.filterFindElements = function( elems, selector ) {
 // ----- debounceMethod ----- //
 
 utils.debounceMethod = function( _class, methodName, threshold ) {
-  threshold = threshold || 100;
   // original method
   var method = _class.prototype[ methodName ];
   var timeoutName = methodName + 'Timeout';
 
   _class.prototype[ methodName ] = function() {
     var timeout = this[ timeoutName ];
-    clearTimeout( timeout );
-
+    if ( timeout ) {
+      clearTimeout( timeout );
+    }
     var args = arguments;
+
     var _this = this;
     this[ timeoutName ] = setTimeout( function() {
       method.apply( _this, args );
       delete _this[ timeoutName ];
-    }, threshold );
+    }, threshold || 100 );
   };
 };
 
@@ -904,16 +903,13 @@ proto.getPosition = function() {
   var isOriginTop = this.layout._getOption('originTop');
   var xValue = style[ isOriginLeft ? 'left' : 'right' ];
   var yValue = style[ isOriginTop ? 'top' : 'bottom' ];
-  var x = parseFloat( xValue );
-  var y = parseFloat( yValue );
   // convert percent to pixels
   var layoutSize = this.layout.size;
-  if ( xValue.indexOf('%') != -1 ) {
-    x = ( x / 100 ) * layoutSize.width;
-  }
-  if ( yValue.indexOf('%') != -1 ) {
-    y = ( y / 100 ) * layoutSize.height;
-  }
+  var x = xValue.indexOf('%') != -1 ?
+    ( parseFloat( xValue ) / 100 ) * layoutSize.width : parseInt( xValue, 10 );
+  var y = yValue.indexOf('%') != -1 ?
+    ( parseFloat( yValue ) / 100 ) * layoutSize.height : parseInt( yValue, 10 );
+
   // clean up 'auto' or other non-integer values
   x = isNaN( x ) ? 0 : x;
   y = isNaN( y ) ? 0 : y;
@@ -976,7 +972,9 @@ proto._transitionTo = function( x, y ) {
   var curX = this.position.x;
   var curY = this.position.y;
 
-  var didNotMove = x == this.position.x && y == this.position.y;
+  var compareX = parseInt( x, 10 );
+  var compareY = parseInt( y, 10 );
+  var didNotMove = compareX === this.position.x && compareY === this.position.y;
 
   // save end position
   this.setPosition( x, y );
@@ -1019,8 +1017,8 @@ proto.goTo = function( x, y ) {
 proto.moveTo = proto._transitionTo;
 
 proto.setPosition = function( x, y ) {
-  this.position.x = parseFloat( x );
-  this.position.y = parseFloat( y );
+  this.position.x = parseInt( x, 10 );
+  this.position.y = parseInt( y, 10 );
 };
 
 // ----- transition ----- //
@@ -1325,7 +1323,7 @@ return Item;
 }));
 
 /*!
- * Outlayer v2.1.1
+ * Outlayer v1.0.0
  * the brains and guts of a layout library
  * MIT license
  */
@@ -2940,13 +2938,13 @@ return Vertical;
 }));
 
 /*!
- * Isotope v3.0.6
+ * Isotope v3.0.5
  *
  * Licensed GPLv3 for open source use
  * or Isotope Commercial License for commercial use
  *
  * https://isotope.metafizzy.co
- * Copyright 2010-2018 Metafizzy
+ * Copyright 2017 Metafizzy
  */
 
 ( function( window, factory ) {

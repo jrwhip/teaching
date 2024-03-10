@@ -87,6 +87,39 @@ $theme-colors: (
 );
 // scss-docs-end theme-colors-map
 
+// scss-docs-start theme-text-variables
+$primary-text-emphasis:   shade-color($primary, 30%);
+$secondary-text-emphasis: shade-color($secondary, 30%);
+$success-text-emphasis:   shade-color($success, 30%);
+$info-text-emphasis:      shade-color($info, 30%);
+$warning-text-emphasis:   shade-color($warning, 30%);
+$danger-text-emphasis:    shade-color($danger, 30%);
+$light-text-emphasis:     $gray-700;
+$dark-text-emphasis:      shade-color($dark, 30%);
+// scss-docs-end theme-text-variables
+
+// scss-docs-start theme-bg-subtle-variables
+$primary-bg-subtle:       tint-color($primary, 80%);
+$secondary-bg-subtle:     tint-color($secondary, 80%);
+$success-bg-subtle:       tint-color($success, 80%);
+$info-bg-subtle:          tint-color($info, 80%);
+$warning-bg-subtle:       tint-color($warning, 80%);
+$danger-bg-subtle:        tint-color($danger, 80%);
+$light-bg-subtle:         mix($gray-100, $white);
+$dark-bg-subtle:          tint-color($dark, 80%);
+// scss-docs-end theme-bg-subtle-variables
+
+// scss-docs-start theme-border-subtle-variables
+$primary-border-subtle:   tint-color($primary, 60%);
+$secondary-border-subtle: tint-color($secondary, 60%);
+$success-border-subtle:   tint-color($success, 60%);
+$info-border-subtle:      tint-color($info, 60%);
+$warning-border-subtle:   tint-color($warning, 60%);
+$danger-border-subtle:    tint-color($danger, 60%);
+$light-border-subtle:     $gray-200;
+$dark-border-subtle:      tint-color($dark, 60%);
+// scss-docs-end theme-border-subtle-variables
+
 // scss-docs-start theme-colors-rgb
 $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
 
@@ -126,6 +159,16 @@ $spacers: (
 
 $body-bg:                   $white;
 $body-color:                $gray-600;
+
+$body-emphasis-color:       $black;
+
+$body-secondary-color:      $gray-400;
+$body-secondary-bg:         $gray-200;
+
+$body-tertiary-color:       rgba($body-color, .5);
+$body-tertiary-bg:          $gray-100;
+
+$emphasis-color:            $black;
 
 // scss-docs-start utilities-colors
 $utilities-colors: $theme-colors-rgb;
@@ -173,7 +216,7 @@ $container-padding-x:         $grid-gutter-width;
 // Components
 $border-style:              solid;
 $border-width:              1px;
-$border-color:              var(--#{$prefix}gray-200);
+$border-color:              var(--#{$prefix}gray-300);
 $border-color-translucent:  rgba($black, .175);
 
 $border-radius:             .325rem;
@@ -258,7 +301,7 @@ $lead-font-weight:            $font-weight-light;
 
 $small-font-size:             .875em;
 
-$text-muted:                  rgba(var(--#{$prefix}white-rgb), .75);
+// $text-muted:                  rgba(var(--#{$prefix}white-rgb), .75);
 
 $hr-color:                    var(--#{$prefix}gray-500);
 
@@ -324,6 +367,7 @@ $btn-border-radius-lg:        $border-radius-lg;
 $btn-transition:              $transition-base;
 
 // Forms
+$form-text-color:                       var(--#{$prefix}secondary);
 
 $input-padding-y:                       $input-btn-padding-y;
 $input-padding-x:                       $input-btn-padding-x;
@@ -442,6 +486,8 @@ $navbar-nav-link-font-size:         $font-size-base;
 $navbar-nav-link-font-weight:       $font-weight-normal;
 $navbar-nav-link-text-transform:    capitalize;
 
+$navbar-brand-font-size:            0;
+
 $navbar-brand-height:               36px; //Logo height
 $navbar-brand-padding-y:            30px;
 $nav-link-line-height:              $navbar-brand-padding-y * 2 + $navbar-brand-height;
@@ -555,7 +601,9 @@ $pagination-disabled-bg:            var(--#{$prefix}white);
 $pagination-disabled-border-color:  var(--#{$prefix}gray-300);
 
 // table  
+$table-bg:                    				transparent;
 
+$table-color:                 			 var(--#{$prefix}body-color);
 $table-group-separator-color:        var(--#{$prefix}gray-500);
 $table-hover-bg:                     rgba($dark, $table-hover-bg-factor);
 $table-cell-padding-y:               1rem;

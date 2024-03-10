@@ -10,7 +10,10 @@
 .table.table-dark-gray {
   thead{
   background-color: var(--#{$prefix}dark) !important;
-  color: var(--#{$prefix}white);
+  color: var(--#{$prefix}white) !important;
+    th{
+      color: var(--#{$prefix}white) !important;
+    }
   }
   tbody{
     border-top: none;
