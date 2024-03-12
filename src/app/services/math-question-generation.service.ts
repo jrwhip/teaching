@@ -9,17 +9,51 @@ export class MathQuestionGenerationService {
   generateAdditionQuestion(): MathQuestion {
     const decimalPlacesNum1 = Math.floor(Math.random() * 4);
     const decimalPlacesNum2 = Math.floor(Math.random() * 4);
-    const num1 = (Math.random() * (900 - 0.003) + 0.003).toFixed(
+    let num1 = (Math.random() * (900 - 0.003) + 0.003).toFixed(
       decimalPlacesNum1
     );
-    const num2 = (Math.random() * (90 - 0.003) + 0.003).toFixed(
+    let num2 = (Math.random() * (90 - 0.003) + 0.003).toFixed(
       decimalPlacesNum2
     );
     const answer = parseFloat((parseFloat(num1) + parseFloat(num2)).toFixed(3));
 
+    // Ensure both numbers have a decimal point for consistent processing
+    num1 += num1.includes('.') ? '' : '.';
+    num2 += num2.includes('.') ? '' : '.';
+
+    // Calculate the sum and format it
+    const sum = parseFloat((parseFloat(num1) + parseFloat(num2)).toFixed(3));
+
+    // Create a visual representation of the addition, aligning the decimal points
+    const maxDecimalPlaces = Math.max(decimalPlacesNum1, decimalPlacesNum2);
+    const num1Padded = num1.padEnd(
+      num1.indexOf('.') + 1 + maxDecimalPlaces,
+      '0'
+    );
+    const num2Padded = num2.padEnd(
+      num2.indexOf('.') + 1 + maxDecimalPlaces,
+      '0'
+    );
+
+    const spacesBeforeSum = ' '.repeat(
+      Math.max(num1Padded.length, num2Padded.length) - sum.toString().length
+    );
+
+    const hint = `
+    Let's add them step by step: <br>
+    1. Write the numbers vertically, aligning the decimal points:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;${num1Padded}<br>
+    + &nbsp;&nbsp;${num2Padded}<br>
+    -----------------<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;${spacesBeforeSum}${sum}<br>
+    2. If a column's total is 10 or more, carry over to the next column.<br>
+    3. Write down the sum with the decimal point aligned.
+    `;
+
     return {
       question: `${num1} + ${num2}`,
       answer: answer.toString(),
+      hint: [hint],
     };
   }
 
@@ -40,6 +74,7 @@ export class MathQuestionGenerationService {
     return {
       question: `${larger} - ${smaller}`,
       answer: (larger - smaller).toFixed(3),
+      hint: [], // Add the 'hint' property with an empty array value
     };
   }
 
@@ -51,6 +86,19 @@ export class MathQuestionGenerationService {
     return {
       question: `${num1} × ${num2}`,
       answer: answer.toString(),
+      hint: [], // Add the 'hint' property with an empty array value
+    };
+  }
+
+  generateDivisionQuestion(): MathQuestion {
+    const num1 = Math.floor(Math.random() * 80) + 15;
+    const num2 = Math.floor(Math.random() * 80) + 15;
+    const answer = (num1 / num2).toFixed(2);
+
+    return {
+      question: `${num1} ÷ ${num2}`,
+      answer,
+      hint: [], // Add the 'hint' property with an empty array value
     };
   }
 
@@ -113,6 +161,7 @@ export class MathQuestionGenerationService {
     return {
       question,
       answer,
+      hint: [], // Add the 'hint' property with an empty array value
     };
   }
 }

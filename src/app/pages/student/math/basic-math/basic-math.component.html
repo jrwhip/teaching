@@ -105,6 +105,11 @@ Counter START -->
   <!-- =======================
 Counter END -->
 
+  <section>
+    <h1>Hey HEY</h1>
+    {{ questionSignal() | json }}
+  </section>
+
   <!-- =======================
 Form and Tabs START -->
   <section>
@@ -127,54 +132,7 @@ Form and Tabs START -->
             </svg>
           </figure>
 
-          <div class="card card-body shadow p-4">
-            <!-- Label -->
-            <div class="col-lg-6">
-              <label class="form-label">Question:</label>
-            </div>
-            <!-- Question -->
-            <h3>544 ÷ 17 389.53</h3>
-            <h3>Round your answer to the nearest hundredth</h3>
-            <!-- Form START -->
-            <form class="row g-3 mt-2 position-relative z-index-9">
-              <!-- Number -->
-              <div class="col-lg-12">
-                <label class="form-label">Answer:</label>
-                <div class="input-group mb-3">
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Your Answer"
-                    aria-label="Recipient's username"
-                    aria-describedby="button-addon2"
-                  />
-                  <button
-                    class="btn btn-outline-primary"
-                    type="button"
-                    id="button-addon2"
-                  >
-                    Check Answer
-                  </button>
-                </div>
-              </div>
-              <!-- Textarea -->
-              <div class="col-12">
-                <label class="form-label">Ask For Help:</label>
-                <textarea
-                  class="form-control"
-                  rows="3"
-                  spellcheck="false"
-                ></textarea>
-              </div>
-              <!-- Button -->
-              <div class="col-12">
-                <button type="submit" class="btn btn-primary mb-0">
-                  Submit form
-                </button>
-              </div>
-            </form>
-            <!-- Form END -->
-          </div>
+          <app-question-form></app-question-form>
         </div>
         <!-- Left Content END -->
 
@@ -197,11 +155,9 @@ Form and Tabs START -->
 
           <!-- Title -->
           <h2 class="h1">
-            <span class="position-relative z-index-9"
-              >Achieve Your Goals With</span
-            >
-            <span class="position-relative z-index-1"
-              >Eduport
+            <span class="position-relative z-index-9"> Video </span>
+            <span class="position-relative z-index-1">
+              Tutorials
               <!-- SVG START -->
               <span
                 class="position-absolute top-50 start-50 translate-middle z-index-n1 d-none d-sm-block"
