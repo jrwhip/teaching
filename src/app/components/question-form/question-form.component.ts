@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, computed, effect, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, effect, input, signal, untracked } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MathQuestion } from 'src/app/models/math-question.model';
@@ -41,11 +41,11 @@ export class QuestionFormComponent {
     // Normalize the answers if they are strings
     let normalizedStudentAnswer = studentAnswer;
     if (typeof studentAnswer === 'string') {
-      normalizedStudentAnswer = studentAnswer.trim().toLowerCase();
+      normalizedStudentAnswer = Number(studentAnswer.trim().toLowerCase());
     }
     let normalizedCorrectAnswer = correctAnswer;
     if (typeof correctAnswer === 'string') {
-      normalizedCorrectAnswer = correctAnswer.trim().toLowerCase();
+      normalizedCorrectAnswer = Number(correctAnswer.trim().toLowerCase());
     }
 
     if (normalizedStudentAnswer === normalizedCorrectAnswer) {
