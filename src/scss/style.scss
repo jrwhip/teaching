@@ -1,7 +1,7 @@
 // Bootstrap variables
-@import "../vendor/bootstrap/scss/functions";
-@import "../vendor/bootstrap/scss/variables";
-@import "../vendor/bootstrap/scss/variables-dark";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
 
 // Theme variables
 @import "variables";
@@ -11,11 +11,11 @@
 @import "user-variables";
 
 // Bootstrap core
-@import "../vendor/bootstrap/scss/bootstrap";
+@import "bootstrap/scss/bootstrap";
 
 // Extended bootstrap utilities
 @import "custom/utilities";
-@import "../vendor/bootstrap/scss/utilities/api";
+@import "bootstrap/scss/utilities/api";
 
 // Extended bootstrap components
 @import "custom/accordion";

@@ -6,3 +6,21 @@
 
 @import "~ag-grid-community/styles/ag-grid.css";
 @import "~ag-grid-community/styles/ag-theme-alpine.css";
+
+.bg-orange {
+  // --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-orange-rgb), 0.1) !important;
+}
+
+.text-orange {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-orange-rgb), var(--bs-text-opacity)) !important;
+}
+
+.mt-n4 {
+    margin-top: -1.6rem !important;
+}
+
+.mb-n4 {
+    margin-bottom: -1.6rem !important;
+}
