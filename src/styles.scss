@@ -17,10 +17,18 @@
   color: rgba(var(--bs-orange-rgb), var(--bs-text-opacity)) !important;
 }
 
+.mt-n3 {
+    margin-top: -1rem !important;
+}
+
 .mt-n4 {
     margin-top: -1.6rem !important;
 }
 
 .mb-n4 {
     margin-bottom: -1.6rem !important;
+}
+
+.start-70 {
+  left: 70% !important;
 }
