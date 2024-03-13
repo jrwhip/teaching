@@ -4,7 +4,7 @@
     <label class="form-label">Question:</label>
   </div>
   <!-- Question -->
-  <h3>{{ question().question }}</h3>
+  <h3 class="p-2" [ngClass]="{ 'bg-success text-light': correct(), 'bg-danger text-light': incorrect() }">{{ question().question }}</h3>
   <!-- Form START -->
   <form [formGroup]="questionForm" class="row g-3 mt-2 position-relative z-index-9">
       <!-- Number -->
