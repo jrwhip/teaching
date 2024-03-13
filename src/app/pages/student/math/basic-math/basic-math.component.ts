@@ -18,6 +18,8 @@ import { QuestionFormComponent } from 'src/app/components/question-form/question
 
 import { CounterComponent } from 'src/app/components/counter/counter.component';
 
+import { CounterValues } from 'src/app/models/counter-values.model';
+
 @Component({
   selector: 'app-math-basics',
   standalone: true,
@@ -30,7 +32,7 @@ export class BasicMathComponent implements OnInit {
   operation = '';
   htmlContent: SafeResourceUrl;
   questionSignal: Signal<MathQuestion>;
-  counterValues = { correct: 0, incorrect: 0 };
+  counterValues: CounterValues;
 
   constructor(
     private route: ActivatedRoute,
@@ -41,7 +43,15 @@ export class BasicMathComponent implements OnInit {
       this.operation = params.get('operation') ?? '';
       console.log('Operation:', this.operation);
     });
-    const mathQuestion = this.generateQuestion()
+    const mathQuestion = this.generateQuestion();
+
+    this.counterValues = {
+      label: this.operation,
+      correct: 0,
+      incorrect: 30,
+      streak: 1,
+      highStreak: 49,
+    };
 
     this.questionSignal = signal<MathQuestion>(mathQuestion);
 

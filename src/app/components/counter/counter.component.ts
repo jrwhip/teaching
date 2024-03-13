@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
+import { CounterValues } from 'src/app/models/counter-values.model';
+
 @Component({
   selector: 'app-counter',
   standalone: true,
@@ -10,5 +12,5 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CounterComponent {
-  @Input() counterValues = { correct: 0, incorrect: 0};
+  @Input() counterValues!: CounterValues;
 }
