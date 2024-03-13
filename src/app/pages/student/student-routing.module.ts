@@ -12,15 +12,15 @@ const routes: Routes = [
         path: 'math',
         loadComponent: () =>
           import('./math/math.component').then((c) => c.MathComponent),
-          children: [
-            {
-              path: 'basic-math/:operation',
-              loadComponent: () =>
-                import('./math/basic-math/basic-math.component').then(
-                  (c) => c.BasicMathComponent
-                ),
-            }
-          ]
+        children: [
+          {
+            path: 'basic-math/:operation',
+            loadComponent: () =>
+              import('./math/basic-math/basic-math.component').then(
+                (c) => c.BasicMathComponent
+              ),
+          },
+        ],
       },
     ],
   },

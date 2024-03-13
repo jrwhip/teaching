@@ -42,6 +42,9 @@ export class BasicMathComponent implements OnInit {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
       this.operation = params.get('operation') ?? '';
       console.log('Operation:', this.operation);
+      if (this.questionSignal) {
+        this.questionSignal.set(this.generateQuestion());
+      }
     });
     const mathQuestion = this.generateQuestion();
 
@@ -54,8 +57,6 @@ export class BasicMathComponent implements OnInit {
     };
 
     this.questionSignal = signal<MathQuestion>(mathQuestion);
-
-
 
     const rawHtml = `
       <!DOCTYPE html>
