@@ -16,10 +16,12 @@ import { MathQuestion } from 'src/app/models/math-question.model';
 
 import { QuestionFormComponent } from 'src/app/components/question-form/question-form.component';
 
+import { CounterComponent } from 'src/app/components/counter/counter.component';
+
 @Component({
   selector: 'app-math-basics',
   standalone: true,
-  imports: [CommonModule, QuestionFormComponent],
+  imports: [CommonModule, CounterComponent, QuestionFormComponent],
   templateUrl: './basic-math.component.html',
   styleUrl: './basic-math.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,6 +30,7 @@ export class BasicMathComponent implements OnInit {
   operation = '';
   htmlContent: SafeResourceUrl;
   questionSignal: Signal<MathQuestion>;
+  counterValues = { correct: 0, incorrect: 0 };
 
   constructor(
     private route: ActivatedRoute,
@@ -41,6 +44,7 @@ export class BasicMathComponent implements OnInit {
     const mathQuestion = this.generateQuestion()
 
     this.questionSignal = signal<MathQuestion>(mathQuestion);
+
 
     const rawHtml = `
       <!DOCTYPE html>
