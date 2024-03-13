@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -5,7 +6,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
-  Signal,
   signal,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -31,7 +31,7 @@ import { CounterValues } from 'src/app/models/counter-values.model';
 export class BasicMathComponent implements OnInit {
   operation = '';
   htmlContent: SafeResourceUrl;
-  questionSignal: Signal<MathQuestion>;
+  questionSignal: ReturnType<typeof signal<MathQuestion>>;
   counterValues: CounterValues;
 
   constructor(
@@ -54,6 +54,7 @@ export class BasicMathComponent implements OnInit {
     };
 
     this.questionSignal = signal<MathQuestion>(mathQuestion);
+
 
 
     const rawHtml = `
@@ -120,10 +121,19 @@ export class BasicMathComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('Operation:', this.operation);
-    const mathQuestion =
-      this.mathQuestionGenerationService.generateAdditionQuestion();
-    console.log('Math Question:', mathQuestion);
-    this.generateQuestion();
+  }
+
+  onAnsweredCorrectly(answeredCorrectly: boolean) {
+    console.log('Answered correctly:', answeredCorrectly);
+    if (answeredCorrectly) {
+      const newQuestion = this.generateQuestion();
+      this.questionSignal.set(newQuestion);
+      this.counterValues.correct++;
+      this.counterValues.streak++;
+      if (this.counterValues.streak > this.counterValues.highStreak) {
+        this.counterValues.highStreak = this.counterValues.streak;
+      }
+    }
   }
 
   generateQuestion(): MathQuestion {

@@ -18,14 +18,16 @@
             aria-label="Recipient's username"
             aria-describedby="button-addon2"
             formControlName="answer"
+            [ngClass]="{ 'is-valid': correct(), 'is-invalid': incorrect() }"
           />
           <button
-            class="btn btn-outline-primary"
+            class="btn"
+            [ngClass]="{ 'btn-success': correct(), 'btn-danger': incorrect(), 'btn-outline-primary': !correct() && !incorrect() }"
             type="button"
             id="button-addon2"
             (click)="checkAnswer(questionForm.value.answer, question().answer)"
           >
-            Check Answer
+            {{ correct() ? 'Correct' : incorrect() ? 'Try Again' : 'Check' }}
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, computed, effect, input, signal, untracked } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MathQuestion } from 'src/app/models/math-question.model';
@@ -13,10 +13,21 @@ import { MathQuestion } from 'src/app/models/math-question.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionFormComponent {
+  @Output() answeredCorrectly = new EventEmitter<boolean>();
   question = input.required<MathQuestion>();
   hint = signal<string>('');
+  correct = signal<boolean>(false);
+  incorrect = signal<boolean>(false);
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder) {
+    effect(() => {
+      console.log(`The answer is: ${this.question().answer}`);
+      untracked(() => {
+        this.correct.set(false);
+        this.questionForm.reset();
+      })
+    });
+  }
 
   questionForm = this.fb.group({
     answer: ['', Validators.required],
@@ -24,6 +35,9 @@ export class QuestionFormComponent {
   });
 
   checkAnswer(studentAnswer: string | number | null | undefined, correctAnswer: string | number | null | undefined) {
+    this.correct.set(false);
+    this.incorrect.set(false);
+    this.hint.set('');
     // Normalize the answers if they are strings
     let normalizedStudentAnswer = studentAnswer;
     if (typeof studentAnswer === 'string') {
@@ -35,10 +49,14 @@ export class QuestionFormComponent {
     }
 
     if (normalizedStudentAnswer === normalizedCorrectAnswer) {
-      alert('Correctness!');
+      this.correct.set(true);
+      setTimeout(() => {
+        this.answeredCorrectly.emit(true);
+      }, 2000); // delay for 2 seconds
     } else {
       this.hint.set(this.question().hint[0]);
-      alert('Try again');
+      this.incorrect.set(true);
+      this.answeredCorrectly.emit(false);
     }
   }
 }
