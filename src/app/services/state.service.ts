@@ -8,7 +8,7 @@ import {
   scan,
 } from 'rxjs/operators';
 
-import { CurrentUser, State } from '../models/state.model';
+import { CurrentUser, State, StoredMathQuestions } from '../models/state.model';
 
 // Initial state for the application
 const initialState = new State();
@@ -74,6 +74,19 @@ export class StateService {
     return this.stateSubject$.pipe(
       distinctUntilKeyChanged('currentUser'),
       map((state) => state.currentUser)
+    );
+  }
+
+  /**
+   * Observable getter for the current stored math questions.
+   * @returns Observable<StoredmathQuestions | null> - Observable that emits the current stored math questions.
+   * @example
+   * this.stateService.storedMathQuestions$.subscribe(storedMathQuestions => console.log(storedMathQuestions));
+   */
+  get storedMathQuestions$(): Observable<StoredMathQuestions | null> {
+    return this.stateSubject$.pipe(
+      distinctUntilKeyChanged('storedMathQuestions'),
+      map((state) => state.storedMathQuestions)
     );
   }
 

@@ -1,3 +1,5 @@
+/* eslint-disable arrow-body-style */
+/* eslint-disable no-debugger */
 /* eslint-disable no-plusplus */
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -50,47 +52,22 @@ export class BasicMathComponent implements OnInit {
     private stateService: StateService,
     private fooService: FooService
   ) {
-    const foo$ = this.stateService.selectKey('storedMathQuestions').pipe(
+    const foo$ = this.stateService.storedMathQuestions$.pipe(
       takeUntilDestroyed(),
-      switchMap((res) => {
-        const storedMathQuestions = res as StoredMathQuestions;
-
+      switchMap((storedMathQuestions) => {
         return this.route.paramMap.pipe(
-          map((params) => {
+          switchMap((params) => {
             const currentOperation = params.get('operation') ?? '';
-            console.log('Current operation:', currentOperation);
-            console.log('Stored math questions:', storedMathQuestions);
-            if (storedMathQuestions) {
-              console.log('Stored first if:', storedMathQuestions);
-              if (storedMathQuestions[currentOperation]) {
-                console.log('Stored second if:', storedMathQuestions);
-                return storedMathQuestions[currentOperation];
-              }
-            } else {
-              console.log('No stored math questions');
-              const mathQuestion = this.generateQuestion(currentOperation);
-
-              this.stateService.patchState({
-                storedMathQuestions: {
-                  [currentOperation]: {
-                    ...mathQuestion,
-                  },
-                },
-              });
-              console.log('No stored math questions');
-              return this.generateQuestion(currentOperation);
+            if (storedMathQuestions && storedMathQuestions[currentOperation]) {
+              return of(storedMathQuestions[currentOperation]);
             }
-            return this.generateQuestion(currentOperation);
+            return this.fooService.setNewMathQuestion(currentOperation);
           })
         );
       })
     );
 
     this.questionSignal = toSignal(foo$);
-
-    this.operation = 'addition';
-
-    const mathQuestion = this.generateQuestion('addition');
 
     this.counterValues = {
       label: this.operation,
@@ -171,11 +148,13 @@ export class BasicMathComponent implements OnInit {
   }
 
   onAnsweredCorrectly(answeredCorrectly: boolean) {
-    console.log('Answered correctly:', answeredCorrectly);
+    debugger;
     if (answeredCorrectly) {
       const newQuestion = this.generateQuestion('addition');
-      this.fooService.setNewMathQuestion('addition', newQuestion).subscribe();
-      // this.questionSignal.set(newQuestion);
+      // this.fooService.setNewMathQuestion('addition', newQuestion).subscribe(val => {
+      //   console.log('val:', val);
+      //   debugger;
+      // });
 
       this.counterValues.correct++;
       this.counterValues.streak++;
