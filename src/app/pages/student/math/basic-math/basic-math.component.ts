@@ -1,7 +1,8 @@
 /* eslint-disable no-plusplus */
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,7 +22,9 @@ import { CounterComponent } from 'src/app/components/counter/counter.component';
 import { CounterValues } from 'src/app/models/counter-values.model';
 
 import { StateService } from 'src/app/services/state.service';
-import { of, switchMap, tap } from 'rxjs';
+import { map, of, switchMap, tap } from 'rxjs';
+
+import { StoredMathQuestions } from 'src/app/models/stored-math-questions.model';
 
 @Component({
   selector: 'app-math-basics',
@@ -34,7 +37,8 @@ import { of, switchMap, tap } from 'rxjs';
 export class BasicMathComponent implements OnInit {
   operation = '';
   htmlContent: SafeResourceUrl;
-  questionSignal: ReturnType<typeof signal<MathQuestion>>;
+  // questionSignal: ReturnType<typeof signal<MathQuestion>>;
+  questionSignal: any;
   counterValues: CounterValues;
 
   constructor(
@@ -43,41 +47,45 @@ export class BasicMathComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private stateService: StateService
   ) {
-    this.stateService
+    const foo$ = this.stateService
       .selectKey('storedMathQuestions')
       .pipe(
         takeUntilDestroyed(),
-        switchMap((storedMathQuestions) =>
-          this.route.paramMap.pipe(
-            tap((params) => {
+        switchMap((res) => {
+          const storedMathQuestions = res as StoredMathQuestions;
+
+          return this.route.paramMap.pipe(
+            map((params) => {
               const currentOperation = params.get('operation') ?? '';
               console.log('Current operation:', currentOperation);
               if (storedMathQuestions) {
-                console.log('Failed', storedMathQuestions);
-              }
-              if (storedMathQuestions === null) {
-                // console.log('FAILED', storedMathQuestions[currentOperation]);
-                console.log('No stored math questions');
-                this.operation = currentOperation;
-                const mathQuestion = this.generateQuestion();
-                console.log('Generated math question:', mathQuestion);
-                this.stateService.patchState({
-                  storedMathQuestions: {
-                    [currentOperation]: {
-                      ...mathQuestion,
+                if (storedMathQuestions[currentOperation]) {
+                  return storedMathQuestions[currentOperation];
+                  // You were missing the closing bracket for this if statement
+                } 
+                  const mathQuestion = this.generateQuestion(currentOperation);
+
+                  this.stateService.patchState({
+                    storedMathQuestions: {
+                      [currentOperation]: {
+                        ...mathQuestion,
+                      },
                     },
-                  },
-                });
-              } else {
-                console.log('Stored math questions:', storedMathQuestions);
+                  });
+                  console.log('No stored math questions');
+                
               }
+              return this.generateQuestion(currentOperation);
             })
           )
-        )
-      )
-      .subscribe();
+        })
+      );
 
-    const mathQuestion = this.generateQuestion();
+    this.questionSignal = toSignal(foo$);
+    
+    this.operation = 'addition';
+
+    const mathQuestion = this.generateQuestion('addition');
 
     this.counterValues = {
       label: this.operation,
@@ -87,7 +95,7 @@ export class BasicMathComponent implements OnInit {
       highStreak: 49,
     };
 
-    this.questionSignal = signal<MathQuestion>(mathQuestion);
+    // this.questionSignal = signal<MathQuestion>(mathQuestion);
 
     const rawHtml = `
       <!DOCTYPE html>
@@ -160,8 +168,8 @@ export class BasicMathComponent implements OnInit {
   onAnsweredCorrectly(answeredCorrectly: boolean) {
     console.log('Answered correctly:', answeredCorrectly);
     if (answeredCorrectly) {
-      const newQuestion = this.generateQuestion();
-      this.questionSignal.set(newQuestion);
+      const newQuestion = this.generateQuestion('addition');
+      // this.questionSignal.set(newQuestion);
       this.counterValues.correct++;
       this.counterValues.streak++;
       if (this.counterValues.streak > this.counterValues.highStreak) {
@@ -170,17 +178,17 @@ export class BasicMathComponent implements OnInit {
     }
   }
 
-  generateQuestion(): MathQuestion {
-    if (this.operation === 'addition') {
+  generateQuestion(operation: string): MathQuestion {
+    if (operation === 'addition') {
       return this.mathQuestionGenerationService.generateAdditionQuestion();
     }
-    if (this.operation === 'subtraction') {
+    if (operation === 'subtraction') {
       return this.mathQuestionGenerationService.generateSubtractionQuestion();
     }
-    if (this.operation === 'multiplication') {
+    if (operation === 'multiplication') {
       return this.mathQuestionGenerationService.generateMultiplicationQuestion();
     }
-    if (this.operation === 'division') {
+    if (operation === 'division') {
       return this.mathQuestionGenerationService.generateDivisionQuestion();
     }
     return this.mathQuestionGenerationService.generateTranslateQuestion();
