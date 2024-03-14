@@ -155,12 +155,14 @@ export class BasicMathComponent implements OnInit {
   }
 
   onAnsweredCorrectly(answeredCorrectly: boolean) {
-    debugger;
     if (answeredCorrectly) {
+      console.log('Correct!');
       // this.fooService.setNewMathQuestion('addition', newQuestion).subscribe(val => {
       //   console.log('val:', val);
       //   debugger;
       // });
+    } else {
+      console.log('Incorrect');
     }
   }
 
