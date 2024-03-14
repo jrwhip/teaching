@@ -13,8 +13,6 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { MathQuestionGenerationService } from 'src/app/services/math-question-generation.service';
-
 import { MathQuestion } from 'src/app/models/math-question.model';
 
 import { QuestionFormComponent } from 'src/app/components/question-form/question-form.component';
@@ -47,7 +45,6 @@ export class BasicMathComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private mathQuestionGenerationService: MathQuestionGenerationService,
     private sanitizer: DomSanitizer,
     private stateService: StateService,
     private fooService: FooService
@@ -150,7 +147,6 @@ export class BasicMathComponent implements OnInit {
   onAnsweredCorrectly(answeredCorrectly: boolean) {
     debugger;
     if (answeredCorrectly) {
-      const newQuestion = this.generateQuestion('addition');
       // this.fooService.setNewMathQuestion('addition', newQuestion).subscribe(val => {
       //   console.log('val:', val);
       //   debugger;
@@ -164,19 +160,4 @@ export class BasicMathComponent implements OnInit {
     }
   }
 
-  generateQuestion(operation: string): MathQuestion {
-    if (operation === 'addition') {
-      return this.mathQuestionGenerationService.generateAdditionQuestion();
-    }
-    if (operation === 'subtraction') {
-      return this.mathQuestionGenerationService.generateSubtractionQuestion();
-    }
-    if (operation === 'multiplication') {
-      return this.mathQuestionGenerationService.generateMultiplicationQuestion();
-    }
-    if (operation === 'division') {
-      return this.mathQuestionGenerationService.generateDivisionQuestion();
-    }
-    return this.mathQuestionGenerationService.generateTranslateQuestion();
-  }
 }
