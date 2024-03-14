@@ -1,32 +1,24 @@
 /* eslint-disable arrow-body-style */
 /* eslint-disable no-debugger */
-/* eslint-disable no-plusplus */
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-
 import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
-  signal,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { MathQuestion } from 'src/app/models/math-question.model';
-
-import { QuestionFormComponent } from 'src/app/components/question-form/question-form.component';
+import { map, of, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 import { CounterComponent } from 'src/app/components/counter/counter.component';
+import { QuestionFormComponent } from 'src/app/components/question-form/question-form.component';
 
 import { CounterValues } from 'src/app/models/counter-values.model';
 
-import { StateService } from 'src/app/services/state.service';
-import { map, of, switchMap, tap } from 'rxjs';
-
-import { StoredMathQuestions } from 'src/app/models/stored-math-questions.model';
-
 import { FooService } from 'src/app/services/foo.service';
+import { StateService } from 'src/app/services/state.service';
 
 @Component({
   selector: 'app-math-basics',
@@ -73,8 +65,6 @@ export class BasicMathComponent implements OnInit {
       streak: 1,
       highStreak: 49,
     };
-
-    // this.questionSignal = signal<MathQuestion>(mathQuestion);
 
     const rawHtml = `
       <!DOCTYPE html>
@@ -151,12 +141,6 @@ export class BasicMathComponent implements OnInit {
       //   console.log('val:', val);
       //   debugger;
       // });
-
-      this.counterValues.correct++;
-      this.counterValues.streak++;
-      if (this.counterValues.streak > this.counterValues.highStreak) {
-        this.counterValues.highStreak = this.counterValues.streak;
-      }
     }
   }
 
