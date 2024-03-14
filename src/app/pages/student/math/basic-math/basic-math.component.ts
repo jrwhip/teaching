@@ -52,7 +52,11 @@ export class BasicMathComponent implements OnInit {
             tap((params) => {
               const currentOperation = params.get('operation') ?? '';
               console.log('Current operation:', currentOperation);
+              if (storedMathQuestions) {
+                console.log('Failed', storedMathQuestions);
+              }
               if (storedMathQuestions === null) {
+                // console.log('FAILED', storedMathQuestions[currentOperation]);
                 console.log('No stored math questions');
                 this.operation = currentOperation;
                 const mathQuestion = this.generateQuestion();
@@ -147,7 +151,11 @@ export class BasicMathComponent implements OnInit {
     );
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.stateService.state$.subscribe((state) => {
+      console.log('State:', state);
+    });
+  }
 
   onAnsweredCorrectly(answeredCorrectly: boolean) {
     console.log('Answered correctly:', answeredCorrectly);
