@@ -26,6 +26,8 @@ import { map, of, switchMap, tap } from 'rxjs';
 
 import { StoredMathQuestions } from 'src/app/models/stored-math-questions.model';
 
+import { FooService } from 'src/app/services/foo.service';
+
 @Component({
   selector: 'app-math-basics',
   standalone: true,
@@ -45,44 +47,47 @@ export class BasicMathComponent implements OnInit {
     private route: ActivatedRoute,
     private mathQuestionGenerationService: MathQuestionGenerationService,
     private sanitizer: DomSanitizer,
-    private stateService: StateService
+    private stateService: StateService,
+    private fooService: FooService
   ) {
-    const foo$ = this.stateService
-      .selectKey('storedMathQuestions')
-      .pipe(
-        takeUntilDestroyed(),
-        switchMap((res) => {
-          const storedMathQuestions = res as StoredMathQuestions;
+    const foo$ = this.stateService.selectKey('storedMathQuestions').pipe(
+      takeUntilDestroyed(),
+      switchMap((res) => {
+        const storedMathQuestions = res as StoredMathQuestions;
 
-          return this.route.paramMap.pipe(
-            map((params) => {
-              const currentOperation = params.get('operation') ?? '';
-              console.log('Current operation:', currentOperation);
-              if (storedMathQuestions) {
-                if (storedMathQuestions[currentOperation]) {
-                  return storedMathQuestions[currentOperation];
-                  // You were missing the closing bracket for this if statement
-                } 
-                  const mathQuestion = this.generateQuestion(currentOperation);
-
-                  this.stateService.patchState({
-                    storedMathQuestions: {
-                      [currentOperation]: {
-                        ...mathQuestion,
-                      },
-                    },
-                  });
-                  console.log('No stored math questions');
-                
+        return this.route.paramMap.pipe(
+          map((params) => {
+            const currentOperation = params.get('operation') ?? '';
+            console.log('Current operation:', currentOperation);
+            console.log('Stored math questions:', storedMathQuestions);
+            if (storedMathQuestions) {
+              console.log('Stored first if:', storedMathQuestions);
+              if (storedMathQuestions[currentOperation]) {
+                console.log('Stored second if:', storedMathQuestions);
+                return storedMathQuestions[currentOperation];
               }
+            } else {
+              console.log('No stored math questions');
+              const mathQuestion = this.generateQuestion(currentOperation);
+
+              this.stateService.patchState({
+                storedMathQuestions: {
+                  [currentOperation]: {
+                    ...mathQuestion,
+                  },
+                },
+              });
+              console.log('No stored math questions');
               return this.generateQuestion(currentOperation);
-            })
-          )
-        })
-      );
+            }
+            return this.generateQuestion(currentOperation);
+          })
+        );
+      })
+    );
 
     this.questionSignal = toSignal(foo$);
-    
+
     this.operation = 'addition';
 
     const mathQuestion = this.generateQuestion('addition');
@@ -169,8 +174,9 @@ export class BasicMathComponent implements OnInit {
     console.log('Answered correctly:', answeredCorrectly);
     if (answeredCorrectly) {
       const newQuestion = this.generateQuestion('addition');
+      this.fooService.setNewMathQuestion('addition', newQuestion);
       // this.questionSignal.set(newQuestion);
-      
+
       this.counterValues.correct++;
       this.counterValues.streak++;
       if (this.counterValues.streak > this.counterValues.highStreak) {
