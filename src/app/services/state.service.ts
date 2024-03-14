@@ -139,6 +139,8 @@ export class StateService {
    * this.stateService.patchState({ isLoading: true });
    */
   patchState(partialState: Partial<State>): void {
+    console.log('patchState', partialState);
+    console.log('THIS WAS BEING CALLED SEVERAL TIMES');
     this.partialStateUpdate$.next(partialState);
   }
 

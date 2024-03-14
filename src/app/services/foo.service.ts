@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { map, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 
 import { MathQuestion } from '../models/math-question.model';
 
@@ -26,6 +26,7 @@ export class FooService {
 
 
   setNewMathQuestion(operation: string) {
+    // This method only fires once.
     let mathQuestion: MathQuestion;
     switch (operation) {
       case 'addition':
@@ -44,9 +45,11 @@ export class FooService {
         mathQuestion = this.mathQuestionGenerationService.generateAdditionQuestion();
         break;
     }
-    console.log('setNewMathQuestion');
-    console.log('mathQuestion:', mathQuestion);
     return this.stateService.storedMathQuestions$.pipe(
+      // This subsrition is updating the same part of state that it's reading from.
+      // This is what was causing the infinite loop. The solution is to use the take(1)
+      // operator to complete the subscription after the first emission.
+      take(1),
       map((storedMathQuestions) => {
         const newStoredMathQuestions = {
           ...storedMathQuestions,

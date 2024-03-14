@@ -2,14 +2,10 @@
 /* eslint-disable no-debugger */
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { combineLatest, map, of, switchMap, tap } from 'rxjs';
+import { combineLatest, map, of, switchMap, take, tap } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 import { CounterComponent } from 'src/app/components/counter/counter.component';
@@ -43,13 +39,14 @@ export class BasicMathComponent implements OnInit {
   ) {
     const foo$ = combineLatest([
       this.stateService.storedMathQuestions$,
-      this.stateService.counterValues$
+      this.stateService.counterValues$,
     ]).pipe(
       takeUntilDestroyed(),
       switchMap(([storedMathQuestions, counterValues]) => {
         return this.route.paramMap.pipe(
           switchMap((params) => {
             const currentOperation = params.get('operation') ?? '';
+            this.operation = currentOperation;
             let question = null;
             let counter = null;
 
@@ -68,9 +65,9 @@ export class BasicMathComponent implements OnInit {
                 incorrect: 0,
                 streak: 0,
                 highStreak: 0,
-              })
+              });
             }
-            return combineLatest({question, counter});
+            return combineLatest({ question, counter });
           })
         );
       })
@@ -154,16 +151,40 @@ export class BasicMathComponent implements OnInit {
     });
   }
 
+  // onAnsweredCorrectly(answeredCorrectly: boolean) {
+  //   if (answeredCorrectly) {
+  //     console.log('Correct!');
+  //     // this.fooService.setNewMathQuestion('addition', newQuestion).subscribe(val => {
+  //     //   console.log('val:', val);
+  //     //   debugger;
+  //     // });
+  //   } else {
+  //     console.log('Incorrect');
+  //   }
+  // }
+
   onAnsweredCorrectly(answeredCorrectly: boolean) {
     if (answeredCorrectly) {
-      console.log('Correct!');
-      // this.fooService.setNewMathQuestion('addition', newQuestion).subscribe(val => {
-      //   console.log('val:', val);
-      //   debugger;
-      // });
-    } else {
-      console.log('Incorrect');
+      // Retrieve the current operation to generate the appropriate question
+      const currentOperation = this.operation; // Assuming this.operation is available and set
+
+      // Call setNewMathQuestion to update the state with a new question
+      // Assuming setNewMathQuestion returns an observable
+      this.fooService
+        .setNewMathQuestion(currentOperation)
+        .pipe(
+          take(1) // Ensures subscription completes after receiving the first value
+        )
+        .subscribe({
+          next: (newQuestion) => {
+            // If you need to perform any action with the newQuestion, do it here
+            // Though, based on your setup, it seems the state update is handled within FooService,
+            // and the UI should reactively update based on state changes
+          },
+          error: (error) => {
+            console.error('Error updating question:', error);
+          },
+        });
     }
   }
-
 }
