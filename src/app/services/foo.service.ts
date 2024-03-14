@@ -25,6 +25,7 @@ export class FooService {
 
   setNewMathQuestion(operation: string, mathQuestion: MathQuestion) {
     console.log('setNewMathQuestion');
+    console.log('mathQuestion:', mathQuestion);
     return this.getStoredMathQuestions().pipe(
       tap((res) => {
         const storedMathQuestions = res as StoredMathQuestions;

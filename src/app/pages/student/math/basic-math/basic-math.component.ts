@@ -174,7 +174,7 @@ export class BasicMathComponent implements OnInit {
     console.log('Answered correctly:', answeredCorrectly);
     if (answeredCorrectly) {
       const newQuestion = this.generateQuestion('addition');
-      this.fooService.setNewMathQuestion('addition', newQuestion);
+      this.fooService.setNewMathQuestion('addition', newQuestion).subscribe();
       // this.questionSignal.set(newQuestion);
 
       this.counterValues.correct++;
