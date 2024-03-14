@@ -170,6 +170,7 @@ export class BasicMathComponent implements OnInit {
     if (answeredCorrectly) {
       const newQuestion = this.generateQuestion('addition');
       // this.questionSignal.set(newQuestion);
+      
       this.counterValues.correct++;
       this.counterValues.streak++;
       if (this.counterValues.streak > this.counterValues.highStreak) {
