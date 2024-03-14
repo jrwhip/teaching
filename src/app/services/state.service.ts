@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { distinctUntilChanged, distinctUntilKeyChanged, map, scan } from 'rxjs/operators';
+import {
+  distinctUntilChanged,
+  distinctUntilKeyChanged,
+  map,
+  scan,
+} from 'rxjs/operators';
 
 import { CurrentUser, State } from '../models/state.model';
 
@@ -17,7 +22,9 @@ const initialState = new State();
 })
 export class StateService {
   // BehaviorSubject holding the application state
-  protected stateSubject$: BehaviorSubject<State> = new BehaviorSubject<State>(initialState);
+  protected stateSubject$: BehaviorSubject<State> = new BehaviorSubject<State>(
+    initialState
+  );
 
   /**
    * Exposes the entire state as an observable.
@@ -27,7 +34,9 @@ export class StateService {
   state$: Observable<State> = this.stateSubject$.asObservable();
 
   // Subject for updating the state with partial state updates
-  private partialStateUpdate$: Subject<Partial<State>> = new Subject<Partial<State>>();
+  private partialStateUpdate$: Subject<Partial<State>> = new Subject<
+    Partial<State>
+  >();
 
   /**
    * Observable getter that indicates if the application is loading.
@@ -38,7 +47,7 @@ export class StateService {
   get isLoading$(): Observable<boolean> {
     return this.stateSubject$.pipe(
       distinctUntilKeyChanged('isLoading'),
-      map((state) => state.isLoading),
+      map((state) => state.isLoading)
     );
   }
 
@@ -51,7 +60,7 @@ export class StateService {
   get userRole$(): Observable<string | null> {
     return this.stateSubject$.pipe(
       distinctUntilKeyChanged('userRole'),
-      map((state) => state.userRole),
+      map((state) => state.userRole)
     );
   }
 
@@ -64,7 +73,7 @@ export class StateService {
   get currentUser$(): Observable<CurrentUser | null> {
     return this.stateSubject$.pipe(
       distinctUntilKeyChanged('currentUser'),
-      map((state) => state.currentUser),
+      map((state) => state.currentUser)
     );
   }
 
@@ -92,7 +101,7 @@ export class StateService {
     this.partialStateUpdate$
       .pipe(
         // Use structuredClone for deep cloning the state.
-        scan((acc, curr) => structuredClone({ ...acc, ...curr }), initialState),
+        scan((acc, curr) => structuredClone({ ...acc, ...curr }), initialState)
       )
       .subscribe(this.stateSubject$);
   }
@@ -117,7 +126,7 @@ export class StateService {
   selectKey(keyString: keyof State): Observable<State[keyof State]> {
     return this.stateSubject$.pipe(
       distinctUntilKeyChanged(keyString),
-      map((key) => key[keyString]),
+      map((key) => key[keyString])
     );
   }
 
@@ -130,8 +139,15 @@ export class StateService {
    */
   selectKeys(keyArr: (keyof State)[]): Observable<Partial<State>> {
     return this.stateSubject$.pipe(
-      distinctUntilChanged((prev, curr) => keyArr.some((key) => prev[key] !== curr[key])),
-      map((val) => keyArr.reduce((acc, key: keyof State) => ({ ...acc, [key]: val[key] }), {})),
+      distinctUntilChanged((prev, curr) =>
+        keyArr.some((key) => prev[key] !== curr[key])
+      ),
+      map((val) =>
+        keyArr.reduce(
+          (acc, key: keyof State) => ({ ...acc, [key]: val[key] }),
+          {}
+        )
+      )
     );
   }
 

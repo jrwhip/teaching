@@ -20,6 +20,9 @@ import { CounterComponent } from 'src/app/components/counter/counter.component';
 
 import { CounterValues } from 'src/app/models/counter-values.model';
 
+import { StateService } from 'src/app/services/state.service';
+import { of, switchMap, tap } from 'rxjs';
+
 @Component({
   selector: 'app-math-basics',
   standalone: true,
@@ -37,15 +40,39 @@ export class BasicMathComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private mathQuestionGenerationService: MathQuestionGenerationService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private stateService: StateService
   ) {
-    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      this.operation = params.get('operation') ?? '';
-      console.log('Operation:', this.operation);
-      if (this.questionSignal) {
-        this.questionSignal.set(this.generateQuestion());
-      }
-    });
+    this.stateService
+      .selectKey('storedMathQuestions')
+      .pipe(
+        takeUntilDestroyed(),
+        switchMap((storedMathQuestions) =>
+          this.route.paramMap.pipe(
+            tap((params) => {
+              const currentOperation = params.get('operation') ?? '';
+              console.log('Current operation:', currentOperation);
+              if (storedMathQuestions === null) {
+                console.log('No stored math questions');
+                this.operation = currentOperation;
+                const mathQuestion = this.generateQuestion();
+                console.log('Generated math question:', mathQuestion);
+                this.stateService.patchState({
+                  storedMathQuestions: {
+                    [currentOperation]: {
+                      ...mathQuestion,
+                    },
+                  },
+                });
+              } else {
+                console.log('Stored math questions:', storedMathQuestions);
+              }
+            })
+          )
+        )
+      )
+      .subscribe();
+
     const mathQuestion = this.generateQuestion();
 
     this.counterValues = {
@@ -120,9 +147,7 @@ export class BasicMathComponent implements OnInit {
     );
   }
 
-  ngOnInit(): void {
-    console.log('Operation:', this.operation);
-  }
+  ngOnInit(): void {}
 
   onAnsweredCorrectly(answeredCorrectly: boolean) {
     console.log('Answered correctly:', answeredCorrectly);

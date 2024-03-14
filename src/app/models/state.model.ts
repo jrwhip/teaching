@@ -1,5 +1,10 @@
 import { CounterValues } from './counter-values.model';
 import { MathQuestion } from './math-question.model';
+// import { StoredMathQuestions } from './stored-math-questions.model';
+
+export interface StoredMathQuestions {
+  [key: string]: MathQuestion;
+}
 
 export interface CurrentUser {
   id: string;
@@ -11,13 +16,13 @@ export class State {
   isLoading: boolean;
   userRole: string | null;
   currentUser: CurrentUser | null;
-  mathQuestions: MathQuestion[];
+  storedMathQuestions: StoredMathQuestions | null;
   counterValues: CounterValues;
   constructor() {
     this.isLoading = false;
     this.userRole = null;
     this.currentUser = null;
-    this.mathQuestions = [];
+    this.storedMathQuestions = null;
     this.counterValues = {
       label: '',
       correct: 0,
