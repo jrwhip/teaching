@@ -8,7 +8,7 @@ import {
   scan,
 } from 'rxjs/operators';
 
-import { CurrentUser, State, StoredMathQuestions } from '../models/state.model';
+import { CounterData, CurrentUser, State, StoredMathQuestions } from '../models/state.model';
 
 // Initial state for the application
 const initialState = new State();
@@ -87,6 +87,19 @@ export class StateService {
     return this.stateSubject$.pipe(
       distinctUntilKeyChanged('storedMathQuestions'),
       map((state) => state.storedMathQuestions)
+    );
+  }
+
+  /**
+   * Observable getter for the current counter values.
+   * @returns Observable<CounterValues | null> - Observable that emits the current counter values.
+   * @example
+   * this.stateService.counterValues$.subscribe(counterValues => console.log(counterValues));
+   */
+  get counterValues$(): Observable<CounterData | null> {
+    return this.stateSubject$.pipe(
+      distinctUntilKeyChanged('counterValues'),
+      map((state) => state.counterValues)
     );
   }
 

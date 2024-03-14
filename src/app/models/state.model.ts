@@ -12,23 +12,21 @@ export interface CurrentUser {
   email: string;
 }
 
+export interface CounterData {
+  [key: string]: CounterValues;
+}
+
 export class State {
   isLoading: boolean;
   userRole: string | null;
   currentUser: CurrentUser | null;
   storedMathQuestions: StoredMathQuestions | null;
-  counterValues: CounterValues;
+  counterValues: CounterData | null;
   constructor() {
     this.isLoading = false;
     this.userRole = null;
     this.currentUser = null;
     this.storedMathQuestions = null;
-    this.counterValues = {
-      label: '',
-      correct: 0,
-      incorrect: 0,
-      streak: 0,
-      highStreak: 0,
-    };
+    this.counterValues = null;
   }
 }

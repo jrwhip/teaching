@@ -1,6 +1,6 @@
 <main>
   <!-- Counter START -->
-  <app-counter [counterValues]="counterValues"></app-counter>
+  <app-counter [counterValues]="questionSignal().counter"></app-counter>
   <!-- Counter END -->
 
   <!-- Form and Tabs START -->
@@ -24,7 +24,7 @@
             </svg>
           </figure>
           <!-- Question Form -->
-          <app-question-form [question]="questionSignal()" (answeredCorrectly)="onAnsweredCorrectly($event)" ></app-question-form>
+          <app-question-form [question]="questionSignal().question" (answeredCorrectly)="onAnsweredCorrectly($event)" ></app-question-form>
         </div>
         <!-- Left Content END -->
 

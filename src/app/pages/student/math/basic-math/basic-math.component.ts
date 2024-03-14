@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { map, of, switchMap, tap } from 'rxjs';
+import { combineLatest, map, of, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 import { CounterComponent } from 'src/app/components/counter/counter.component';
@@ -41,16 +41,36 @@ export class BasicMathComponent implements OnInit {
     private stateService: StateService,
     private fooService: FooService
   ) {
-    const foo$ = this.stateService.storedMathQuestions$.pipe(
+    const foo$ = combineLatest([
+      this.stateService.storedMathQuestions$,
+      this.stateService.counterValues$
+    ]).pipe(
       takeUntilDestroyed(),
-      switchMap((storedMathQuestions) => {
+      switchMap(([storedMathQuestions, counterValues]) => {
         return this.route.paramMap.pipe(
           switchMap((params) => {
             const currentOperation = params.get('operation') ?? '';
+            let question = null;
+            let counter = null;
+
             if (storedMathQuestions && storedMathQuestions[currentOperation]) {
-              return of(storedMathQuestions[currentOperation]);
+              question = of(storedMathQuestions[currentOperation]);
+            } else {
+              question = this.fooService.setNewMathQuestion(currentOperation);
             }
-            return this.fooService.setNewMathQuestion(currentOperation);
+
+            if (counterValues && counterValues[currentOperation]) {
+              counter = of(counterValues[currentOperation]);
+            } else {
+              counter = of({
+                label: currentOperation,
+                correct: 0,
+                incorrect: 0,
+                streak: 0,
+                highStreak: 0,
+              })
+            }
+            return combineLatest({question, counter});
           })
         );
       })
