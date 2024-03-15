@@ -151,18 +151,6 @@ export class BasicMathComponent implements OnInit {
     });
   }
 
-  // onAnsweredCorrectly(answeredCorrectly: boolean) {
-  //   if (answeredCorrectly) {
-  //     console.log('Correct!');
-  //     // this.fooService.setNewMathQuestion('addition', newQuestion).subscribe(val => {
-  //     //   console.log('val:', val);
-  //     //   debugger;
-  //     // });
-  //   } else {
-  //     console.log('Incorrect');
-  //   }
-  // }
-
   onAnsweredCorrectly(answeredCorrectly: boolean) {
     if (answeredCorrectly) {
       // Retrieve the current operation to generate the appropriate question
