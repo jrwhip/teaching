@@ -6,6 +6,23 @@ import { MathQuestion } from '../models/math-question.model';
   providedIn: 'root',
 })
 export class MathQuestionGenerationService {
+  generateQuestion(type: string): MathQuestion {
+    switch (type) {
+      case 'addition':
+        return this.generateAdditionQuestion();
+      case 'subtraction':
+        return this.generateSubtractionQuestion();
+      case 'multiplication':
+        return this.generateMultiplicationQuestion();
+      case 'division':
+        return this.generateDivisionQuestion();
+      case 'translate':
+        return this.generateTranslateQuestion();
+      default:
+        throw new Error('Invalid question type');
+    }
+  }
+
   generateAdditionQuestion(): MathQuestion {
     const decimalPlacesNum1 = Math.floor(Math.random() * 4);
     const decimalPlacesNum2 = Math.floor(Math.random() * 4);

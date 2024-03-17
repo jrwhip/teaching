@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 
-import { map, take, tap } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
+import { CounterData } from '../models/state.model';
 import { MathQuestion } from '../models/math-question.model';
-
-import { StoredMathQuestions } from '../models/stored-math-questions.model';
-
-import { StateService } from './state.service';
-
 import { MathQuestionGenerationService } from './math-question-generation.service';
+import { StateService } from './state.service';
+import { StoredMathQuestions } from '../models/stored-math-questions.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,27 +23,13 @@ export class FooService {
     this.stateService.patchState({ storedMathQuestions });
   }
 
+  setCounterValues(counterData: CounterData) {
+    this.stateService.patchState({ counterValues: counterData });
+  }
 
   setNewMathQuestion(operation: string) {
-    // This method only fires once.
-    let mathQuestion: MathQuestion;
-    switch (operation) {
-      case 'addition':
-        mathQuestion = this.mathQuestionGenerationService.generateAdditionQuestion();
-        break;
-      case 'subtraction':
-        mathQuestion = this.mathQuestionGenerationService.generateSubtractionQuestion();
-        break;
-      case 'multiplication':
-        mathQuestion = this.mathQuestionGenerationService.generateMultiplicationQuestion();
-        break;
-      case 'division':
-        mathQuestion = this.mathQuestionGenerationService.generateDivisionQuestion();
-        break;
-      default:
-        mathQuestion = this.mathQuestionGenerationService.generateAdditionQuestion();
-        break;
-    }
+    const mathQuestion: MathQuestion = this.mathQuestionGenerationService.generateQuestion(operation);
+    
     return this.stateService.storedMathQuestions$.pipe(
       // This subsrition is updating the same part of state that it's reading from.
       // This is what was causing the infinite loop. The solution is to use the take(1)
