@@ -152,11 +152,7 @@ export class BasicMathComponent implements OnInit {
     });
   }
 
-  studentAnswered(foo: any) {
-    console.log('Student answered', foo);
-  }
-
-  onAnsweredCorrectly({ answer, isCorrect: answeredCorrectly }: StudentAnswer) {
+  onStudentAnswer({ answer, isCorrect: answeredCorrectly }: StudentAnswer) {
     if (answeredCorrectly) {
       // Retrieve the current operation to generate the appropriate question
       const currentOperation = this.operation; // Assuming this.operation is available and set

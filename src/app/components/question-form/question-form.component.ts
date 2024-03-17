@@ -16,8 +16,8 @@ import { StudentAnswer } from 'src/app/models/student-answer.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionFormComponent {
-  answeredCorrectly = output<StudentAnswer>();
-  studentAnnser = output<StudentAnswer>();
+  // answeredCorrectly = output<StudentAnswer>();
+  studentAnswer = output<StudentAnswer>();
   question = input.required<MathQuestion>();
   hint = signal<string>('');
   correct = signal<boolean>(false);
@@ -55,12 +55,12 @@ export class QuestionFormComponent {
     if (normalizedStudentAnswer === normalizedCorrectAnswer) {
       this.correct.set(true);
       setTimeout(() => {
-        this.answeredCorrectly.emit({ answer: 'unknown', isCorrect: true });
+        this.studentAnswer.emit({ answer: 'unknown', isCorrect: true });
       }, 2000); // delay for 2 seconds
     } else {
       this.hint.set(this.question().hint[0]);
       this.incorrect.set(true);
-      this.answeredCorrectly.emit({ answer: 'unknown', isCorrect: false });
+      this.studentAnswer.emit({ answer: 'unknown', isCorrect: false });
     }
   }
 }
