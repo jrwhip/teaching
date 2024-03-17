@@ -15,6 +15,7 @@ import { CounterValues } from 'src/app/models/counter-values.model';
 
 import { FooService } from 'src/app/services/foo.service';
 import { StateService } from 'src/app/services/state.service';
+import { StudentAnswer } from 'src/app/models/student-answer.model';
 
 @Component({
   selector: 'app-math-basics',
@@ -151,7 +152,7 @@ export class BasicMathComponent implements OnInit {
     });
   }
 
-  onAnsweredCorrectly(answeredCorrectly: boolean) {
+  onAnsweredCorrectly({ answer, isCorrect: answeredCorrectly }: StudentAnswer) {
     if (answeredCorrectly) {
       // Retrieve the current operation to generate the appropriate question
       const currentOperation = this.operation; // Assuming this.operation is available and set

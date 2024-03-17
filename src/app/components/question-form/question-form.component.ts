@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, effect, input, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output, effect, input, output, signal, untracked } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { outputFromObservable, outputToObservable } from '@angular/core/rxjs-interop';
+
 import { MathQuestion } from 'src/app/models/math-question.model';
+import { StudentAnswer } from 'src/app/models/student-answer.model';
 
 @Component({
   selector: 'app-question-form',
@@ -13,7 +16,8 @@ import { MathQuestion } from 'src/app/models/math-question.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionFormComponent {
-  @Output() answeredCorrectly = new EventEmitter<boolean>();
+  @Output() answeredCorrectly = new EventEmitter<StudentAnswer>();
+  studentAnnser = output<StudentAnswer>();
   question = input.required<MathQuestion>();
   hint = signal<string>('');
   correct = signal<boolean>(false);
@@ -51,12 +55,12 @@ export class QuestionFormComponent {
     if (normalizedStudentAnswer === normalizedCorrectAnswer) {
       this.correct.set(true);
       setTimeout(() => {
-        this.answeredCorrectly.emit(true);
+        this.answeredCorrectly.emit({ answer: 'unknown', isCorrect: true });
       }, 2000); // delay for 2 seconds
     } else {
       this.hint.set(this.question().hint[0]);
       this.incorrect.set(true);
-      this.answeredCorrectly.emit(false);
+      this.answeredCorrectly.emit({ answer: 'unknown', isCorrect: false });
     }
   }
 }
