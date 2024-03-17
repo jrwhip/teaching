@@ -21,12 +21,12 @@ export class State {
   userRole: string | null;
   currentUser: CurrentUser | null;
   storedMathQuestions: StoredMathQuestions | null;
-  counterValues: CounterData | null;
+  counterData: CounterData | null;
   constructor() {
     this.isLoading = false;
     this.userRole = null;
     this.currentUser = null;
     this.storedMathQuestions = null;
-    this.counterValues = null;
+    this.counterData = null;
   }
 }

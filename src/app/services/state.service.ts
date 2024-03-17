@@ -96,10 +96,10 @@ export class StateService {
    * @example
    * this.stateService.counterValues$.subscribe(counterValues => console.log(counterValues));
    */
-  get counterValues$(): Observable<CounterData | null> {
+  get counterData$(): Observable<CounterData | null> {
     return this.stateSubject$.pipe(
-      distinctUntilKeyChanged('counterValues'),
-      map((state) => state.counterValues)
+      distinctUntilKeyChanged('counterData'),
+      map((state) => state.counterData)
     );
   }
 

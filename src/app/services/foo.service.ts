@@ -23,8 +23,8 @@ export class FooService {
     this.stateService.patchState({ storedMathQuestions });
   }
 
-  setCounterValues(counterData: CounterData) {
-    this.stateService.patchState({ counterValues: counterData });
+  updateCounterData(counterData: CounterData) {
+    this.stateService.patchState({ counterData });
   }
 
   setNewMathQuestion(operation: string) {
@@ -44,4 +44,21 @@ export class FooService {
       })
     );
   }
+
+  // setNewCounterValues(operation: string, isCorrect: boolean) {
+  //   return this.stateService.counterData$.pipe(
+  //     take(1),
+  //     map((currentCounterData) => {
+  //       const currentOperationCount = currentCounterData[operation] || { correct: 0, incorrect: 0 };
+  //       const newCounterData = {
+  //         ...currentCounterData,
+  //         [operation]: {
+  //           correct: isCorrect ? currentOperationCount.correct + 1 : currentOperationCount.correct,
+  //           incorrect: !isCorrect ? currentOperationCount.incorrect + 1 : currentOperationCount.incorrect,
+  //         },
+  //       };
+  //       this.updateCounterData(newCounterData);
+  //     })
+  //   );
+  // }
 }
