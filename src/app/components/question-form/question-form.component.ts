@@ -16,7 +16,7 @@ import { StudentAnswer } from 'src/app/models/student-answer.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuestionFormComponent {
-  @Output() answeredCorrectly = new EventEmitter<StudentAnswer>();
+  answeredCorrectly = output<StudentAnswer>();
   studentAnnser = output<StudentAnswer>();
   question = input.required<MathQuestion>();
   hint = signal<string>('');
