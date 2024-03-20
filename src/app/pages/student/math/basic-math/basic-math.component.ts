@@ -40,10 +40,10 @@ export class BasicMathComponent implements OnInit {
   ) {
     const foo$ = combineLatest([
       this.stateService.storedMathQuestions$,
-      this.stateService.counterValues$,
+      this.stateService.counterData$,
     ]).pipe(
       takeUntilDestroyed(),
-      switchMap(([storedMathQuestions, counterValues]) => {
+      switchMap(([storedMathQuestions, counterData]) => {
         return this.route.paramMap.pipe(
           switchMap((params) => {
             const currentOperation = params.get('operation') ?? '';
@@ -57,8 +57,8 @@ export class BasicMathComponent implements OnInit {
               question = this.fooService.setNewMathQuestion(currentOperation);
             }
 
-            if (counterValues && counterValues[currentOperation]) {
-              counter = of(counterValues[currentOperation]);
+            if (counterData && counterData[currentOperation]) {
+              counter = of(counterData[currentOperation]);
             } else {
               counter = of({
                 label: currentOperation,
