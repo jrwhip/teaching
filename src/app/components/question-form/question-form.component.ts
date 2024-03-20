@@ -34,22 +34,23 @@ export class QuestionFormComponent {
   }
 
   questionForm = this.fb.group({
-    answer: ['', Validators.required],
-    help: [''],
+    answer: ['', Validators.required]
   });
 
-  checkAnswer(studentAnswer: string | number | null | undefined, correctAnswer: string | number | null | undefined) {
+  checkAnswer() {
+    const studentAnswer = this.questionForm.value.answer;
+    const correctAnswer = this.question().answer;
     this.correct.set(false);
     this.incorrect.set(false);
     this.hint.set('');
     // Normalize the answers if they are strings
     let normalizedStudentAnswer = studentAnswer;
     if (typeof studentAnswer === 'string') {
-      normalizedStudentAnswer = Number(studentAnswer.trim().toLowerCase());
+      normalizedStudentAnswer = Number(studentAnswer.trim().toLowerCase()).toString();
     }
     let normalizedCorrectAnswer = correctAnswer;
     if (typeof correctAnswer === 'string') {
-      normalizedCorrectAnswer = Number(correctAnswer.trim().toLowerCase());
+      normalizedCorrectAnswer = Number(correctAnswer.trim().toLowerCase()).toString();
     }
 
     if (normalizedStudentAnswer === normalizedCorrectAnswer) {

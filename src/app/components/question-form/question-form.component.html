@@ -6,7 +6,7 @@
   <!-- Question -->
   <h3 class="p-2" [ngClass]="{ 'bg-success text-light': correct(), 'bg-danger text-light': incorrect() }" [innerHTML]="question().question"></h3>
   <!-- Form START -->
-  <form [formGroup]="questionForm" class="row g-3 mt-2 position-relative z-index-9">
+  <form [formGroup]="questionForm" (submit)="checkAnswer()" class="row g-3 mt-2 position-relative z-index-9" novalidate>
       <!-- Number -->
       <div class="col-lg-12">
         <label class="form-label">Answer:</label>
@@ -25,7 +25,7 @@
             [ngClass]="{ 'btn-success': correct(), 'btn-danger': incorrect(), 'btn-outline-primary': !correct() && !incorrect() }"
             type="button"
             id="button-addon2"
-            (click)="checkAnswer(questionForm.value.answer, question().answer)"
+            (click)="checkAnswer()"
           >
             {{ correct() ? 'Correct' : incorrect() ? 'Try Again' : 'Check' }}
           </button>
@@ -33,15 +33,6 @@
       </div>
       <div class="col-lg-12">
         <p class="fs-4 px-3" [innerHTML]="hint()"></p>
-      </div>
-      <!-- Textarea -->
-      <div class="col-12">
-        <label class="form-label">Ask For Help:</label>
-        <textarea class="form-control" rows="3" spellcheck="false" formControlName="help"></textarea>
-      </div>
-      <!-- Button -->
-      <div class="col-12">
-        <button type="submit" class="btn btn-primary mb-0">Submit form</button>
       </div>
   </form>
   <!-- Form END -->
