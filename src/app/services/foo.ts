@@ -352,7 +352,8 @@ export function generateWholeTimesMixedProblem() {
     productFractionNumerator,
     productFractionDenominator
   );
-  const simplifiedNumeratorM = productFractionNumerator / greatestCommonDivisorM;
+  const simplifiedNumeratorM =
+    productFractionNumerator / greatestCommonDivisorM;
   const simplifiedDenominatorM =
     productFractionDenominator / greatestCommonDivisorM;
 
@@ -863,7 +864,6 @@ export function generateRoundingProblem() {
   return new Problem(question, roundedNum, validateFn, hint);
 }
 
-
 export function generatePercentDecimalQuestion() {
   const convertToDecimal = Math.random() < 0.5;
   let question;
@@ -907,7 +907,7 @@ export function generateConvertQuestion() {
   if (convertToFraction) {
     const decimal = parseFloat(Math.random().toFixed(2));
     const placeValue = decimal.toString().split('.')[1].length;
-    const denominator = 10**placeValue;
+    const denominator = 10 ** placeValue;
     const numerator = Math.round(decimal * denominator);
     const simplified = helper.simplifyFraction(numerator, denominator);
     question = `Convert ${decimal} to a fraction`;
@@ -1019,7 +1019,14 @@ export function generateComparisonQuestion() {
   // Helper functions for comparing fractions and decimals
 
   // eslint-disable-next-line no-nested-ternary
-  const compareDecimals = (num1: number, num2: number) => num1 > num2 ? '>' : num1 < num2 ? '<' : '=';
+  const compareDecimals = (num1: number, num2: number): string => {
+    if (num1 > num2) {
+      return '>';
+    } if (num1 < num2) {
+      return '<';
+    } 
+      return '=';
+  };
 
   if (currentType === 'fraction') {
     const numerator = Math.floor(Math.random() * 9) + 1;
@@ -1335,7 +1342,10 @@ export function generateAddSubtractMixedProblem() {
   const improperNumerator1 = whole1 * fractionDenominator1 + fractionNumerator1;
   const improperNumerator2 = whole2 * fractionDenominator2 + fractionNumerator2;
 
-  const commonDenominator = helper.lcm(fractionDenominator1, fractionDenominator2);
+  const commonDenominator = helper.lcm(
+    fractionDenominator1,
+    fractionDenominator2
+  );
   let adjustedNumerator1 =
     fractionNumerator1 * (commonDenominator / fractionDenominator1);
   const originaladjustedNumerator1 = adjustedNumerator1;
@@ -1378,25 +1388,26 @@ export function generateAddSubtractMixedProblem() {
     answer = `${resultWhole}`;
   } else {
     const resultWholeAndSpace = `${resultWhole} `;
-    answer = `${resultWhole > 0 ? resultWholeAndSpace : '' }${finalNumerator}/${finalDenominator}`;
+    answer = `${
+      resultWhole > 0 ? resultWholeAndSpace : ''
+    }${finalNumerator}/${finalDenominator}`;
   }
 
   const question = `${originalWhole1}<sup>${fractionNumerator1}</sup>/<sub>${fractionDenominator1}</sub> ${
     isAddition ? '+' : '-'
   } ${whole2}<sup>${fractionNumerator2}</sup>/<sub>${fractionDenominator2}</sub>`;
 
-
   function getNumeratorMessage(): string {
     if (isAddition) {
       return '';
-    } if (originaladjustedNumerator1 < adjustedNumerator2) {
+    }
+    if (originaladjustedNumerator1 < adjustedNumerator2) {
       return `Borrow from the whole and add it to the numerator <br><br>${originalWhole1} :`;
-    } 
-      return '';
+    }
+    return '';
   }
 
-// Usage in a template string
-
+  // Usage in a template string
 
   const hint = `<table border="1" cellpadding="5">
     <tr>
@@ -1442,9 +1453,7 @@ export function generateAddSubtractMixedProblem() {
               isAddition
                 ? ''
                 : originaladjustedNumerator1 < adjustedNumerator2
-                ? `Borrow from the whole and add it to the numerator <br><br>${ 
-                  originalWhole1 
-                  } :`
+                ? `Borrow from the whole and add it to the numerator <br><br>${originalWhole1} :`
                 : ''
             }
             <br>
@@ -1508,8 +1517,8 @@ export function generateSolveForXProblem() {
     `3. Complete the ${operation === '+' ? 'addition' : 'subtraction'}: ` +
     `${
       operation === '+'
-        ? `${num1 * num2  } + ${  num3}`
-        : `${num1 * num2  } - ${  num3}`
+        ? `${num1 * num2} + ${num3}`
+        : `${num1 * num2} - ${num3}`
     } = ${answer}.`;
 
   // Ensure validateFn uses the standardized way of handling input and comparing with the answer
@@ -1537,12 +1546,12 @@ export function generateExponentProblem() {
   //   multiplicationSequence += ` × ${num1}`;
   // }
 
-  Array.from({length: exponent - 1}).forEach(() => {
+  Array.from({ length: exponent - 1 }).forEach(() => {
     multiplicationSequence += ` × ${num1}`;
   });
 
   const question = `Calculate ${num1}<sup>${exponent}</sup>`;
-  const answer = num1**exponent;
+  const answer = num1 ** exponent;
   const hint =
     `To calculate ${num1}<sup>${exponent}</sup>, multiply ${num1} by itself ${exponent} times. ` +
     `For example: ${multiplicationSequence} = ${answer}. ` +
@@ -1846,7 +1855,7 @@ export function generateDistributeProblem() {
     const [answerNum1, answerNum2] = simplifiedAnswer.split('-').map(Number);
 
     // Perform operation and compare
-    const isCorrect = (inputNum1 - inputNum2) === (answerNum1 - answerNum2);
+    const isCorrect = inputNum1 - inputNum2 === answerNum1 - answerNum2;
 
     return isCorrect;
   };
@@ -1860,27 +1869,32 @@ export function generateSolveXProblem() {
   let hint;
   const questionType = Math.floor(Math.random() * 6) + 1; // Choose a problem type at random
 
-  if (questionType === 1) { // Simple addition, e.g., x + 3 = 10
+  if (questionType === 1) {
+    // Simple addition, e.g., x + 3 = 10
     const addNum = Math.floor(Math.random() * 10) + 1;
     answer = Math.floor(Math.random() * 10) + 1;
     question = `x + ${addNum} = ${answer + addNum}`;
     hint = `Subtract ${addNum} from both sides of the equation to solve for x.`;
-  } else if (questionType === 2) { // Simple subtraction, e.g., x - 2 = 5
+  } else if (questionType === 2) {
+    // Simple subtraction, e.g., x - 2 = 5
     const subNum = Math.floor(Math.random() * 10) + 1;
     answer = Math.floor(Math.random() * 10) + 1;
     question = `x - ${subNum} = ${answer - subNum}`;
     hint = `Add ${subNum} to both sides of the equation to solve for x.`;
-  } else if (questionType === 3) { // Simple multiplication, e.g., 3x = 15
+  } else if (questionType === 3) {
+    // Simple multiplication, e.g., 3x = 15
     const multNum = Math.floor(Math.random() * 10) + 1;
     answer = Math.floor(Math.random() * 10) + 1;
     question = `${multNum}x = ${answer * multNum}`;
     hint = `Divide both sides by ${multNum} to solve for x.`;
-  } else if (questionType === 4) { // Simple division, e.g., x/4 = 2
+  } else if (questionType === 4) {
+    // Simple division, e.g., x/4 = 2
     const divNum = Math.floor(Math.random() * 10) + 1;
     answer = Math.floor(Math.random() * 10) + 1;
     question = `x / ${divNum} = ${answer}`;
     hint = `Multiply both sides by ${divNum} to solve for x.`;
-  } else if (questionType === 5) { // Mixed operations with addition and multiplication
+  } else if (questionType === 5) {
+    // Mixed operations with addition and multiplication
     const addMixNum = Math.floor(Math.random() * 10) + 1;
     const multMixNum = Math.floor(Math.random() * 5) + 2;
     answer = Math.floor(Math.random() * 10) + 1;
@@ -1888,7 +1902,8 @@ export function generateSolveXProblem() {
       multMixNum * (answer + addMixNum)
     }`;
     hint = `First, divide both sides by ${multMixNum}, then subtract ${addMixNum} from both sides to solve for x.`;
-  } else if (questionType === 6) { // Mixed operations with subtraction and division
+  } else if (questionType === 6) {
+    // Mixed operations with subtraction and division
     const subMixNum = Math.floor(Math.random() * 10) + 1;
     const divMixNum = Math.floor(Math.random() * 5) + 2;
     answer = Math.floor(Math.random() * 10) + 1;
@@ -1996,7 +2011,11 @@ export function generateWriteEquationProblem() {
 
 export function generateSolveRatioTableProblem() {
   // Generate random numbers for the ratio table
-  let num1: number; let num2: number; let num3; let num4: number; let num5: number;
+  let num1: number;
+  let num2: number;
+  let num3;
+  let num4: number;
+  let num5: number;
   do {
     num1 = Math.floor(Math.random() * 9) + 2;
     num2 = Math.floor(Math.random() * 9) + 2;
@@ -2082,7 +2101,10 @@ export function generateDivideMixedNumbersProblem() {
   // Calculate the result of division
   const answerNumerator = improperNumerator1 * improperDenominator2;
   const answerDenominator = improperDenominator1 * improperNumerator2;
-  const simplifiedAnswer = helper.simplifyFraction(answerNumerator, answerDenominator);
+  const simplifiedAnswer = helper.simplifyFraction(
+    answerNumerator,
+    answerDenominator
+  );
 
   // Question and hint construction
   const question = `Divide the mixed numbers: ${whole1}<span class="frac"><sup>${fractionNumerator1}</sup><span>&frasl;</span><sub>${fractionDenominator1}</sub></span> ÷ ${whole2}<span class="frac"><sup>${fractionNumerator2}</sup><span>&frasl;</span><sub>${fractionDenominator2}</sub></span>`;
@@ -2150,15 +2172,20 @@ export function generateDivideMixedNumbersProblem() {
 }
 
 export function generateExponent2Problem() {
-  let base; let numerator; let denominator; let exponent; let answer: string; let hint;
+  let base;
+  let numerator;
+  let denominator;
+  let exponent;
+  let answer: string;
+  let hint;
   const wasFraction = Math.random() < 0.5;
 
   if (wasFraction) {
     numerator = Math.floor(Math.random() * 8) + 1;
     denominator = Math.floor(Math.random() * (8 - numerator)) + numerator + 1;
     exponent = Math.floor(Math.random() * 3) + 2;
-    const numeratorExponentiated = numerator**exponent;
-    const denominatorExponentiated = denominator**exponent;
+    const numeratorExponentiated = numerator ** exponent;
+    const denominatorExponentiated = denominator ** exponent;
     const simplifiedFraction = helper.simplifyFraction(
       numeratorExponentiated,
       denominatorExponentiated
@@ -2169,7 +2196,7 @@ export function generateExponent2Problem() {
   } else {
     base = (Math.random() * 0.1).toFixed(3);
     exponent = Math.floor(Math.random() * 3) + 2;
-    answer = (parseFloat(base)**exponent).toString();
+    answer = (parseFloat(base) ** exponent).toString();
     hint = `To calculate ${base}<sup>${exponent}</sup>, multiply ${base} by itself ${
       exponent - 1
     } times. Remember, the exponent tells you how many times to use the base as a factor.`;
