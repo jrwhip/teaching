@@ -13,7 +13,10 @@ import { StoredMathQuestions } from '../models/stored-math-questions.model';
   providedIn: 'root',
 })
 export class FooService {
-  constructor(private mathQuestionGenerationService: MathQuestionGenerationService, private stateService: StateService) {}
+  constructor(
+    private mathQuestionGenerationService: MathQuestionGenerationService,
+    private stateService: StateService
+  ) {}
 
   getStoredMathQuestions() {
     return this.stateService.selectKey('storedMathQuestions');
@@ -28,8 +31,9 @@ export class FooService {
   }
 
   setNewMathQuestion(operation: string) {
-    const mathQuestion: MathQuestion = this.mathQuestionGenerationService.generateQuestion(operation);
-    
+    const mathQuestion: MathQuestion =
+      this.mathQuestionGenerationService.generateQuestion(operation);
+
     return this.stateService.storedMathQuestions$.pipe(
       // This subsrition is updating the same part of state that it's reading from.
       // This is what was causing the infinite loop. The solution is to use the take(1)

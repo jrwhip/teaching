@@ -4,8 +4,8 @@
 @import './scss/style';
 // styles.scss or styles.css
 
-@import "~ag-grid-community/styles/ag-grid.css";
-@import "~ag-grid-community/styles/ag-theme-alpine.css";
+@import '~ag-grid-community/styles/ag-grid.css';
+@import '~ag-grid-community/styles/ag-theme-alpine.css';
 
 .bg-orange {
   // --bs-bg-opacity: 1;
@@ -18,15 +18,15 @@
 }
 
 .mt-n3 {
-    margin-top: -1rem !important;
+  margin-top: -1rem !important;
 }
 
 .mt-n4 {
-    margin-top: -1.6rem !important;
+  margin-top: -1.6rem !important;
 }
 
 .mb-n4 {
-    margin-bottom: -1.6rem !important;
+  margin-bottom: -1.6rem !important;
 }
 
 .start-70 {

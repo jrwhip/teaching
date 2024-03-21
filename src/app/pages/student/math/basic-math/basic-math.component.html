@@ -24,7 +24,10 @@
             </svg>
           </figure>
           <!-- Question Form -->
-          <app-question-form [question]="questionSignal().question" (studentAnswer)="onStudentAnswer($event)" ></app-question-form>
+          <app-question-form
+            [question]="questionSignal().question"
+            (studentAnswer)="onStudentAnswer($event)"
+          ></app-question-form>
         </div>
         <!-- Left Content END -->
 
@@ -132,5 +135,4 @@
     </div>
   </section>
   <!-- Form and Tabs END -->
-
 </main>

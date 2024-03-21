@@ -4,9 +4,7 @@ export const appRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/home/home.component').then(
-        (c) => c.HomeComponent
-      ),
+      import('./pages/home/home.component').then((c) => c.HomeComponent),
   },
   {
     path: 'student',
@@ -35,7 +33,9 @@ export const appRoutes: Route[] = [
   {
     path: 'math',
     loadComponent: () =>
-      import('./pages/student/math/math.component').then((c) => c.MathComponent),
+      import('./pages/student/math/math.component').then(
+        (c) => c.MathComponent
+      ),
   },
   {
     path: '**',
