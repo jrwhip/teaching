@@ -1,18 +1,458 @@
-      import * as helper from './helper.utils'
-    
-      export class Problem {
-        question: string;
-        answer: string;
-        validate: (userInput: string) => {};
-        hint: string;
-        constructor(question: string, answer: string, validateFn: (userInput: string) => {}, hint: string) {
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz</title>
+
+    <style>
+      span.frac {
+        display: inline-block;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      span.frac>sup,
+      span.frac>sub {
+        display: block;
+        font: inherit;
+        font-size: 75%;
+        padding: 0 0.3em;
+        /* 7<span class="frac"><sup>42</sup><span>&frasl;</span><sub>73</sub></span> */
+      }
+
+      span.frac>sup {
+        border-bottom: 0.08em solid;
+      }
+
+      span.frac>span {
+        display: none;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 10;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #87ceeb;
+        /* Light grey background for the page */
+      }
+
+      .correct {
+        color: #009900;
+      }
+
+      .incorrect {
+        color: red;
+      }
+
+      .small-font {
+        font-size: 20px;
+        /* Example size, adjust as needed */
+      }
+
+      .medium-font {
+        font-size: 26px;
+        /* Default or medium size, adjust as needed */
+      }
+
+      .large-font {
+        font-size: 32px;
+        /* Example size, adjust as needed */
+      }
+
+      .navbar {
+        overflow: hidden;
+        background-color: #004d99;
+        width: 100%;
+        /* Ensure the navbar spans the full width of the viewport */
+      }
+
+      .dropdown-content button {
+        display: inline-block;
+        /* This allows the buttons to be next to each other */
+        width: auto;
+        /* Adjust the width as needed, or set to auto for content-width */
+        padding: 12px 16px;
+        text-align: center;
+        /* Center aligns the text inside the button */
+        border: none;
+        background: none;
+        color: black;
+        text-decoration: none;
+      }
+
+      .dropdown-content button:hover {
+        background-color: #ddd;
+      }
+
+      .dropdown {
+        float: left;
+        overflow: hidden;
+      }
+
+      .dropdown .dropbtn {
+        font-size: 16px;
+        border: none;
+        outline: none;
+        color: white;
+        padding: 14px 16px;
+        background-color: inherit;
+        font-family: inherit;
+        margin: 0;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        left: 8px;
+        background-color: #f9f9f9;
+        min-width: 300px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+      }
+
+      .dropdown-content .header {
+        background: red;
+        padding: 16px;
+        color: white;
+      }
+
+
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+
+      #container {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .font-sizer-container {
+        display: flex;
+        align-items: center;
+        /* Align items vertically */
+        margin-top: 10px;
+        /* Adjust margin as needed */
+      }
+
+      #headerContainer {
+        display: flex;
+        align-items: center;
+      }
+
+      .text-size-label {
+        margin-right: 10px;
+        /* Adjust margin as needed */
+      }
+
+      .font-buttons {
+        display: flex;
+      }
+
+      #counters {
+        margin-right: 20px;
+        /* Adjust margin as needed */
+      }
+
+      #fontSizer {
+        display: flex;
+      }
+
+      .button-22 {
+        width: 30px;
+        /* Adjust width of buttons */
+        height: 30px;
+        /* Adjust height of buttons */
+        margin-right: 10px;
+        /* Adjust spacing between buttons */
+        font-size: 14px;
+        /* Adjust font size of labels */
+        text-align: center;
+        /* Center the text horizontally */
+        line-height: 30px;
+        /* Center the text vertically */
+        border-radius: 10px;
+        /* Add rounded corners */
+        padding: 0;
+        /* Remove default padding */
+      }
+
+      #problemContainer {
+        margin-top: 12px;
+        /* Adjust the value as needed */
+        margin-bottom: 0px;
+        /* Add margin below the problem container */
+      }
+
+      #inputContainer {
+        display: flex;
+        align-items: center;
+        /* Align items vertically */
+      }
+
+      #videoContainer {
+        margin-top: 10px;
+        /* Add margin above the video container */
+      }
+
+      #userAnswer {
+        margin-right: 10px;
+        /* Add margin to the input box */
+      }
+
+      .video-button {
+        margin-left: 5px;
+        margin-right: 10px;
+        /* Add margin to separate video button from input */
+      }
+
+      #hint {
+        display: none;
+        margin-top: 10px;
+      }
+
+      #previousAnswers {
+        margin-top: 20px;
+      }
+
+      #fontSizer .button-22 {
+        /* Assuming .button-22 is your button class */
+        background-color: #4CAF50;
+        /* Green background for buttons */
+        color: white;
+        /* White text on buttons */
+        border: none;
+        /* Removing border for a cleaner look */
+        cursor: pointer;
+        /* Cursor changes to pointer to indicate clickable */
+        padding: 10px 20px;
+        /* Adjust padding for better spacing */
+        margin: 5px;
+        /* Margin to separate buttons */
+      }
+
+      #fontSizer .button-22:hover {
+        background-color: #45a049;
+        /* Darker green on hover for visual feedback */
+      }
+
+    </style>
+  </head>
+
+  <body>
+
+    <div class="navbar">
+
+      <div class="dropdown">
+        <button class="dropbtn">Basics</button>
+        <div class="dropdown-content">
+
+          <button onclick="generateAndDisplayProblem('addition')">Addition</button>
+          <button onclick="generateAndDisplayProblem('subtraction')">Subtraction</button>
+          <button onclick="generateAndDisplayProblem('multiplication')">Multiplication</button>
+          <button onclick="generateAndDisplayProblem('division')">Division</button>
+          <button onclick="generateAndDisplayProblem('rounding')">Rounding</button>
+
+
+          <!-- More buttons can be added here -->
+        </div>
+
+      </div>
+      <!-- Ratios Dropdown Menu -->
+      <div class="dropdown">
+        <button class="dropbtn">Ratios</button>
+        <div class="dropdown-content">
+          <button onclick="generateAndDisplayProblem('percentDecimal')">Convert Percent/Decimal</button>
+          <button onclick="generateAndDisplayProblem('convert')">Convert</button>
+          <button onclick="generateAndDisplayProblem('percentofnumber')">Percent of Number</button>
+          <button onclick="generateAndDisplayProblem('solveratiotable')">Solve Ratio Table</button>
+          <!-- Add more colors as needed -->
+        </div>
+
+      </div>
+      <div class="dropdown">
+        <button class="dropbtn">Fractions</button>
+        <div class="dropdown-content">
+          <button onclick="generateAndDisplayProblem('simplify')">Simplify</button>
+          <button onclick="generateAndDisplayProblem('wholetimesmixed')">Whole Times Mixed</button>
+          <button onclick="generateAndDisplayProblem('comparison')">Comparison</button>
+          <button onclick="generateAndDisplayProblem('dividefractions')">Divide Fractions</button>
+          <button onclick="generateAndDisplayProblem('mixed-to-improper')">Mixed To Improper</button>
+          <button onclick="generateAndDisplayProblem('improper-to-mixed')">Improper To Mixed</button>
+          <button onclick="generateAndDisplayProblem('dividemixednumbers')">Divide Mixed Numbers</button>
+          <button onclick="generateAndDisplayProblem('addsubtractmixed')">Add Subtract Mixed</button>
+          <!-- Add more colors as needed -->
+        </div>
+
+      </div>
+      <div class="dropdown">
+        <button class="dropbtn">Equations</button>
+        <div class="dropdown-content">
+          <button onclick="generateAndDisplayProblem('translation')">Translation</button>
+          <button onclick="generateAndDisplayProblem('unknown')">Unknown</button>
+          <button onclick="generateAndDisplayProblem('factor')">Factor</button>
+          <button onclick="generateAndDisplayProblem('solvex')">SolveX</button>
+          <button onclick="generateAndDisplayProblem('distribute')">Distribute</button>
+          <button onclick="generateAndDisplayProblem('solveforx')">Solve For X</button>
+          <button onclick="generateAndDisplayProblem('exponent')">Exponent</button>
+          <button onclick="generateAndDisplayProblem('exponent2')">Exponent2</button>
+          
+          <!-- Add more colors as needed -->
+        </div>
+
+      </div>
+      <div class="dropdown">
+        <button class="dropbtn">Rational Numbers</button>
+        <div class="dropdown-content">
+
+          
+          <button onclick="generateAndDisplayProblem('absolutevalue')">Absolute Value</button>
+          <button onclick="generateAndDisplayProblem('opposites')">Opposites</button>
+          <button onclick="generateAndDisplayProblem('lcm')">LCM</button>
+          <button onclick="generateAndDisplayProblem('gcf')">GCF</button>
+          
+          <button onclick="changeBackgroundColor('#e2725b')">Terracotta</button>
+          <button onclick="changeBackgroundColor('#e6e6fa')">Lavender</button>
+          <button onclick="changeBackgroundColor('#87ceeb')">Sky Blue</button>
+          <!-- Add more colors as needed -->
+        </div>
+
+      </div>
+      <div class="dropdown">
+        <button class="dropbtn">Statistics</button>
+        <div class="dropdown-content">
+          <button onclick="generateAndDisplayProblem('mean')">Mean</button>
+          <button onclick="generateAndDisplayProblem('median')">Median</button>
+          <button onclick="generateAndDisplayProblem('mode')">Mode</button>
+          <button onclick="generateAndDisplayProblem('range')">Range</button>
+          <button onclick="generateAndDisplayProblem('firstquartile')">First Quartile</button>
+          <button onclick="generateAndDisplayProblem('thirdquartile')">Third Quartile</button>
+          <button onclick="generateAndDisplayProblem('interquartilerange')">InterQuartileRange</button>
+          <!-- Add more colors as needed -->
+        </div>
+
+      </div>
+      <div class="dropdown">
+        <button class="dropbtn">Reveal</button>
+        <div class="dropdown-content">
+
+          <button onclick="generateAndDisplayProblem('gcf')">GCF</button>
+          <button onclick="generateAndDisplayProblem('distribute')">Distribute</button>
+          <button onclick="generateAndDisplayProblem('wholetimesmixed')">Whole Times Mixed</button>
+          <button onclick="generateAndDisplayProblem('solveforx')">Solve For X</button>
+          <button onclick="generateAndDisplayProblem('solvex')">SolveX</button>
+          <button onclick="generateAndDisplayProblem('addsubtractmixed')">Add Subtract Mixed</button>
+          <button onclick="generateAndDisplayProblem('translation')">Translation</button>
+          <button onclick="generateAndDisplayProblem('factor')">Factor</button>
+          <button onclick="generateAndDisplayProblem('writeequation')">WriteEquation</button>
+       
+          <!-- Add more colors as needed -->
+        </div>
+
+      </div>
+      <div class="dropdown">
+        <button class="dropbtn">Color Theme</button>
+        <div class="dropdown-content">
+          <button onclick="changeBackgroundColor('#f5f5dc')">Beige</button>
+          <button onclick="changeBackgroundColor('#d3d3d3')">Light Gray</button>
+          <button onclick="changeBackgroundColor('#b6d0e2')">Powder Blue</button>
+          <button onclick="changeBackgroundColor('#98ff98')">Mint Green</button>
+          <button onclick="changeBackgroundColor('#36454f')">Charcoal</button>
+          <button onclick="changeBackgroundColor('#ff7f50')">Coral</button>
+          <button onclick="changeBackgroundColor('#008080')">Teal</button>
+          <button onclick="changeBackgroundColor('#e2725b')">Terracotta</button>
+          <button onclick="changeBackgroundColor('#e6e6fa')">Lavender</button>
+          <button onclick="changeBackgroundColor('#87ceeb')">Sky Blue</button>
+          <!-- Add more colors as needed -->
+        </div>
+
+      </div>
+
+
+    </div>
+
+    <div id="headerContainer">
+      <div id="counters">
+        Correct: <span id="correctCount">0</span><br>
+        Incorrect: <span id="incorrectCount">0</span>
+      </div>
+      <div id="fontSizer">
+        <div class="text-size-label">Text Size</div>
+        <div class="font-buttons">
+          <button id="smallFont" class="button-22">S</button>
+          <button id="mediumFont" class="button-22">M</button>
+          <button id="largeFont" class="button-22">L</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="problemContainer"></div>
+
+    <div id="container">
+      <div id="problemContainer"></div>
+      <div id="inputContainer">
+        <input type="text" id="userAnswer" placeholder="Enter your answer" autocomplete="off">
+        <button id="teachingVideoButton" class="video-button" style="display:none;" onclick="changeVideo('')">Teaching</button>
+        <button id="exampleVideoButton" class="video-button" style="display:none;" onclick="changeVideo('')">Example</button>
+
+
+        <button id="closeVideoButton" style="display:none;" onclick="closeVideo()">Close Video</button>
+      </div>
+    </div>
+    <div id="videoContainer" style="display:none;"></div>
+    <div id="hint"></div>
+    <div id="previousAnswers"></div>
+
+
+
+    <script>
+      class Problem {
+        constructor(question, answer, validateFn, hint) {
           this.question = question;
           this.answer = answer;
           this.validate = validateFn;
           this.hint = hint;
         }
-
       }
+
+      let answersList = "";
+      let correctAnswers = 0;
+      let incorrectAnswers = 0;
+
+      function updateCountersDisplay() {
+        document.getElementById('correctCount').textContent = correctAnswers;
+        document.getElementById('incorrectCount').textContent = incorrectAnswers;
+      }
+
+      function changeBackgroundColor(color) {
+        document.body.style.backgroundColor = color;
+        localStorage.setItem('backgroundColor', color); // Store the color choice
+      }
+
+      // Apply the stored background color on page load
+      document.addEventListener('DOMContentLoaded', (event) => {
+        const storedColor = localStorage.getItem('backgroundColor');
+        if (storedColor) {
+          document.body.style.backgroundColor = storedColor;
+        }
+      });
+
+      function calculateGCF(a, b) {
+        return b === 0 ? a : calculateGCF(b, a % b);
+      }
+
+      function calculateLCM(a, b) {
+        const gcd = (x, y) => !y ? x : gcd(y, x % y);
+        return (a * b) / gcd(a, b);
+      }
+
 
       function generateSimplifyProblem() {
         let num1 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
@@ -21,7 +461,7 @@
         let num4 = num1 * num2; // Creates a composite number ensuring a common factor
         let num5 = num1 * num3; // Creates another composite number with a common factor
 
-        const commonFactor = helper.calculateGCF(num4, num5);
+        const commonFactor = calculateGCF(num4, num5);
         const simplifiedNumerator = num4 / commonFactor;
         const simplifiedDenominator = num5 / commonFactor;
 
@@ -31,7 +471,7 @@
           `<br><span class="frac"><sup>${num4} ÷ ${commonFactor}</sup><span>&frasl;</span><sub>${num5} ÷ ${commonFactor}</sub></span> = <span class="frac"><sup>${simplifiedNumerator}</sup><span>&frasl;</span><sub>${simplifiedDenominator}</sub></span>`;
 
         // Adjust the validateFn to properly compare the user's input against the correct answer
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           // Trim and remove any spaces to standardize the input
           const standardizedInput = userInput.trim().replace(/\s+/g, '');
 
@@ -49,6 +489,7 @@
 
           const isCorrect = isFractionCorrect || isWholeNumberCorrect;
 
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -111,13 +552,14 @@
 3. Write down the sum with the decimal point aligned`;
 
         // Define the validate function
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const isCorrect = parseFloat(userInput) === sum;
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
         // Return a new Problem object with the question, answer, and validate function
-        return new Problem(`${num1} + ${num2}`, sum.toString(), validateFn, hint);
+        return new Problem(`${num1} + ${num2}`, sum, validateFn, hint);
       }
 
 
@@ -180,14 +622,20 @@
     3. Write down the difference with the decimal point aligned.`;
 
         // Define the validate function
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const isCorrect = parseFloat(userInput) === difference;
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
         // Return the generated problem with unpadded numbers for the question
-        return new Problem(`${num1} - ${num2}`, difference.toString(), validateFn, hint);
+        return new Problem(`${num1} - ${num2}`, difference, validateFn, hint);
       }
+
+
+
+
+
 
       function generateMultiplicationProblem() {
         const num1 = Math.floor(Math.random() * 80) + 15;
@@ -249,13 +697,13 @@
 
         const product = num1 * num2;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const isCorrect = parseFloat(userInput) === product;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
-        return new Problem(`${num1} × ${num2}`, product.toString(), validateFn, hint);
+        return new Problem(`${num1} × ${num2}`, product, validateFn, hint);
       }
 
 
@@ -265,7 +713,7 @@
 
         // Randomly decide to round to the nearest tenth or hundredth
         let roundingType = Math.floor(Math.random() * 2); // 0 for tenth, 1 for hundredth
-        let answer: number;
+        let answer;
         let roundingInstruction;
 
         if (roundingType === 0) {
@@ -317,12 +765,13 @@
     `;
 
         // Adjust the validateFn to properly handle both correct and incorrect answers
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = parseFloat(userInput);
           const comparisonPrecision = roundingType === 0 ? 1 : 2; // Determine the precision based on the rounding type
           const isCorrect = parsedInput.toFixed(comparisonPrecision) == answer.toFixed(comparisonPrecision);
 
-
+          // Call displayHintAndFeedback for both correct and incorrect answers to update UI and counters accordingly
+          displayHintAndFeedback(isCorrect, hint);
 
           return isCorrect;
         };
@@ -347,7 +796,7 @@
         const productFractionDenominator = mixedFractionDenominator;
 
         // Simplify the fraction part of the product
-        const greatestCommonDivisorM = helper.calculateGCF(productFractionNumerator, productFractionDenominator);
+        const greatestCommonDivisorM = calculateGCF(productFractionNumerator, productFractionDenominator);
         let simplifiedNumeratorM = productFractionNumerator / greatestCommonDivisorM;
         let simplifiedDenominatorM = productFractionDenominator / greatestCommonDivisorM;
 
@@ -426,13 +875,14 @@
 `;
 
         // Validation function to check the user's answer
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           // Standardize user input and define regex to extract potential whole number and fraction parts
           const inputRegex = /^(\d+)(?:\s+(\d+)\/(\d+))?$/;
           const match = userInput.match(inputRegex);
 
           // Ensure the input matches expected format
           if (!match) {
+            displayHintAndFeedback(false, hintM); // Incorrect answer format
             return false;
           }
 
@@ -446,6 +896,7 @@
             inputDenominator === simplifiedDenominatorM;
 
           // Provide feedback based on the correctness of the answer
+          displayHintAndFeedback(isCorrect, hintM);
 
           return isCorrect;
         };
@@ -456,15 +907,13 @@
 
 
 
-      // TODO: This function is not correctly structured
+
       function generateTranslationProblem() {
         const num1 = Math.floor(Math.random() * 50) + 5; // Generate a random number between 5 and 54
         const num2 = Math.floor(Math.random() * 50) + 5; // Generate a random number between 5 and 54
         const questionType = Math.floor(Math.random() * 15) + 1; // Randomly choose the type of problem
 
-        let question;
-        let answer: string;
-        let hint;
+        let question, answer, hint;
 
         switch (questionType) {
           case 1: // Addition
@@ -473,10 +922,9 @@
             break;
           case 2: // Subtraction
             question = `${num1} more than a number is ${num2}.  <br> Use n as the variable`;
-            answer = `n - ${num1} = ${num2}`;
-            answer = `${num2} - n = ${num1}`;
+            answer = `n + ${num1} = ${num2}`;
             break;
-          case 3: // Addition
+          case 3: // Multiplication
             question = `Increasing a number by ${num1} gives ${num2}.  <br> Use n as the variable`;
             answer = `n + ${num1} = ${num2}`;
             break;
@@ -522,33 +970,20 @@
             break;
           case 14: // Multiplication
             question = `${num1} divided by ${num2} = n.  <br> Use n as the variable`;
-            answer = `${num1} / ${num2} = n~${num2} / ${num1} = n`;
+            answer = `${num1} / ${num2} = n`;
             break;
           case 15: // Division
             question = `A number n divided by ${num1} = ${num2}.  <br> Use n as the variable`;
             answer = `n / ${num1} = ${num2}`;
             break;
-          default:
-            question = `Type winner`;
-            answer = `winner`;
         }
         // Validation function
-        const validateFn = (userInput: string) => {
-          const normalizedInput = userInput.replace(/\s/g, '').toLowerCase();
-          const normalizedAnswer = answer.replace(/\s/g, '').toLowerCase();
-          const splitAnswer = normalizedAnswer.split('~');
-          if (splitAnswer.length > 1) {
-            return normalizedInput === splitAnswer[0] || userInput === splitAnswer[1];
-          }
+        const validateFn = (userInput) => {
           const isCorrect = userInput === answer;
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
-        const splitAnswer = answer.split('~');
-        if (splitAnswer.length > 1) {
-          hint = `The answer is either ${splitAnswer[0]} or ${splitAnswer[1]}`;
-        } else {
-          hint = `The equation is: ${answer}`;
-        }
+
 
         // Return the generated problem
         return new Problem(question, answer, validateFn, hint);
@@ -562,11 +997,11 @@
 
         const hint = `To find the mean (average) of a set of numbers, add all the numbers together and then divide by the number of numbers.`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const userAnswer = parseFloat(userInput).toFixed(2);
           const correctAnswer = mean.toFixed(2);
           const isCorrect = userAnswer === correctAnswer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -585,10 +1020,10 @@
 
         const hint = `To find the median, sort the numbers and find the middle value (or the average of the two middle values if there's an even number of numbers).`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const userAnswer = parseFloat(userInput);
           const isCorrect = numbersForMedian.length % 2 !== 0 ? userAnswer === median : userAnswer.toFixed(2) === median.toFixed(2);
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -600,25 +1035,32 @@
 
       function generateModeProblem() {
         let numbersForMode = Array.from({
-            length: 5 + Math.floor(Math.random() * 5)
+          length: 5 + Math.floor(Math.random() * 5)
         }, () => Math.floor(Math.random() * 20) + 1);
+        let frequency = {};
+        let maxFreq = 0;
+        let mode = [];
 
-        let frequency = numbersForMode.reduce((acc: { [key: number]: number }, num: number) => {
-            acc[num] = (acc[num] || 0) + 1;
-            return acc;
-        }, {});
+        numbersForMode.forEach((num) => {
+          frequency[num] = (frequency[num] || 0) + 1;
+          if (frequency[num] > maxFreq) {
+            maxFreq = frequency[num];
+          }
+        });
 
-        let maxFreq = Math.max(...Object.values(frequency));
-
-        let mode = Object.keys(frequency).filter(num => frequency[+num] === maxFreq);
+        for (const num in frequency) {
+          if (frequency[num] === maxFreq) {
+            mode.push(num);
+          }
+        }
 
         const hint = `To find the mode, determine which number(s) appear most frequently.`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const userAnswers = userInput.split(',').map(num => num.trim());
           const correctAnswers = mode.map(String).sort();
           const isCorrect = userAnswers.length === correctAnswers.length && userAnswers.every((value, index) => value === correctAnswers[index]);
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -638,10 +1080,10 @@
 
         const hint = `The range of a set of numbers is the difference between the largest and smallest numbers.`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const userAnswer = parseInt(userInput, 10);
           const isCorrect = userAnswer === range;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -660,10 +1102,10 @@
 
         const hint = `Q1 is the median of the lower half of the data set (not including the median if the number of observations is odd).`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const userAnswer = parseFloat(userInput);
           const isCorrect = userAnswer === q1;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -682,10 +1124,10 @@
 
         const hint = `Q3 is the median of the upper half of the data set (not including the median if the number of observations is odd).`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const userAnswer = parseFloat(userInput);
           const isCorrect = userAnswer === q3;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -707,10 +1149,10 @@
 
         const hint = `The interquartile range (IQR) is the difference between the third quartile (Q3) and the first quartile (Q1).`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const userAnswer = parseFloat(userInput);
           const isCorrect = userAnswer === iqr;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -755,8 +1197,6 @@
           case 'hundredths':
             roundingPosition = numStr.indexOf('.') + 2;
             break;
-          default:
-            roundingPosition = -1;
         }
 
         if (roundingPosition >= 0 && roundingPosition < numStr.length) {
@@ -774,7 +1214,7 @@
           `<br>In ${num}, the digit in the ${roundType} place is ${placeValueDigit}, and the next digit is ${nextDigit} ` +
           `Rounding ${num} to the nearest ${roundType} gives ${roundedNum}.`;
 
-        function roundNumber(number: number, type: string) {
+        function roundNumber(number, type) {
           switch (type) {
             case 'tens':
               return Math.round(number / 10) * 10;
@@ -791,17 +1231,21 @@
           }
         }
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const standardizedInput = userInput.trim();
           const isCorrect = standardizedInput === roundedNum;
- // Updates UI based on correctness
+          displayHintAndFeedback(isCorrect, hint); // Updates UI based on correctness
           return isCorrect;
         };
 
         return new Problem(question, roundedNum, validateFn, hint);
       }
 
-      function roundNumber(number: number, type: any) {
+
+
+
+
+      function roundNumber(number, type) {
         switch (type) {
           case 'tens':
             return Math.round(number / 10) * 10;
@@ -820,9 +1264,7 @@
 
       function generatePercentDecimalQuestion() {
         const convertToDecimal = Math.random() < 0.5;
-        let question;
-        let answer;
-        let hint;
+        let question, answer, hint;
 
         if (convertToDecimal) {
           const percent = Math.floor(Math.random() * 200) + 1;
@@ -839,10 +1281,10 @@
         }
 
         // Validation function to compare user input with the answer
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const standardizedInput = convertToDecimal ? parseFloat(userInput).toFixed(2) : userInput.trim();
           const isCorrect = standardizedInput === answer;
- // Make sure to call this for incorrect answers too
+          displayHintAndFeedback(isCorrect, hint); // Make sure to call this for incorrect answers too
           return isCorrect;
         };
 
@@ -898,9 +1340,9 @@
         }
 
         // Validation function to compare user input with the answer
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const isCorrect = answerType === 'decimal' ? parseFloat(userInput).toFixed(2) === answer : userInput.trim() === answer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -908,12 +1350,23 @@
       }
 
       // Simplify fraction utility function
-    function gcd(a: number, b: number): number {
+      function simplifyFraction(numerator, denominator) {
+        function gcd(a, b) {
+          return b ? gcd(b, a % b) : a;
+        }
+        const greatestCommonDivisor = gcd(numerator, denominator);
+        return {
+          numerator: numerator / greatestCommonDivisor,
+          denominator: denominator / greatestCommonDivisor
+        };
+      }
+
+      function gcd(a, b) {
         if (!b) return a;
         return gcd(b, a % b);
-    }
+      }
 
-      function lcm(a: number, b: number) {
+      function lcm(a, b) {
         return Math.abs(a * b) / gcd(a, b);
       }
 
@@ -950,9 +1403,9 @@
 `;
 
         // Validation function to compare user input with the correct answer
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const isCorrect = parseFloat(userInput).toFixed(2) === answer.toString();
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -963,12 +1416,16 @@
 
       function generateComparisonQuestion() {
         const currentType = Math.random() < 0.5 ? 'fraction' : 'decimal';
-        let question;
-        let answer;
+        let question, answer;
 
         // Helper functions for comparing fractions and decimals
+        const compareFractions = (num1, denom1, num2, denom2) => {
+          const value1 = num1 / denom1;
+          const value2 = num2 / denom2;
+          return value1 > value2 ? ">" : value1 < value2 ? "<" : "=";
+        };
 
-        const compareDecimals = (num1: number, num2: number) => {
+        const compareDecimals = (num1, num2) => {
           return num1 > num2 ? ">" : num1 < num2 ? "<" : "=";
         };
 
@@ -978,7 +1435,7 @@
           const numerator2 = Math.floor(Math.random() * 9) + 1;
           const denominator2 = Math.floor(Math.random() * (9 - numerator2)) + numerator2;
           question = `Choose >, <, or =: <span class="frac"><sup>${numerator}</sup><span>&frasl;</span><sub>${denominator}</sub></span> ____ <span class="frac"><sup>${numerator2}</sup><span>&frasl;</span><sub>${denominator2}</sub></span>`;
-          answer = helper.compareFractions(numerator, denominator, numerator2, denominator2);
+          answer = compareFractions(numerator, denominator, numerator2, denominator2);
         } else {
           const num1 = parseFloat((Math.random()).toFixed(2));
           const num2 = parseFloat((Math.random()).toFixed(2));
@@ -987,10 +1444,10 @@
         }
 
         // Validation function to check user's input
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const isCorrect = userInput === answer;
           const hint = `Consider converting fractions to decimals for an easier comparison, or directly compare the decimal values.`;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1009,7 +1466,7 @@
         const productDenominator = denominator1 * numerator2;
 
         // Simplify the fraction
-        const simplifiedAnswer = helper.simplifyFraction(productNumerator, productDenominator);
+        const simplifiedAnswer = simplifyFraction(productNumerator, productDenominator);
 
         // Check if it's an improper fraction and convert to mixed number if necessary
         const wholePart = Math.floor(simplifiedAnswer.numerator / simplifiedAnswer.denominator);
@@ -1086,9 +1543,9 @@
         }
 
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const isCorrect = userInput.trim() === answer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1105,7 +1562,7 @@
         const improperNumerator = whole * fractionDenominator + fractionNumerator;
 
         // Assume simplifyFraction function returns an object with the simplified fraction and a flag indicating if simplification was done
-        const simplified = helper.simplifyFraction(improperNumerator, fractionDenominator);
+        const simplified = simplifyFraction(improperNumerator, fractionDenominator);
         const needsSimplification = simplified.numerator !== improperNumerator || simplified.denominator !== fractionDenominator;
 
         const question = `Convert ${whole}<span class="frac"><sup>${fractionNumerator}</sup><span>&frasl;</span><sub>${fractionDenominator}</sub></span> to a simplified improper fraction`;
@@ -1159,12 +1616,12 @@
 
         const answer = `${simplified.numerator}/${simplified.denominator}`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           // Enhance validation to accept simplified answers
           const inputFraction = userInput.trim().split('/');
-          const simplifiedInput = helper.simplifyFraction(parseInt(inputFraction[0], 10), parseInt(inputFraction[1], 10));
+          const simplifiedInput = simplifyFraction(parseInt(inputFraction[0], 10), parseInt(inputFraction[1], 10));
           const isCorrect = simplifiedInput.numerator === simplified.numerator && simplifiedInput.denominator === simplified.denominator;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1219,10 +1676,10 @@
 </table>
 `;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           // Enhance this function as needed to accurately validate user input
           const isCorrect = userInput.trim() === answer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1258,14 +1715,14 @@
         ? adjustedNumerator1 + adjustedNumerator2
         : adjustedNumerator1 - adjustedNumerator2;
 
-    const gcdResult = helper.calculateGCF(resultFractionNumerator, commonDenominator);
+    const gcdResult = calculateGCF(resultFractionNumerator, commonDenominator);
     let simplifiedNumerator = resultFractionNumerator / gcdResult;
     let simplifiedDenominator = commonDenominator / gcdResult;
 
     let resultWhole = isAddition ? whole1 + whole2 : whole1 - whole2;
 
     // Calculate the final gcd for further simplification if needed
-    const finalGcd = helper.calculateGCF(simplifiedNumerator, simplifiedDenominator);
+    const finalGcd = calculateGCF(simplifiedNumerator, simplifiedDenominator);
     let finalNumerator = simplifiedNumerator / finalGcd;
     let finalDenominator = simplifiedDenominator / finalGcd;
 
@@ -1347,8 +1804,9 @@
 
 `;
 
-    const validateFn = (userInput: string) => {
+    const validateFn = (userInput) => {
         const isCorrect = userInput.trim() === answer;
+        displayHintAndFeedback(isCorrect, hint);
         return isCorrect;
     };
 
@@ -1375,10 +1833,10 @@
           `${operation === '+' ? num1 * num2 + ' + ' + num3 : num1 * num2 + ' - ' + num3} = ${answer}.`;
 
         // Ensure validateFn uses the standardized way of handling input and comparing with the answer
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = parseFloat(userInput);
           const isCorrect = parsedInput === answer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1406,10 +1864,10 @@
           `<br>Base: ${num1}<br>Exponent: ${exponent}`;
 
         // Ensure validateFn handles user input correctly
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = parseFloat(userInput);
           const isCorrect = parsedInput === answer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1435,10 +1893,10 @@
         }
 
         // Validation function to handle user input
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = parseFloat(userInput);
           const isCorrect = parsedInput === answer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1465,10 +1923,10 @@
         const answer = questionType === 'opposite' ? -num : num;
 
         // Validation function to handle user input
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = parseFloat(userInput);
           const isCorrect = parsedInput === answer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1483,14 +1941,14 @@
           num2 = Math.floor(Math.random() * 11) + 2;
         }
 
-        let lcm = helper.calculateLCM(num1, num2);
+        let lcm = calculateLCM(num1, num2);
 
         const hint = `The Least Common Multiple (LCM) of two numbers is the smallest number that is a multiple of both. For ${num1} and ${num2}, find the smallest common multiple.`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = parseInt(userInput, 10);
           const isCorrect = parsedInput === lcm;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1506,14 +1964,14 @@
           num4 = num3 + 1;
         } while (num1 * num2 * num3 > 100 || num1 * num2 * num4 > 100);
 
-        const gcf = helper.calculateGCF(num1 * num2 * num3, num1 * num2 * num4);
+        const gcf = calculateGCF(num1 * num2 * num3, num1 * num2 * num4);
 
         const hint = `The Greatest Common Factor (GCF) of two numbers is the largest number that divides both of them without leaving a remainder. For ${num1*num2*num3} and ${num1*num2*num4}, first identify the common factors.`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = parseInt(userInput, 10);
           const isCorrect = parsedInput === gcf;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1558,9 +2016,9 @@
         // Generate hints based on the type of question
         hint = generateHintForUnknownType(type, num1, num2, num3);
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const isCorrect = userInput.trim() === answer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1570,31 +2028,28 @@
 
 
       // Function to generate hints based on question type
-      // TODO: Insists on undefined type: fix
       function generateHintForUnknownType(type, num1, num2, num3) {
         let hint = "";
-                        switch (type) {
-                            case 1:
-                                hint = `To find the missing number, divide both sides of the equation by ${num3}.
-        This will give you ${num1+num2} = ${num2} + _________.
-        Then, subtract ${num2} from both sides to find the missing number.`;
-                                break;
-                            case 2:
-                                hint = `First, calculate ${num3} x ${num2} to find part of the total.
-        Then subtract this from the total (${num3} x ${num1+num2}) to find the missing part.
-        This missing part divided by ${num3} is the missing number.`;
-                                break;
-                            case 3:
-                                hint = `To solve, you divide the total (${num3} x (${num1} + ${num2})) by ${num3}.
-        This tells you the combined total of ${num1} and ${num2} before multiplying by ${num3}.`;
-                                break;
-                            case 4:
-                                hint = `(${num2} + ${num3}) = ${num2 + num3} add first since it's in parentheses.
-        Then, multiply ${num2 + num3} × ${num1} to find the total.`;
-                                break;
-                            default:
-                                hint = 'No hint available';
-                        }
+        switch (type) {
+          case 1:
+            hint += `To find the missing number, divide both sides of the equation by ${num3}. `;
+            hint += `This will give you ${num1+num2} = ${num2} + _________. `;
+            hint += `Then, subtract ${num2} from both sides to find the missing number.`;
+            break;
+          case 2:
+            hint += `First, calculate ${num3} x ${num2} to find part of the total. `;
+            hint += `Then subtract this from the total (${num3} x ${num1+num2}) to find the missing part. `;
+            hint += `This missing part divided by ${num3} is the missing number.`;
+            break;
+          case 3:
+            hint += `To solve, you divide the total (${num3} x (${num1} + ${num2})) by ${num3}. `;
+            hint += `This tells you the combined total of ${num1} and ${num2} before multiplying by ${num3}.`;
+            break;
+          case 4:
+            hint += `(${num2} + ${num3}) = ${num2 + num3} add first since it's in parentheses. <br>`;
+            hint += `Then, multiply ${num2 + num3} × ${num1} to find the total. `;
+            break;
+        }
         return hint;
       }
 
@@ -1607,7 +2062,7 @@
           num3 = Math.floor(Math.random() * 3) + 2;
           num1 = num3 * (Math.floor(Math.random() * 20) + 2);
           num2 = num3 * (Math.floor(Math.random() * 20) + 2);
-          const commonFactor = helper.calculateGCF(num1, num2);
+          const commonFactor = calculateGCF(num1, num2);
           question = `Factor: ${commonFactor * num1}n - ${commonFactor * num2}`;
           answer = `${commonFactor}( ${num1 / commonFactor}n - ${num2 / commonFactor} )`;
           hint = `To factor the expression, first identify the greatest common factor (GCF) of the coefficients. 
@@ -1619,17 +2074,17 @@
           num3 = Math.floor(Math.random() * 3) + 2;
           num1 = num3 * (Math.floor(Math.random() * 20) + 2);
           num2 = num3 * (Math.floor(Math.random() * 20) + 2);
-          const commonFactor = helper.calculateGCF(num1, num2);
+          const commonFactor = calculateGCF(num1, num2);
           question = `Use the GCF to simplify: ${commonFactor * num1} + ${commonFactor * num2}`;
           answer = `${commonFactor}( ${num1 / commonFactor} + ${num2 / commonFactor} )`;
           hint = `Simplify by identifying the GCF of the terms, which is ${commonFactor}. Then express the sum as a product of the GCF and a simplified expression: 
             \n${commonFactor}(${num1 / commonFactor} + ${num2 / commonFactor}).`;
         }
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const standardizedInput = userInput.trim().replace(/\s+/g, '');
           const isCorrect = standardizedInput === answer.replace(/\s+/g, '');
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1647,13 +2102,13 @@
           `<br>    ${coefficient}&bull;${term1}n - ${coefficient}&bull;${term2}` +
           `<br>    ${coefficient*term1}n - ${coefficient*term2}.    Remember to keep the sign.`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const standardizedInput = userInput.trim().replace(/\s+/g, '');
           // Simplify the input answer to compare with simplified correct answer
           const simplifiedInput = standardizedInput.replace(/n/g, ''); // Remove 'n' for numerical comparison
           const simplifiedAnswer = answer.replace(/n/g, ''); // Remove 'n' from the correct answer for comparison
           const isCorrect = eval(simplifiedInput) === eval(simplifiedAnswer); // Evaluate expressions for numerical comparison
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1706,10 +2161,10 @@
         }
 
         // Adjust the validateFn to properly compare the user's input against the correct answer
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = parseFloat(userInput);
           const isCorrect = parsedInput === answer; // Ensure comparison is correct
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1782,13 +2237,13 @@
   ${output2} - (${output1}) = ${output2-output1}     This is the change per n
   ${output2-output1}n                 Times the change per n `;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           // Trim and standardize input for comparison
           const standardizedInput = userInput.replace(/\s+/g, '').toLowerCase();
           const standardizedAnswer = equation.replace(/\s+/g, '').toLowerCase();
 
           const isCorrect = standardizedInput === standardizedAnswer;
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1849,12 +2304,12 @@
   <span class="frac"><sup>${column1[0]}</sup><span>&frasl;</span><sub>${column1[1]}</sub></span> = <span class="frac"><sup>__</sup><span>&frasl;</span><sub>${bottomSpotCol2}</sub></span> = <span class="frac"><sup>${topSpotCol3}</sup><span>&frasl;</span><sub>__</sub></span>.
   Find the pattern or ratio that fits these columns to solve for the missing numbers.`;
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const parsedInput = userInput.split(',').map(part => part.trim());
           const isCorrect = parsedInput.length === 2 &&
             parsedInput[0] == (num1 * num4).toString() &&
             parsedInput[1] == (num2 * num5).toString();
-
+          displayHintAndFeedback(isCorrect, hint);
           return isCorrect;
         };
 
@@ -1930,10 +2385,10 @@
 `;
 
         // Validate function tailored to your application
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           const [userNumerator, userDenominator] = userInput.split('/').map(Number);
           const isCorrect = userNumerator === simplifiedAnswer.numerator && userDenominator === simplifiedAnswer.denominator;
- // Adjust according to your feedback mechanism
+          displayHintAndFeedback(isCorrect, hint); // Adjust according to your feedback mechanism
           return isCorrect;
         };
 
@@ -1951,7 +2406,7 @@
           exponent = Math.floor(Math.random() * 3) + 2;
           const numeratorExponentiated = Math.pow(numerator, exponent);
           const denominatorExponentiated = Math.pow(denominator, exponent);
-          const simplifiedFraction = helper.simplifyFraction(numeratorExponentiated, denominatorExponentiated);
+          const simplifiedFraction = simplifyFraction(numeratorExponentiated, denominatorExponentiated);
           base = `${numerator}/${denominator}`;
           answer = `${simplifiedFraction.numerator}/${simplifiedFraction.denominator}`;
           hint = `To calculate ${base}<sup>${exponent}</sup>, raise both the numerator and denominator to the power of ${exponent}, then simplify the fraction if possible.`;
@@ -1967,11 +2422,11 @@
         // Function to simplify fractions
 
 
-        const validateFn = (userInput: string) => {
+        const validateFn = (userInput) => {
           // Comparing strings to avoid floating-point precision issues for decimals
           // For fractions, you may want to parse userInput to compare numerator and denominator separately
           const isCorrect = userInput.trim() === answer;
- // Ensure this function correctly displays hints and updates problem state
+          displayHintAndFeedback(isCorrect, hint); // Ensure this function correctly displays hints and updates problem state
           return isCorrect;
         };
 
@@ -1994,13 +2449,43 @@
 
 
 
+      function changeVideo(videoId) {
+        if (videoId) {
+          document.getElementById('videoContainer').style.display = 'block';
+          document.getElementById('videoContainer').innerHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="false"></iframe>`;
+          document.getElementById('closeVideoButton').style.display = 'inline-block'; // Show the close button
+        }
+      }
 
 
-       
+      function closeVideo() {
+        document.getElementById('videoContainer').style.display = 'none'; // Hide the video container
+        document.getElementById('videoContainer').innerHTML = ''; // Clear the video content
+        document.getElementById('closeVideoButton').style.display = 'none'; // Hide the close button
+      }
 
-       
+      function displayHintAndFeedback(isCorrect, hint) {
+        const hintElement = document.getElementById('hint');
+        hintElement.style.display = isCorrect ? 'none' : 'block';
+        hintElement.innerHTML = hint;
+
+        const userInput = document.getElementById('userAnswer').value;
+        if (isCorrect) {
+          correctAnswers++; // Increment correct answers counter
+        } else {
+          incorrectAnswers++; // Increment incorrect answers counter
+        }
+
+        const logEntry = `<div class="${isCorrect ? 'correct' : 'incorrect'}">${currentProblem.question} Your answer: ${userInput} - ${isCorrect ? 'Correct!' : 'Incorrect'}</div>`;
+        answersList = logEntry + answersList;
+        document.getElementById('previousAnswers').innerHTML = answersList;
+
+        // Update the display of counters
+        updateCountersDisplay();
+      }
 
 
+      let currentProblem;
 
       // Define an object mapping problem types to their generation functions
 
@@ -2192,3 +2677,91 @@
         exampleVideoId: 'hV3RstrYGEA'
     },
 };
+
+
+
+
+      let lastProblemType = 'addition'; // Initialize the last problem type
+
+      function generateAndDisplayProblem(type = lastProblemType) {
+        const generatorData = problemGenerators[type];
+        if (generatorData) {
+          currentProblem = generatorData.generate();
+          document.getElementById('problemContainer').innerHTML = currentProblem.question;
+
+          document.getElementById('userAnswer').value = '';
+          document.getElementById('userAnswer').focus();
+          document.getElementById('hint').style.display = 'none';
+
+          // Show and configure the teaching video button
+          const teachingVideoButton = document.getElementById('teachingVideoButton');
+          if (generatorData.teachingVideoId) {
+            teachingVideoButton.style.display = 'inline-block';
+            teachingVideoButton.onclick = () => changeVideo(generatorData.teachingVideoId);
+          } else {
+            teachingVideoButton.style.display = 'none';
+          }
+
+          // Show and configure the example video button
+          const exampleVideoButton = document.getElementById('exampleVideoButton');
+          if (generatorData.exampleVideoId) {
+            exampleVideoButton.style.display = 'inline-block';
+            exampleVideoButton.onclick = () => changeVideo(generatorData.exampleVideoId);
+          } else {
+            exampleVideoButton.style.display = 'none';
+          }
+
+          lastProblemType = type;
+        } else {
+          console.error(`Problem type "${type}" is not supported.`);
+        }
+      }
+
+
+      document.getElementById('userAnswer').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          const userInput = this.value;
+          const isCorrect = currentProblem.validate(userInput);
+
+          // Clear the input box for the user to answer again
+          this.value = '';
+
+          // Generate a new problem only if the user's answer was correct
+          if (isCorrect) {
+            generateAndDisplayProblem(lastProblemType); // Use the last problem type
+          }
+        }
+      });
+
+      document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('video-button')) {
+          const videoId = event.target.dataset.videoId;
+          changeVideo(videoId);
+        }
+      });
+
+      generateAndDisplayProblem('addition'); // Initialize with an addition problem
+      document.getElementById('smallFont').addEventListener('click', function() {
+        changeFontSize('small-font');
+      });
+      document.getElementById('mediumFont').addEventListener('click', function() {
+        changeFontSize('medium-font');
+      });
+      document.getElementById('largeFont').addEventListener('click', function() {
+        changeFontSize('large-font');
+      });
+
+      function changeFontSize(sizeClass) {
+        const problemContainer = document.getElementById('problemContainer');
+        problemContainer.className = ""; // Reset class
+        problemContainer.classList.add(sizeClass);
+      }
+
+      updateCountersDisplay(); // Initializes the display of counters when the page loads
+
+    </script>
+
+  </body>
+
+</html>
