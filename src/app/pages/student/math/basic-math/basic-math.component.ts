@@ -2,7 +2,7 @@
 /* eslint-disable no-debugger */
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
 import { combineLatest, map, of, switchMap, take, tap } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -12,6 +12,7 @@ import { QuestionFormComponent } from 'src/app/components/question-form/question
 
 import { CounterValues } from 'src/app/models/counter-values.model';
 
+import { BarService } from 'src/app/services/bar.service';
 import { FooService } from 'src/app/services/foo.service';
 import { StateService } from 'src/app/services/state.service';
 import { StudentAnswer } from 'src/app/models/student-answer.model';
@@ -29,6 +30,7 @@ export class BasicMathComponent implements OnInit {
   // questionSignal: ReturnType<typeof signal<MathQuestion>>;
   questionSignal: any;
   counterValues: CounterValues;
+  barService = inject(BarService);
 
   constructor(
     private route: ActivatedRoute,
@@ -83,6 +85,12 @@ export class BasicMathComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    let result;
+    setTimeout(() => { // Using setTimeout to wait for async import; consider a more robust way for production
+      result = this.barService.executeFunction('generateSimplifyProblem');
+      console.log(result);
+    }, 1000); // Adjust timing based on your application's needs
+    console.log('Result: ', result);
     this.stateService.state$.subscribe((state) => {
       console.log('State:', state);
     });
