@@ -2,7 +2,7 @@ import * as helper from './helper.utils';
 
 type ValidateFn = (userInput: string) => boolean;
 
-export class Problem {
+class Problem {
   question: string;
   answer: string;
   validate: ValidateFn;
@@ -21,18 +21,18 @@ export class Problem {
 }
 
 function generateSimplifyProblem() {
-  let num1 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
-  let num2 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
-  let num3 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
-  let num4 = num1 * num2; // Creates a composite number ensuring a common factor
-  let num5 = num1 * num3; // Creates another composite number with a common factor
+  const num1 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
+  const num2 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
+  const num3 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
+  const num4 = num1 * num2; // Creates a composite number ensuring a common factor
+  const num5 = num1 * num3; // Creates another composite number with a common factor
 
   const commonFactor = helper.calculateGCF(num4, num5);
   const simplifiedNumerator = num4 / commonFactor;
   const simplifiedDenominator = num5 / commonFactor;
 
   const question = `Simplify: <span class="frac"><sup>${num4}</sup><span>&frasl;</span><sub>${num5}</sub></span> don't convert to a mixed number`;
-  const answer = simplifiedNumerator + '/' + simplifiedDenominator;
+  const answer = `${simplifiedNumerator} / ${simplifiedDenominator}`;
   const hint =
     `Divide numerator and denominator by the greatest common factor, which is ${commonFactor}.` +
     `<br><span class="frac"><sup>${num4} ÷ ${commonFactor}</sup><span>&frasl;</span><sub>${num5} ÷ ${commonFactor}</sub></span> = <span class="frac"><sup>${simplifiedNumerator}</sup><span>&frasl;</span><sub>${simplifiedDenominator}</sub></span>`;
@@ -92,7 +92,7 @@ function generateAdditionProblem() {
   const sumPadded = sum.toFixed(maxDecimalPlaces);
 
   // Constructing the hint
-  let hint = `Lets add them step by step:<br>
+  const hint = `Lets add them step by step:<br>
 
 1. Write the numbers vertically, aligning the decimal points:<style>
     table {
@@ -130,7 +130,8 @@ function generateAdditionProblem() {
 }
 
 function generateSubtractionProblem() {
-  let num1, num2;
+  let num1;
+  let num2;
   do {
     // Generate random decimal places between 0 and 3 for both numbers
     const decimalPlacesNum1 = Math.floor(Math.random() * 4);
@@ -272,11 +273,11 @@ function generateMultiplicationProblem() {
 }
 
 function generateDivisionProblem() {
-  let num1 = Math.floor(Math.random() * 899) + 100; // Random number between 100 and 998
-  let num2 = Math.floor(Math.random() * 14) + 5; // Random number between 5 and 18
+  const num1 = Math.floor(Math.random() * 899) + 100; // Random number between 100 and 998
+  const num2 = Math.floor(Math.random() * 14) + 5; // Random number between 5 and 18
 
   // Randomly decide to round to the nearest tenth or hundredth
-  let roundingType = Math.floor(Math.random() * 2); // 0 for tenth, 1 for hundredth
+  const roundingType = Math.floor(Math.random() * 2); // 0 for tenth, 1 for hundredth
   let answer: number;
   let roundingInstruction;
 
@@ -338,7 +339,7 @@ function generateDivisionProblem() {
     const parsedInput = parseFloat(userInput);
     const comparisonPrecision = roundingType === 0 ? 1 : 2; // Determine the precision based on the rounding type
     const isCorrect =
-      parsedInput.toFixed(comparisonPrecision) ==
+      parsedInput.toFixed(comparisonPrecision) ===
       answer.toFixed(comparisonPrecision);
 
     return isCorrect;
@@ -370,8 +371,8 @@ function generateWholeTimesMixedProblem() {
     productFractionNumerator,
     productFractionDenominator
   );
-  let simplifiedNumeratorM = productFractionNumerator / greatestCommonDivisorM;
-  let simplifiedDenominatorM =
+  const simplifiedNumeratorM = productFractionNumerator / greatestCommonDivisorM;
+  const simplifiedDenominatorM =
     productFractionDenominator / greatestCommonDivisorM;
 
   // Convert to a mixed number if the numerator is greater than the denominator
@@ -643,14 +644,14 @@ function generateMedianProblem() {
 }
 
 function generateModeProblem() {
-  let numbersForMode = Array.from(
+  const numbersForMode = Array.from(
     {
       length: 5 + Math.floor(Math.random() * 5),
     },
     () => Math.floor(Math.random() * 20) + 1
   );
 
-  let frequency = numbersForMode.reduce(
+  const frequency = numbersForMode.reduce(
     (acc: { [key: number]: number }, num: number) => {
       acc[num] = (acc[num] || 0) + 1;
       return acc;
@@ -658,9 +659,9 @@ function generateModeProblem() {
     {}
   );
 
-  let maxFreq = Math.max(...Object.values(frequency));
+  const maxFreq = Math.max(...Object.values(frequency));
 
-  let mode = Object.keys(frequency).filter(
+  const mode = Object.keys(frequency).filter(
     (num) => frequency[+num] === maxFreq
   );
 
@@ -809,7 +810,7 @@ function generateRoundingProblem() {
   ) {
     num = Math.floor(Math.random() * 9000) + 1000; // Ensuring a sufficiently large number for rounding
   } else {
-    let decimalPlaces = roundType === 'tenths' ? 1 : 2; // Decide on decimal places based on the rounding type
+    const decimalPlaces = roundType === 'tenths' ? 1 : 2; // Decide on decimal places based on the rounding type
     num = +(Math.random() * 10).toFixed(decimalPlaces);
   }
 
@@ -844,16 +845,6 @@ function generateRoundingProblem() {
       roundingPosition + 1 < numStr.length ? numStr[roundingPosition + 1] : '0';
   }
 
-  const roundedNum = roundNumber(num, roundType).toString();
-  const question = `Round ${num} to the nearest ${roundType}`;
-
-  const hint =
-    `1. Identify the place value you're rounding to.<br>` +
-    `2. Look at the next digit to the right. If it's 5 or more, round up. If it's less than 5, round down.<br>` +
-    `3. Replace the digits to the right of the place value with zeros.<br>` +
-    `<br>In ${num}, the digit in the ${roundType} place is ${placeValueDigit}, and the next digit is ${nextDigit} ` +
-    `Rounding ${num} to the nearest ${roundType} gives ${roundedNum}.`;
-
   function roundNumber(number: number, type: string) {
     switch (type) {
       case 'tens':
@@ -871,6 +862,16 @@ function generateRoundingProblem() {
     }
   }
 
+  const roundedNum = roundNumber(num, roundType).toString();
+  const question = `Round ${num} to the nearest ${roundType}`;
+
+  const hint =
+    `1. Identify the place value you're rounding to.<br>` +
+    `2. Look at the next digit to the right. If it's 5 or more, round up. If it's less than 5, round down.<br>` +
+    `3. Replace the digits to the right of the place value with zeros.<br>` +
+    `<br>In ${num}, the digit in the ${roundType} place is ${placeValueDigit}, and the next digit is ${nextDigit} ` +
+    `Rounding ${num} to the nearest ${roundType} gives ${roundedNum}.`;
+
   const validateFn = (userInput: string) => {
     const standardizedInput = userInput.trim();
     const isCorrect = standardizedInput === roundedNum;
@@ -881,27 +882,11 @@ function generateRoundingProblem() {
   return new Problem(question, roundedNum, validateFn, hint);
 }
 
-function roundNumber(number: number, type: any) {
-  switch (type) {
-    case 'tens':
-      return Math.round(number / 10) * 10;
-    case 'hundreds':
-      return Math.round(number / 100) * 100;
-    case 'thousands':
-      return Math.round(number / 1000) * 1000;
-    case 'tenths':
-      return parseFloat(number.toFixed(1));
-    case 'hundredths':
-      return parseFloat(number.toFixed(2));
-    default:
-      return number; // No rounding if type is not recognized
-  }
-}
 
 function generatePercentDecimalQuestion() {
   const convertToDecimal = Math.random() < 0.5;
   let question;
-  let answer;
+  let answer: string;
   let hint;
 
   if (convertToDecimal) {
@@ -911,7 +896,7 @@ function generatePercentDecimalQuestion() {
     hint = `To convert a percent to a decimal, divide by 100
           <br><br> ${percent}%&divide;100 = ${answer}.`;
   } else {
-    const decimal = (Math.random() * 1).toFixed(2);
+    const decimal = Number((Math.random() * 1).toFixed(2));
     question = `Convert ${decimal} to percent`;
     answer = `${(decimal * 100).toFixed(0)}%`;
     hint = `To convert a decimal to a percent, multiply by 100.
@@ -933,14 +918,17 @@ function generatePercentDecimalQuestion() {
 
 function generateConvertQuestion() {
   const convertToFraction = Math.random() < 0.5;
-  let question, answer, answerType, hint;
+  let question;
+  let answer: string;
+  let answerType: string;
+  let hint;
 
   if (convertToFraction) {
     const decimal = parseFloat(Math.random().toFixed(2));
     const placeValue = decimal.toString().split('.')[1].length;
-    const denominator = Math.pow(10, placeValue);
+    const denominator = 10**placeValue;
     const numerator = Math.round(decimal * denominator);
-    const simplified = simplifyFraction(numerator, denominator);
+    const simplified = helper.simplifyFraction(numerator, denominator);
     question = `Convert ${decimal} to a fraction`;
     answer = `${simplified.numerator}/${simplified.denominator}`;
     answerType = 'fraction';
@@ -1053,13 +1041,12 @@ function generatePercentOfNumberProblem() {
 function generateComparisonQuestion() {
   const currentType = Math.random() < 0.5 ? 'fraction' : 'decimal';
   let question;
-  let answer;
+  let answer: string;
 
   // Helper functions for comparing fractions and decimals
 
-  const compareDecimals = (num1: number, num2: number) => {
-    return num1 > num2 ? '>' : num1 < num2 ? '<' : '=';
-  };
+  // eslint-disable-next-line no-nested-ternary
+  const compareDecimals = (num1: number, num2: number) => num1 > num2 ? '>' : num1 < num2 ? '<' : '=';
 
   if (currentType === 'fraction') {
     const numerator = Math.floor(Math.random() * 9) + 1;
@@ -1081,15 +1068,15 @@ function generateComparisonQuestion() {
     answer = compareDecimals(num1, num2);
   }
 
+  const hint = `Consider converting fractions to decimals for an easier comparison, or directly compare the decimal values.`;
   // Validation function to check user's input
   const validateFn = (userInput: string) => {
     const isCorrect = userInput === answer;
-    const hint = `Consider converting fractions to decimals for an easier comparison, or directly compare the decimal values.`;
 
     return isCorrect;
   };
 
-  return new Problem(question, answer, validateFn, '');
+  return new Problem(question, answer, validateFn, hint);
 }
 
 function generateDivideFractionsProblem() {
@@ -1117,7 +1104,7 @@ function generateDivideFractionsProblem() {
   );
   const remainingNumerator =
     simplifiedAnswer.numerator % simplifiedAnswer.denominator;
-  let answer;
+  let answer: string;
   if (wholePart > 0 && remainingNumerator > 0) {
     answer = `${wholePart} ${remainingNumerator}/${simplifiedAnswer.denominator}`;
   } else if (wholePart > 0) {
@@ -1364,7 +1351,7 @@ function generateAddSubtractMixedProblem() {
     1;
   const originalWhole1 = whole1;
 
-  let whole2 = Math.floor(Math.random() * (whole1 - 1)) + 1;
+  const whole2 = Math.floor(Math.random() * (whole1 - 1)) + 1;
   const fractionNumerator2 = Math.floor(Math.random() * 7) + 1;
   const fractionDenominator2 =
     fractionNumerator2 +
@@ -1387,7 +1374,7 @@ function generateAddSubtractMixedProblem() {
     adjustedNumerator1 += commonDenominator;
   }
 
-  let resultFractionNumerator = isAddition
+  const resultFractionNumerator = isAddition
     ? adjustedNumerator1 + adjustedNumerator2
     : adjustedNumerator1 - adjustedNumerator2;
 
@@ -1395,10 +1382,10 @@ function generateAddSubtractMixedProblem() {
     resultFractionNumerator,
     commonDenominator
   );
-  let simplifiedNumerator = resultFractionNumerator / gcdResult;
-  let simplifiedDenominator = commonDenominator / gcdResult;
+  const simplifiedNumerator = resultFractionNumerator / gcdResult;
+  const simplifiedDenominator = commonDenominator / gcdResult;
 
-  let resultWhole = isAddition ? whole1 + whole2 : whole1 - whole2;
+  const resultWhole = isAddition ? whole1 + whole2 : whole1 - whole2;
 
   // Calculate the final gcd for further simplification if needed
   const finalGcd = helper.calculateGCF(
@@ -1406,25 +1393,37 @@ function generateAddSubtractMixedProblem() {
     simplifiedDenominator
   );
   let finalNumerator = simplifiedNumerator / finalGcd;
-  let finalDenominator = simplifiedDenominator / finalGcd;
+  const finalDenominator = simplifiedDenominator / finalGcd;
 
   // Determine if there's a whole part in the final answer
   const finalWholePart = Math.floor(finalNumerator / finalDenominator);
   finalNumerator %= finalDenominator;
 
   // Adjust answer formatting based on whether the numerator is 0
-  let answer;
+  let answer: string;
   if (finalNumerator === 0) {
     answer = `${resultWhole}`;
   } else {
-    answer = `${
-      resultWhole > 0 ? resultWhole + ' ' : ''
-    }${finalNumerator}/${finalDenominator}`;
+    const resultWholeAndSpace = `${resultWhole} `;
+    answer = `${resultWhole > 0 ? resultWholeAndSpace : '' }${finalNumerator}/${finalDenominator}`;
   }
 
   const question = `${originalWhole1}<sup>${fractionNumerator1}</sup>/<sub>${fractionDenominator1}</sub> ${
     isAddition ? '+' : '-'
   } ${whole2}<sup>${fractionNumerator2}</sup>/<sub>${fractionDenominator2}</sub>`;
+
+
+  function getNumeratorMessage(): string {
+    if (isAddition) {
+      return '';
+    } if (originaladjustedNumerator1 < adjustedNumerator2) {
+      return `Borrow from the whole and add it to the numerator <br><br>${originalWhole1} :`;
+    } 
+      return '';
+  }
+
+// Usage in a template string
+
 
   const hint = `<table border="1" cellpadding="5">
     <tr>
@@ -1466,14 +1465,16 @@ function generateAddSubtractMixedProblem() {
         <td>3</td>
         <td>
             ${
+              // eslint-disable-next-line no-nested-ternary
               isAddition
                 ? ''
                 : originaladjustedNumerator1 < adjustedNumerator2
-                ? 'Borrow from the whole and add it to the numerator <br><br>' +
-                  originalWhole1 +
-                  ' :'
+                ? `Borrow from the whole and add it to the numerator <br><br>${ 
+                  originalWhole1 
+                  } :`
                 : ''
-            }<br>
+            }
+            <br>
             <span class="frac"><sup>${adjustedNumerator1}</sup><span>&frasl;</span><sub>${commonDenominator}</sub></span> ${
     isAddition ? '+' : '-'
   } <span class="frac"><sup>${adjustedNumerator2}</sup><span>&frasl;</span><sub>${commonDenominator}</sub></span>
@@ -1489,19 +1490,7 @@ function generateAddSubtractMixedProblem() {
         ? `
     <tr>
         <td>4</td>
-        <td>
-            ${
-              isAddition ? 'Add' : 'Subtract'
-            } the borrowed whole number from ${originalWhole1} and update the fraction accordingly.<br><br>
-            New fraction: <span class="frac"><sup>${
-              adjustedNumerator1 - commonDenominator
-            }</sup><span>&frasl;</span><sub>${commonDenominator}</sub></span>
-        </td>
-        <td>
-            Adjust the fraction after borrowing and ${
-              isAddition ? 'addition' : 'subtraction'
-            }.
-        </td>
+        <td>${getNumeratorMessage()}</td>
     </tr>`
         : ``
     }
@@ -1546,8 +1535,8 @@ function generateSolveForXProblem() {
     `3. Complete the ${operation === '+' ? 'addition' : 'subtraction'}: ` +
     `${
       operation === '+'
-        ? num1 * num2 + ' + ' + num3
-        : num1 * num2 + ' - ' + num3
+        ? `${num1 * num2  } + ${  num3}`
+        : `${num1 * num2  } - ${  num3}`
     } = ${answer}.`;
 
   // Ensure validateFn uses the standardized way of handling input and comparing with the answer
@@ -1562,7 +1551,7 @@ function generateSolveForXProblem() {
 }
 
 function generateExponentProblem() {
-  let num1 = Math.floor(Math.random() * 8) + 2; // Base between 2 and 9
+  const num1 = Math.floor(Math.random() * 8) + 2; // Base between 2 and 9
   let exponent;
   if (num1 > 5) {
     exponent = Math.floor(Math.random() * 3) + 2; // Exponent between 2 and 4
@@ -1571,12 +1560,16 @@ function generateExponentProblem() {
   }
 
   let multiplicationSequence = `${num1}`;
-  for (let i = 1; i < exponent; i++) {
+  // for (let i = 1; i < exponent; i++) {
+  //   multiplicationSequence += ` × ${num1}`;
+  // }
+
+  Array.from({length: exponent - 1}).forEach(() => {
     multiplicationSequence += ` × ${num1}`;
-  }
+  });
 
   const question = `Calculate ${num1}<sup>${exponent}</sup>`;
-  const answer = Math.pow(num1, exponent);
+  const answer = num1**exponent;
   const hint =
     `To calculate ${num1}<sup>${exponent}</sup>, multiply ${num1} by itself ${exponent} times. ` +
     `For example: ${multiplicationSequence} = ${answer}. ` +
@@ -1594,8 +1587,8 @@ function generateExponentProblem() {
 }
 
 function generateAbsoluteValueProblem() {
-  let num = Math.floor(Math.random() * 21) - 10; // Number between -10 and 10
-  let isNegated = Math.random() < 0.5; // Randomly decide whether to negate
+  const num = Math.floor(Math.random() * 21) - 10; // Number between -10 and 10
+  const isNegated = Math.random() < 0.5; // Randomly decide whether to negate
 
   const question = `What is ${isNegated ? '-' : ''}|${num}|?`;
   const answer = isNegated ? -Math.abs(num) : Math.abs(num);
@@ -1636,20 +1629,20 @@ function generateAbsoluteValueProblem() {
 }
 
 function generateOppositesProblem() {
-  let num = Math.floor(Math.random() * 21) - 10; // Number between -10 and 10
-  let questionType =
+  const num = Math.floor(Math.random() * 21) - 10; // Number between -10 and 10
+  const questionType =
     Math.random() < 0.5 ? 'opposite' : 'opposite of the opposite';
   let hint = '';
 
   if (questionType === 'opposite') {
-    hint += `The opposite of a number is the same distance from 0 on the number line, but in the opposite direction. `;
-    hint += `So, the opposite of ${num} is ${-num}.`;
+    hint = `The opposite of a number is the same distance from 0 on the number line, but in the opposite direction.
+    So, the opposite of ${num} is ${-num}.`;
   } else {
     // Opposite of the opposite
-    hint += `First, find the opposite of ${num}, which is ${-num}. <br>`;
-    hint += `Then, to find the opposite of the opposite, you just go back to the original number. <br>`;
-    hint += `Think of it as taking two steps in one direction and then two steps back to where you started. <br>`;
-    hint += `So, the opposite of the opposite of ${num} is back to ${num} itself.`;
+    hint = `First, find the opposite of ${num}, which is ${-num}. <br>
+    Then, to find the opposite of the opposite, you just go back to the original number. <br>
+    Think of it as taking two steps in one direction and then two steps back to where you started. <br>
+    So, the opposite of the opposite of ${num} is back to ${num} itself.`;
   }
 
   const question = `What is the ${
@@ -1669,20 +1662,18 @@ function generateOppositesProblem() {
 }
 
 function generateLCMProblem() {
-  let num1 = Math.floor(Math.random() * 10) + 2;
+  const num1 = Math.floor(Math.random() * 10) + 2;
   let num2 = Math.floor(Math.random() * 11) + 2;
 
   while (num1 === num2) {
     num2 = Math.floor(Math.random() * 11) + 2;
   }
 
-  let lcm = helper.calculateLCM(num1, num2);
-
   const hint = `The Least Common Multiple (LCM) of two numbers is the smallest number that is a multiple of both. For ${num1} and ${num2}, find the smallest common multiple.`;
 
   const validateFn = (userInput: string) => {
     const parsedInput = parseInt(userInput, 10);
-    const isCorrect = parsedInput === lcm;
+    const isCorrect = parsedInput === helper.calculateLCM(num1, num2);
 
     return isCorrect;
   };
@@ -1696,7 +1687,10 @@ function generateLCMProblem() {
 }
 
 function generateGCFProblem() {
-  let num1, num2, num3, num4;
+  let num1;
+  let num2;
+  let num3;
+  let num4;
   do {
     num1 = Math.floor(Math.random() * 8) + 2;
     num2 = Math.floor(Math.random() * 8) + 1;
@@ -1726,7 +1720,12 @@ function generateGCFProblem() {
 }
 
 function generateUnknownProblem() {
-  let num1, num2, num3, question, answer, hint;
+  let num1;
+  let num2;
+  let num3;
+  let question;
+  let answer: string;
+  let hint;
   const type = Math.floor(Math.random() * 4) + 1; // Choose a random type between 1 and 4
 
   switch (type) {
@@ -1736,6 +1735,9 @@ function generateUnknownProblem() {
       num3 = Math.floor(Math.random() * 9) + 2; // Random number for addition
       question = `${num3} x ${num1 + num2} = ${num3} x (${num2} + _________)`;
       answer = num1.toString(); // Calculate the missing number
+      hint = `To find the missing number, divide both sides of the equation by ${num3}.
+        This will give you ${num1 + num2} = ${num2} + _________.
+        Then, subtract ${num2} from both sides to find the missing number.`;
       break;
     case 2:
       num1 = Math.floor(Math.random() * 9) + 2;
@@ -1745,6 +1747,11 @@ function generateUnknownProblem() {
         num1 + num2
       } = (${num3} x ${num2}) + (${num3} x _______)`;
       answer = num1.toString();
+      hint = `First, calculate ${num3} x ${num2} to find part of the total.
+        Then subtract this from the total (${num3} x ${
+        num1 + num2
+      }) to find the missing part.
+        This missing part divided by ${num3} is the missing number.`;
       break;
     case 3:
       num1 = Math.floor(Math.random() * 9) + 2;
@@ -1752,6 +1759,8 @@ function generateUnknownProblem() {
       num3 = Math.floor(Math.random() * 9) + 2;
       question = `${num3} x (${num1} + ${num2}) = ${num3} x _________`;
       answer = (num1 + num2).toString();
+      hint = `To solve, you divide the total (${num3} x (${num1} + ${num2})) by ${num3}.
+        This tells you the combined total of ${num1} and ${num2} before multiplying by ${num3}.`;
       break;
     case 4:
       num1 = Math.floor(Math.random() * 9) + 2;
@@ -1759,11 +1768,19 @@ function generateUnknownProblem() {
       num3 = Math.floor(Math.random() * 6) + 2;
       question = `${num1} x (${num2} + ${num3}) = _________`;
       answer = (num1 * (num2 + num3)).toString();
+      hint = `(${num2} + ${num3}) = ${
+        num2 + num3
+      } add first since it's in parentheses.
+        Then, multiply ${num2 + num3} × ${num1} to find the total.`;
       break;
+    default:
+      num1 = 0;
+      num2 = 0;
+      num3 = 0;
+      question = 'No question available';
+      answer = 'No answer available';
+      hint = 'No hint available';
   }
-
-  // Generate hints based on the type of question
-  hint = generateHintForUnknownType(type, num1, num2, num3);
 
   const validateFn = (userInput: string) => {
     const isCorrect = userInput.trim() === answer;
@@ -1776,39 +1793,14 @@ function generateUnknownProblem() {
 
 // Function to generate hints based on question type
 // TODO: Insists on undefined type: fix
-function generateHintForUnknownType(type, num1, num2, num3) {
-  let hint = '';
-  switch (type) {
-    case 1:
-      hint = `To find the missing number, divide both sides of the equation by ${num3}.
-        This will give you ${num1 + num2} = ${num2} + _________.
-        Then, subtract ${num2} from both sides to find the missing number.`;
-      break;
-    case 2:
-      hint = `First, calculate ${num3} x ${num2} to find part of the total.
-        Then subtract this from the total (${num3} x ${
-        num1 + num2
-      }) to find the missing part.
-        This missing part divided by ${num3} is the missing number.`;
-      break;
-    case 3:
-      hint = `To solve, you divide the total (${num3} x (${num1} + ${num2})) by ${num3}.
-        This tells you the combined total of ${num1} and ${num2} before multiplying by ${num3}.`;
-      break;
-    case 4:
-      hint = `(${num2} + ${num3}) = ${
-        num2 + num3
-      } add first since it's in parentheses.
-        Then, multiply ${num2 + num3} × ${num1} to find the total.`;
-      break;
-    default:
-      hint = 'No hint available';
-  }
-  return hint;
-}
 
 function generateFactorProblem() {
-  let num1, num2, num3, question, answer, hint;
+  let num1;
+  let num2;
+  let num3;
+  let question;
+  let answer: string;
+  let hint;
   const isFactoring = Math.random() < 0.5; // Randomly decide between factoring and distributing
 
   if (isFactoring) {
@@ -1876,7 +1868,12 @@ function generateDistributeProblem() {
     // Simplify the input answer to compare with simplified correct answer
     const simplifiedInput = standardizedInput.replace(/n/g, ''); // Remove 'n' for numerical comparison
     const simplifiedAnswer = answer.replace(/n/g, ''); // Remove 'n' from the correct answer for comparison
-    const isCorrect = eval(simplifiedInput) === eval(simplifiedAnswer); // Evaluate expressions for numerical comparison
+    // Split by operator
+    const [inputNum1, inputNum2] = simplifiedInput.split('-').map(Number);
+    const [answerNum1, answerNum2] = simplifiedAnswer.split('-').map(Number);
+
+    // Perform operation and compare
+    const isCorrect = (inputNum1 - inputNum2) === (answerNum1 - answerNum2);
 
     return isCorrect;
   };
@@ -1885,52 +1882,50 @@ function generateDistributeProblem() {
 }
 
 function generateSolveXProblem() {
-  let question, answer, hint;
+  let question;
+  let answer: number;
+  let hint;
   const questionType = Math.floor(Math.random() * 6) + 1; // Choose a problem type at random
 
-  switch (questionType) {
-    case 1: // Simple addition, e.g., x + 3 = 10
-      const addNum = Math.floor(Math.random() * 10) + 1;
-      answer = Math.floor(Math.random() * 10) + 1;
-      question = `x + ${addNum} = ${answer + addNum}`;
-      hint = `Subtract ${addNum} from both sides of the equation to solve for x.`;
-      break;
-    case 2: // Simple subtraction, e.g., x - 2 = 5
-      const subNum = Math.floor(Math.random() * 10) + 1;
-      answer = Math.floor(Math.random() * 10) + 1;
-      question = `x - ${subNum} = ${answer - subNum}`;
-      hint = `Add ${subNum} to both sides of the equation to solve for x.`;
-      break;
-    case 3: // Simple multiplication, e.g., 3x = 15
-      const multNum = Math.floor(Math.random() * 10) + 1;
-      answer = Math.floor(Math.random() * 10) + 1;
-      question = `${multNum}x = ${answer * multNum}`;
-      hint = `Divide both sides by ${multNum} to solve for x.`;
-      break;
-    case 4: // Simple division, e.g., x/4 = 2
-      const divNum = Math.floor(Math.random() * 10) + 1;
-      answer = Math.floor(Math.random() * 10) + 1;
-      question = `x / ${divNum} = ${answer}`;
-      hint = `Multiply both sides by ${divNum} to solve for x.`;
-      break;
-    case 5: // Mixed operations with addition and multiplication
-      const addMixNum = Math.floor(Math.random() * 10) + 1;
-      const multMixNum = Math.floor(Math.random() * 5) + 2;
-      answer = Math.floor(Math.random() * 10) + 1;
-      question = `${multMixNum}(x + ${addMixNum}) = ${
-        multMixNum * (answer + addMixNum)
-      }`;
-      hint = `First, divide both sides by ${multMixNum}, then subtract ${addMixNum} from both sides to solve for x.`;
-      break;
-    case 6: // Mixed operations with subtraction and division
-      const subMixNum = Math.floor(Math.random() * 10) + 1;
-      const divMixNum = Math.floor(Math.random() * 5) + 2;
-      answer = Math.floor(Math.random() * 10) + 1;
-      question = `(x - ${subMixNum}) / ${divMixNum} = ${answer}`;
-      hint = `First, multiply both sides by ${divMixNum}, then add ${subMixNum} to both sides to solve for x.`;
-      break;
+  if (questionType === 1) { // Simple addition, e.g., x + 3 = 10
+    const addNum = Math.floor(Math.random() * 10) + 1;
+    answer = Math.floor(Math.random() * 10) + 1;
+    question = `x + ${addNum} = ${answer + addNum}`;
+    hint = `Subtract ${addNum} from both sides of the equation to solve for x.`;
+  } else if (questionType === 2) { // Simple subtraction, e.g., x - 2 = 5
+    const subNum = Math.floor(Math.random() * 10) + 1;
+    answer = Math.floor(Math.random() * 10) + 1;
+    question = `x - ${subNum} = ${answer - subNum}`;
+    hint = `Add ${subNum} to both sides of the equation to solve for x.`;
+  } else if (questionType === 3) { // Simple multiplication, e.g., 3x = 15
+    const multNum = Math.floor(Math.random() * 10) + 1;
+    answer = Math.floor(Math.random() * 10) + 1;
+    question = `${multNum}x = ${answer * multNum}`;
+    hint = `Divide both sides by ${multNum} to solve for x.`;
+  } else if (questionType === 4) { // Simple division, e.g., x/4 = 2
+    const divNum = Math.floor(Math.random() * 10) + 1;
+    answer = Math.floor(Math.random() * 10) + 1;
+    question = `x / ${divNum} = ${answer}`;
+    hint = `Multiply both sides by ${divNum} to solve for x.`;
+  } else if (questionType === 5) { // Mixed operations with addition and multiplication
+    const addMixNum = Math.floor(Math.random() * 10) + 1;
+    const multMixNum = Math.floor(Math.random() * 5) + 2;
+    answer = Math.floor(Math.random() * 10) + 1;
+    question = `${multMixNum}(x + ${addMixNum}) = ${
+      multMixNum * (answer + addMixNum)
+    }`;
+    hint = `First, divide both sides by ${multMixNum}, then subtract ${addMixNum} from both sides to solve for x.`;
+  } else if (questionType === 6) { // Mixed operations with subtraction and division
+    const subMixNum = Math.floor(Math.random() * 10) + 1;
+    const divMixNum = Math.floor(Math.random() * 5) + 2;
+    answer = Math.floor(Math.random() * 10) + 1;
+    question = `(x - ${subMixNum}) / ${divMixNum} = ${answer}`;
+    hint = `First, multiply both sides by ${divMixNum}, then add ${subMixNum} to both sides to solve for x.`;
+  } else {
+    question = 'No question available';
+    answer = 0;
+    hint = 'No hint available';
   }
-
   // Adjust the validateFn to properly compare the user's input against the correct answer
   const validateFn = (userInput: string) => {
     const parsedInput = parseFloat(userInput);
@@ -1947,7 +1942,9 @@ function generateWriteEquationProblem() {
   const operation1 = Math.floor(Math.random() * 3); // 0 for addition, 1 for subtraction, 2 for multiplication
   const stepValue = Math.floor(Math.random() * 10) + 1;
 
-  let output1, output2, output3;
+  let output1;
+  let output2;
+  let output3;
   if (operation1 === 0) {
     // Addition
     output1 = input1 + stepValue;
@@ -1965,7 +1962,7 @@ function generateWriteEquationProblem() {
     output3 = 3 * stepValue;
   }
 
-  let equation;
+  let equation: string;
   if (operation1 === 0 || operation1 === 1) {
     equation = `${input1}n ${operation1 === 0 ? '+' : '-'} ${stepValue} = y`;
   } else {
@@ -2026,7 +2023,7 @@ function generateWriteEquationProblem() {
 
 function generateSolveRatioTableProblem() {
   // Generate random numbers for the ratio table
-  let num1, num2, num3, num4, num5;
+  let num1: number; let num2: number; let num3; let num4: number; let num5: number;
   do {
     num1 = Math.floor(Math.random() * 9) + 2;
     num2 = Math.floor(Math.random() * 9) + 2;
@@ -2036,11 +2033,11 @@ function generateSolveRatioTableProblem() {
   } while (new Set([num1, num2, num3, num4, num5]).size !== 5); // Ensure all numbers are unique
 
   // Fill in the first column with the generated numbers
-  let column1 = [num1 * num3, num2 * num3];
+  const column1 = [num1 * num3, num2 * num3];
 
   // Calculate the values for the top spot in columns 2 and 3
-  let bottomSpotCol2 = num2 * num4;
-  let topSpotCol3 = num1 * num5;
+  const bottomSpotCol2 = num2 * num4;
+  const topSpotCol3 = num1 * num5;
 
   const question = `
   <style>
@@ -2082,8 +2079,8 @@ function generateSolveRatioTableProblem() {
     const parsedInput = userInput.split(',').map((part) => part.trim());
     const isCorrect =
       parsedInput.length === 2 &&
-      parsedInput[0] == (num1 * num4).toString() &&
-      parsedInput[1] == (num2 * num5).toString();
+      parsedInput[0] === (num1 * num4).toString() &&
+      parsedInput[1] === (num2 * num5).toString();
 
     return isCorrect;
   };
@@ -2112,7 +2109,7 @@ function generateDivideMixedNumbersProblem() {
   // Calculate the result of division
   const answerNumerator = improperNumerator1 * improperDenominator2;
   const answerDenominator = improperDenominator1 * improperNumerator2;
-  const simplifiedAnswer = simplifyFraction(answerNumerator, answerDenominator);
+  const simplifiedAnswer = helper.simplifyFraction(answerNumerator, answerDenominator);
 
   // Question and hint construction
   const question = `Divide the mixed numbers: ${whole1}<span class="frac"><sup>${fractionNumerator1}</sup><span>&frasl;</span><sub>${fractionDenominator1}</sub></span> ÷ ${whole2}<span class="frac"><sup>${fractionNumerator2}</sup><span>&frasl;</span><sub>${fractionDenominator2}</sub></span>`;
@@ -2180,15 +2177,15 @@ function generateDivideMixedNumbersProblem() {
 }
 
 function generateExponent2Problem() {
-  let base, numerator, denominator, exponent, answer, hint;
+  let base; let numerator; let denominator; let exponent; let answer: string; let hint;
   const wasFraction = Math.random() < 0.5;
 
   if (wasFraction) {
     numerator = Math.floor(Math.random() * 8) + 1;
     denominator = Math.floor(Math.random() * (8 - numerator)) + numerator + 1;
     exponent = Math.floor(Math.random() * 3) + 2;
-    const numeratorExponentiated = Math.pow(numerator, exponent);
-    const denominatorExponentiated = Math.pow(denominator, exponent);
+    const numeratorExponentiated = numerator**exponent;
+    const denominatorExponentiated = denominator**exponent;
     const simplifiedFraction = helper.simplifyFraction(
       numeratorExponentiated,
       denominatorExponentiated
@@ -2199,7 +2196,7 @@ function generateExponent2Problem() {
   } else {
     base = (Math.random() * 0.1).toFixed(3);
     exponent = Math.floor(Math.random() * 3) + 2;
-    answer = Math.pow(parseFloat(base), exponent).toString();
+    answer = (parseFloat(base)**exponent).toString();
     hint = `To calculate ${base}<sup>${exponent}</sup>, multiply ${base} by itself ${
       exponent - 1
     } times. Remember, the exponent tells you how many times to use the base as a factor.`;
@@ -2222,6 +2219,7 @@ function generateExponent2Problem() {
 
 // Define an object mapping problem types to their generation functions
 
+// TODO: Use as a reference for generating video IDs probably in the Problem class
 const problemGenerators = {
   addition: {
     generate: generateAdditionProblem,
