@@ -1,8 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, input, output, signal, untracked } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
-import { outputFromObservable, outputToObservable } from '@angular/core/rxjs-interop';
+import {
+  outputFromObservable,
+  outputToObservable,
+} from '@angular/core/rxjs-interop';
 
 import { MathQuestion } from 'src/app/models/math-question.model';
 import { StudentAnswer } from 'src/app/models/student-answer.model';
@@ -29,12 +45,12 @@ export class QuestionFormComponent {
       untracked(() => {
         this.correct.set(false);
         this.questionForm.reset();
-      })
+      });
     });
   }
 
   questionForm = this.fb.group({
-    answer: ['', Validators.required]
+    answer: ['', Validators.required],
   });
 
   checkAnswer() {
@@ -46,11 +62,15 @@ export class QuestionFormComponent {
     // Normalize the answers if they are strings
     let normalizedStudentAnswer = studentAnswer;
     if (typeof studentAnswer === 'string') {
-      normalizedStudentAnswer = Number(studentAnswer.trim().toLowerCase()).toString();
+      normalizedStudentAnswer = Number(
+        studentAnswer.trim().toLowerCase()
+      ).toString();
     }
     let normalizedCorrectAnswer = correctAnswer;
     if (typeof correctAnswer === 'string') {
-      normalizedCorrectAnswer = Number(correctAnswer.trim().toLowerCase()).toString();
+      normalizedCorrectAnswer = Number(
+        correctAnswer.trim().toLowerCase()
+      ).toString();
     }
 
     if (normalizedStudentAnswer === normalizedCorrectAnswer) {

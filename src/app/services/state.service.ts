@@ -8,7 +8,12 @@ import {
   scan,
 } from 'rxjs/operators';
 
-import { CounterData, CurrentUser, State, StoredMathQuestions } from '../models/state.model';
+import {
+  CounterData,
+  CurrentUser,
+  State,
+  StoredMathQuestions,
+} from '../models/state.model';
 
 // Initial state for the application
 const initialState = new State();
