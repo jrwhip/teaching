@@ -60,6 +60,7 @@ export class QuestionFormComponent {
       }, 2000); // delay for 2 seconds
     } else {
       this.hint.set(this.question().hint[0]);
+      this.questionForm.reset();
       this.incorrect.set(true);
       this.studentAnswer.emit({ answer: 'unknown', isCorrect: false });
     }
