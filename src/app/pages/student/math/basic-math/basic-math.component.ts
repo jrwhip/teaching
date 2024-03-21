@@ -2,7 +2,12 @@
 /* eslint-disable no-debugger */
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+} from '@angular/core';
 
 import { combineLatest, map, of, switchMap, take, tap } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -31,12 +36,11 @@ export class BasicMathComponent implements OnInit {
   questionSignal: any;
   counterValues: CounterValues;
   barService = inject(BarService);
+  fooService = inject(FooService);
+  stateService = inject(StateService);
+  route = inject(ActivatedRoute);
 
-  constructor(
-    private route: ActivatedRoute,
-    private stateService: StateService,
-    private fooService: FooService
-  ) {
+  constructor() {
     const foo$ = combineLatest([
       this.stateService.storedMathQuestions$,
       this.stateService.counterData$,
@@ -85,12 +89,9 @@ export class BasicMathComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let result;
-    setTimeout(() => { // Using setTimeout to wait for async import; consider a more robust way for production
-      result = this.barService.executeFunction('generateSimplifyProblem');
-      console.log(result);
-    }, 1000); // Adjust timing based on your application's needs
-    console.log('Result: ', result);
+    const result = this.barService.executeFunction('generateSimplifyProblem');
+    console.log(result);
+
     this.stateService.state$.subscribe((state) => {
       console.log('State:', state);
     });

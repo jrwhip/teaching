@@ -9,13 +9,20 @@ type ProblemFn = () => Problem;
 })
 export class BarService {
   private functionMap: { [key: string]: ProblemFn } = {};
+  private isInitialized = false;
 
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor() {
     // Dynamically import functions from 'foo.ts'
-    this.initializeFunctionRegistry();
+    // this.initializeFunctionRegistry();
   }
 
-  private async initializeFunctionRegistry() {
+  async initializeFunctionRegistry() {
+    console.log('HEY YOU GUYS');
+    if (this.isInitialized) {
+      return;
+    }
+    console.log('HEY YOU GUYS AGAIN');
     try {
       const module = await import('./foo');
       Object.keys(module).forEach((exportName) => {
@@ -27,6 +34,7 @@ export class BarService {
     } catch (error) {
       console.error('Error importing module:', error);
     }
+    this.isInitialized = true;
   }
 
   private registerFunction(key: string, func: ProblemFn) {
