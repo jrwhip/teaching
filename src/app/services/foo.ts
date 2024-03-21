@@ -1,26 +1,7 @@
 import * as helper from './helper.utils';
+import { Problem } from '../models/problem.model';
 
-type ValidateFn = (userInput: string) => boolean;
-
-class Problem {
-  question: string;
-  answer: string;
-  validate: ValidateFn;
-  hint: string;
-  constructor(
-    question: string,
-    answer: string,
-    validateFn: ValidateFn,
-    hint: string
-  ) {
-    this.question = question;
-    this.answer = answer;
-    this.validate = validateFn;
-    this.hint = hint;
-  }
-}
-
-function generateSimplifyProblem() {
+export function generateSimplifyProblem() {
   const num1 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
   const num2 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
   const num3 = Math.floor(Math.random() * 10) + 2; // Random number between 2 and 11
@@ -69,7 +50,7 @@ function generateSimplifyProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateAdditionProblem() {
+export function generateAdditionProblem() {
   // Generate random decimal places between 0 and 3 for both numbers
   const decimalPlacesNum1 = Math.floor(Math.random() * 4);
   const decimalPlacesNum2 = Math.floor(Math.random() * 4);
@@ -129,7 +110,7 @@ function generateAdditionProblem() {
   return new Problem(`${num1} + ${num2}`, sum.toString(), validateFn, hint);
 }
 
-function generateSubtractionProblem() {
+export function generateSubtractionProblem() {
   let num1;
   let num2;
   do {
@@ -202,7 +183,7 @@ function generateSubtractionProblem() {
   );
 }
 
-function generateMultiplicationProblem() {
+export function generateMultiplicationProblem() {
   const num1 = Math.floor(Math.random() * 80) + 15;
   const num2 = Math.floor(Math.random() * 80) + 15;
   const onesPlaceNum2 = num2 % 10; // Digit in the ones place of num2
@@ -272,7 +253,7 @@ function generateMultiplicationProblem() {
   return new Problem(`${num1} × ${num2}`, product.toString(), validateFn, hint);
 }
 
-function generateDivisionProblem() {
+export function generateDivisionProblem() {
   const num1 = Math.floor(Math.random() * 899) + 100; // Random number between 100 and 998
   const num2 = Math.floor(Math.random() * 14) + 5; // Random number between 5 and 18
 
@@ -348,7 +329,7 @@ function generateDivisionProblem() {
   return new Problem(question, answer.toString(), validateFn, hint);
 }
 
-function generateWholeTimesMixedProblem() {
+export function generateWholeTimesMixedProblem() {
   // Generate a whole number between 2 and 10
   const wholeNumberM = Math.floor(Math.random() * 9) + 2;
 
@@ -485,7 +466,7 @@ function generateWholeTimesMixedProblem() {
 }
 
 // TODO: This function is not correctly structured
-function generateTranslationProblem() {
+export function generateTranslationProblem() {
   const num1 = Math.floor(Math.random() * 50) + 5; // Generate a random number between 5 and 54
   const num2 = Math.floor(Math.random() * 50) + 5; // Generate a random number between 5 and 54
   const questionType = Math.floor(Math.random() * 15) + 1; // Randomly choose the type of problem
@@ -582,7 +563,7 @@ function generateTranslationProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateMeanProblem() {
+export function generateMeanProblem() {
   const numbersForMean = Array.from(
     {
       length: 5 + Math.floor(Math.random() * 5),
@@ -610,7 +591,7 @@ function generateMeanProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateMedianProblem() {
+export function generateMedianProblem() {
   const numbersForMedian = Array.from(
     {
       length: 5 + Math.floor(Math.random() * 5),
@@ -643,7 +624,7 @@ function generateMedianProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateModeProblem() {
+export function generateModeProblem() {
   const numbersForMode = Array.from(
     {
       length: 5 + Math.floor(Math.random() * 5),
@@ -685,7 +666,7 @@ function generateModeProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateRangeProblem() {
+export function generateRangeProblem() {
   const numbersForRange = Array.from(
     {
       length: 5 + Math.floor(Math.random() * 5),
@@ -713,7 +694,7 @@ function generateRangeProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateFirstQuartileProblem() {
+export function generateFirstQuartileProblem() {
   const numbersForQ1 = Array.from(
     {
       length: 7 + Math.floor(Math.random() * 5),
@@ -740,7 +721,7 @@ function generateFirstQuartileProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateThirdQuartileProblem() {
+export function generateThirdQuartileProblem() {
   const numbersForQ3 = Array.from(
     {
       length: 7 + Math.floor(Math.random() * 5),
@@ -767,7 +748,7 @@ function generateThirdQuartileProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateInterquartileRangeProblem() {
+export function generateInterquartileRangeProblem() {
   const numbersForIQR = Array.from(
     {
       length: 7 + Math.floor(Math.random() * 5),
@@ -797,7 +778,7 @@ function generateInterquartileRangeProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateRoundingProblem() {
+export function generateRoundingProblem() {
   const roundTypes = ['tens', 'hundreds', 'thousands', 'tenths', 'hundredths'];
   const roundType = roundTypes[Math.floor(Math.random() * roundTypes.length)];
 
@@ -883,7 +864,7 @@ function generateRoundingProblem() {
 }
 
 
-function generatePercentDecimalQuestion() {
+export function generatePercentDecimalQuestion() {
   const convertToDecimal = Math.random() < 0.5;
   let question;
   let answer: string;
@@ -916,7 +897,7 @@ function generatePercentDecimalQuestion() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateConvertQuestion() {
+export function generateConvertQuestion() {
   const convertToFraction = Math.random() < 0.5;
   let question;
   let answer: string;
@@ -985,16 +966,8 @@ function generateConvertQuestion() {
 }
 
 // Simplify fraction utility function
-function gcd(a: number, b: number): number {
-  if (!b) return a;
-  return gcd(b, a % b);
-}
 
-function lcm(a: number, b: number) {
-  return Math.abs(a * b) / gcd(a, b);
-}
-
-function generatePercentOfNumberProblem() {
+export function generatePercentOfNumberProblem() {
   const percent = Math.floor(Math.random() * 125) + 1; // 1 to 125 percent
   const number = Math.floor(Math.random() * 100) + 1; // 1 to 100 for number
   const answer = parseFloat(((percent / 100) * number).toFixed(2));
@@ -1038,7 +1011,7 @@ function generatePercentOfNumberProblem() {
   return new Problem(question, answer.toString(), validateFn, hint);
 }
 
-function generateComparisonQuestion() {
+export function generateComparisonQuestion() {
   const currentType = Math.random() < 0.5 ? 'fraction' : 'decimal';
   let question;
   let answer: string;
@@ -1079,7 +1052,7 @@ function generateComparisonQuestion() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateDivideFractionsProblem() {
+export function generateDivideFractionsProblem() {
   const numerator1 = Math.floor(Math.random() * 8) + 1; // 1 to 8
   const denominator1 =
     Math.floor(Math.random() * (8 - numerator1)) + numerator1 + 1; // Ensuring fraction is < 1
@@ -1196,7 +1169,7 @@ function generateDivideFractionsProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateMixedToImproperProblem() {
+export function generateMixedToImproperProblem() {
   const whole = Math.floor(Math.random() * 5) + 1;
   const fractionNumerator = Math.floor(Math.random() * 8) + 1;
   const fractionDenominator =
@@ -1284,7 +1257,7 @@ function generateMixedToImproperProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateImproperToMixedProblem() {
+export function generateImproperToMixedProblem() {
   const denominator = Math.floor(Math.random() * 9) + 1;
   let numerator;
   let remainingNumerator;
@@ -1341,7 +1314,7 @@ function generateImproperToMixedProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateAddSubtractMixedProblem() {
+export function generateAddSubtractMixedProblem() {
   const isAddition = Math.random() < 0.5;
   let whole1 = Math.floor(Math.random() * 8) + 3;
   const fractionNumerator1 = Math.floor(Math.random() * 7) + 1;
@@ -1362,7 +1335,7 @@ function generateAddSubtractMixedProblem() {
   const improperNumerator1 = whole1 * fractionDenominator1 + fractionNumerator1;
   const improperNumerator2 = whole2 * fractionDenominator2 + fractionNumerator2;
 
-  const commonDenominator = lcm(fractionDenominator1, fractionDenominator2);
+  const commonDenominator = helper.lcm(fractionDenominator1, fractionDenominator2);
   let adjustedNumerator1 =
     fractionNumerator1 * (commonDenominator / fractionDenominator1);
   const originaladjustedNumerator1 = adjustedNumerator1;
@@ -1520,7 +1493,7 @@ function generateAddSubtractMixedProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateSolveForXProblem() {
+export function generateSolveForXProblem() {
   const num1 = Math.floor(Math.random() * 9) + 1;
   const num2 = Math.floor(Math.random() * 9) + 1;
   const num3 = Math.floor(Math.random() * 9) + 1;
@@ -1550,7 +1523,7 @@ function generateSolveForXProblem() {
   return new Problem(question, answer.toString(), validateFn, hint);
 }
 
-function generateExponentProblem() {
+export function generateExponentProblem() {
   const num1 = Math.floor(Math.random() * 8) + 2; // Base between 2 and 9
   let exponent;
   if (num1 > 5) {
@@ -1586,7 +1559,7 @@ function generateExponentProblem() {
   return new Problem(question, answer.toString(), validateFn, hint);
 }
 
-function generateAbsoluteValueProblem() {
+export function generateAbsoluteValueProblem() {
   const num = Math.floor(Math.random() * 21) - 10; // Number between -10 and 10
   const isNegated = Math.random() < 0.5; // Randomly decide whether to negate
 
@@ -1628,7 +1601,7 @@ function generateAbsoluteValueProblem() {
   return new Problem(question, answer.toString(), validateFn, hint);
 }
 
-function generateOppositesProblem() {
+export function generateOppositesProblem() {
   const num = Math.floor(Math.random() * 21) - 10; // Number between -10 and 10
   const questionType =
     Math.random() < 0.5 ? 'opposite' : 'opposite of the opposite';
@@ -1661,7 +1634,7 @@ function generateOppositesProblem() {
   return new Problem(question, answer.toString(), validateFn, hint);
 }
 
-function generateLCMProblem() {
+export function generateLCMProblem() {
   const num1 = Math.floor(Math.random() * 10) + 2;
   let num2 = Math.floor(Math.random() * 11) + 2;
 
@@ -1680,13 +1653,13 @@ function generateLCMProblem() {
 
   return new Problem(
     `Find the LCM of ${num1} and ${num2}`,
-    lcm.toString(),
+    helper.lcm.toString(),
     validateFn,
     hint
   );
 }
 
-function generateGCFProblem() {
+export function generateGCFProblem() {
   let num1;
   let num2;
   let num3;
@@ -1719,7 +1692,7 @@ function generateGCFProblem() {
   );
 }
 
-function generateUnknownProblem() {
+export function generateUnknownProblem() {
   let num1;
   let num2;
   let num3;
@@ -1794,7 +1767,7 @@ function generateUnknownProblem() {
 // Function to generate hints based on question type
 // TODO: Insists on undefined type: fix
 
-function generateFactorProblem() {
+export function generateFactorProblem() {
   let num1;
   let num2;
   let num3;
@@ -1849,7 +1822,7 @@ function generateFactorProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateDistributeProblem() {
+export function generateDistributeProblem() {
   const coefficient = Math.floor(Math.random() * 5) + 2; // Coefficient between 2 and 6
   const term1 = Math.floor(Math.random() * 10) + 1;
   const term2 = Math.floor(Math.random() * 10) + 1;
@@ -1881,7 +1854,7 @@ function generateDistributeProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateSolveXProblem() {
+export function generateSolveXProblem() {
   let question;
   let answer: number;
   let hint;
@@ -1937,7 +1910,7 @@ function generateSolveXProblem() {
   return new Problem(question, answer.toString(), validateFn, hint);
 }
 
-function generateWriteEquationProblem() {
+export function generateWriteEquationProblem() {
   const input1 = Math.floor(Math.random() * 9) + 2;
   const operation1 = Math.floor(Math.random() * 3); // 0 for addition, 1 for subtraction, 2 for multiplication
   const stepValue = Math.floor(Math.random() * 10) + 1;
@@ -2021,7 +1994,7 @@ function generateWriteEquationProblem() {
   return new Problem(question, equation, validateFn, hint);
 }
 
-function generateSolveRatioTableProblem() {
+export function generateSolveRatioTableProblem() {
   // Generate random numbers for the ratio table
   let num1: number; let num2: number; let num3; let num4: number; let num5: number;
   do {
@@ -2088,7 +2061,7 @@ function generateSolveRatioTableProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-function generateDivideMixedNumbersProblem() {
+export function generateDivideMixedNumbersProblem() {
   // Generate mixed numbers
   const whole1 = Math.floor(Math.random() * 5) + 1;
   const fractionNumerator1 = Math.floor(Math.random() * 7) + 1;
@@ -2176,7 +2149,7 @@ function generateDivideMixedNumbersProblem() {
   );
 }
 
-function generateExponent2Problem() {
+export function generateExponent2Problem() {
   let base; let numerator; let denominator; let exponent; let answer: string; let hint;
   const wasFraction = Math.random() < 0.5;
 
