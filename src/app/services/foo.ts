@@ -466,7 +466,6 @@ export function generateWholeTimesMixedProblem() {
   return new Problem(questionM, finalAnswer, validateFn, hintM);
 }
 
-// TODO: This function is not correctly structured
 export function generateTranslationProblem() {
   const num1 = Math.floor(Math.random() * 50) + 5; // Generate a random number between 5 and 54
   const num2 = Math.floor(Math.random() * 50) + 5; // Generate a random number between 5 and 54
@@ -964,8 +963,6 @@ export function generateConvertQuestion() {
 
   return new Problem(question, answer, validateFn, hint);
 }
-
-// Simplify fraction utility function
 
 export function generatePercentOfNumberProblem() {
   const percent = Math.floor(Math.random() * 125) + 1; // 1 to 125 percent
@@ -1773,9 +1770,6 @@ export function generateUnknownProblem() {
   return new Problem(question, answer, validateFn, hint);
 }
 
-// Function to generate hints based on question type
-// TODO: Insists on undefined type: fix
-
 export function generateFactorProblem() {
   let num1;
   let num2;
@@ -2216,6 +2210,3 @@ export function generateExponent2Problem() {
 
   return new Problem(question, answer, validateFn, hint);
 }
-
-// Define an object mapping problem types to their generation functions
-
