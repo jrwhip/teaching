@@ -47,7 +47,7 @@ export class ProblemGenerationService {
     if (func) {
       return func();
     }
-    console.error('Function not found:', key);
+    console.warn('Function not found:', key);
     return undefined;
   }
 }

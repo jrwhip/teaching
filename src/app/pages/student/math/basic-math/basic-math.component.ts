@@ -61,10 +61,10 @@ export class BasicMathComponent implements OnInit {
             } else {
               const upperCaseOperation = currentOperation.charAt(0).toUpperCase() + currentOperation.slice(1);
               const fooOperation = `generate${upperCaseOperation}Problem`;
-              const questionFoo = this.problemGenerationService.executeFunction(fooOperation);
+              const questionFoo = this.problemGenerationService.executeFunction(`Basics.${fooOperation}`);
               const questionBaz = this.bazService.generateQuestion(currentOperation);
               console.log('baz: ',questionBaz);
-              console.log('foo: ',questionFoo);
+              console.log('fooHEY! : ',questionFoo);
               question = this.fooService.setNewMathQuestion(currentOperation);
               console.log('question: ',question);
             }
@@ -98,9 +98,6 @@ export class BasicMathComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const result = this.problemGenerationService.executeFunction('generateAdditionProblem');
-    console.log(result);
-
     this.stateService.state$.subscribe((state) => {
       console.log('State:', state);
     });
