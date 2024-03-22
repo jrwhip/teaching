@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
 
+import * as ProblemCategories from './index';
 import { Problem } from '../../models/problem.model';
 
 type ProblemFn = () => Problem;
+
+interface CategoryFunctions {
+  [funcName: string]: ProblemFn; // This is an index signature
+}
 
 @Injectable({
   providedIn: 'root',
@@ -22,18 +27,27 @@ export class ProblemGenerationService {
       return;
     }
     try {
-      const module = await import('../foo');
-      Object.keys(module).forEach((exportName) => {
-        const func = module[exportName as keyof typeof module];
-        if (typeof func === 'function') {
-          this.registerFunction(exportName, func);
-        }
+      // const module = await import('../foo');
+      Object.entries(ProblemCategories).forEach(([categoryName, categoryFunctions]: [string, CategoryFunctions]) => {
+        console.log('categoryName:', categoryName);
+        console.log('categoryFunctions:', categoryFunctions);
+        Object.keys(categoryFunctions).forEach(funcName => {
+          this.registerFunction(`${categoryName}.${funcName}`, categoryFunctions[funcName]);
+        });
       });
     } catch (error) {
       console.error('Error importing module:', error);
     }
     this.isInitialized = true;
   }
+
+  // private initializeFunctionRegistry() {
+  //   Object.entries(ProblemCategories).forEach(([categoryName, categoryFunctions]) => {
+  //     Object.keys(categoryFunctions).forEach(funcName => {
+  //       this.registerFunction(`${categoryName}.${funcName}`, categoryFunctions[funcName]);
+  //     });
+  //   });
+  // }
 
   private registerFunction(key: string, func: ProblemFn) {
     this.functionMap[key] = func;
