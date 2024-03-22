@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 
-import { BarService } from './bar.service';
+import { BarService } from './problem-generation/problem-generation.service';
 
 import { ExtendedProblem } from '../models/extended-problem.model';
 import { Problem } from '../models/problem.model';

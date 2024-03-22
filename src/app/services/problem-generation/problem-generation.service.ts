@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Problem } from '../models/problem.model';
+import { Problem } from '../../models/problem.model';
 
 type ProblemFn = () => Problem;
 
@@ -22,7 +22,7 @@ export class BarService {
       return;
     }
     try {
-      const module = await import('./foo');
+      const module = await import('../foo');
       Object.keys(module).forEach((exportName) => {
         const func = module[exportName as keyof typeof module];
         if (typeof func === 'function') {
