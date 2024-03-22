@@ -17,9 +17,9 @@ import { QuestionFormComponent } from 'src/app/components/question-form/question
 
 import { CounterValues } from 'src/app/models/counter-values.model';
 
-import { BarService } from 'src/app/services/problem-generation/problem-generation.service';
 import { BazService } from 'src/app/services/baz.service';
 import { FooService } from 'src/app/services/foo.service';
+import { ProblemGenerationService } from 'src/app/services/problem-generation/problem-generation.service';
 import { StateService } from 'src/app/services/state.service';
 import { StudentAnswer } from 'src/app/models/student-answer.model';
 
@@ -36,7 +36,7 @@ export class BasicMathComponent implements OnInit {
   // questionSignal: ReturnType<typeof signal<MathQuestion>>;
   questionSignal: any;
   counterValues: CounterValues;
-  barService = inject(BarService);
+  problemGenerationService = inject(ProblemGenerationService);
   bazService = inject(BazService);
   fooService = inject(FooService);
   stateService = inject(StateService);
@@ -61,7 +61,7 @@ export class BasicMathComponent implements OnInit {
             } else {
               const upperCaseOperation = currentOperation.charAt(0).toUpperCase() + currentOperation.slice(1);
               const fooOperation = `generate${upperCaseOperation}Problem`;
-              const questionFoo = this.barService.executeFunction(fooOperation);
+              const questionFoo = this.problemGenerationService.executeFunction(fooOperation);
               const questionBaz = this.bazService.generateQuestion(currentOperation);
               console.log('baz: ',questionBaz);
               console.log('foo: ',questionFoo);
@@ -98,7 +98,7 @@ export class BasicMathComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const result = this.barService.executeFunction('generateAdditionProblem');
+    const result = this.problemGenerationService.executeFunction('generateAdditionProblem');
     console.log(result);
 
     this.stateService.state$.subscribe((state) => {

@@ -7,7 +7,7 @@ type ProblemFn = () => Problem;
 @Injectable({
   providedIn: 'root',
 })
-export class BarService {
+export class ProblemGenerationService {
   private functionMap: { [key: string]: ProblemFn } = {};
   private isInitialized = false;
 

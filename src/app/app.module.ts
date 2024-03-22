@@ -7,11 +7,11 @@ import { HeaderComponent } from './components/header/header.component';
 import { NthPlainTextPipe } from './nth-plain-text.pipe';
 import { StudentHeaderComponent } from './components/student-header/student-header.component';
 
-import { BarService } from './services/problem-generation/problem-generation.service';
+import { ProblemGenerationService } from './services/problem-generation/problem-generation.service';
 
-function initializeBarService(barService: BarService) {
+function initializeBarService(problemGenerationService: ProblemGenerationService) {
   console.log('HELLO FROM APP_INITIALIZER');
-  return (): Promise<void> => barService.initializeFunctionRegistry();
+  return (): Promise<void> => problemGenerationService.initializeFunctionRegistry();
 }
 
 @NgModule({
@@ -26,7 +26,7 @@ function initializeBarService(barService: BarService) {
     {
       provide: APP_INITIALIZER,
       useFactory: initializeBarService,
-      deps: [BarService],
+      deps: [ProblemGenerationService],
       multi: true
     }
   ],
