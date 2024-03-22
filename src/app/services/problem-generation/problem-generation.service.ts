@@ -22,8 +22,6 @@ export class ProblemGenerationService {
     }
     try {
       Object.entries(ProblemCategories).forEach(([categoryName, categoryFunctions]: [string, CategoryFunctions]) => {
-        console.log('categoryName:', categoryName);
-        console.log('categoryFunctions:', categoryFunctions);
         Object.keys(categoryFunctions).forEach(funcName => {
           this.registerFunction(`${categoryName}.${funcName}`, categoryFunctions[funcName]);
         });

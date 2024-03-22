@@ -10,7 +10,6 @@ import { StudentHeaderComponent } from './components/student-header/student-head
 import { ProblemGenerationService } from './services/problem-generation/problem-generation.service';
 
 function initializeBarService(problemGenerationService: ProblemGenerationService) {
-  console.log('HELLO FROM APP_INITIALIZER');
   return (): Promise<void> => problemGenerationService.initializeFunctionRegistry();
 }
 

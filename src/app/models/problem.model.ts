@@ -3,7 +3,7 @@ export type ValidateFn = (userInput: string) => boolean;
 export class Problem {
   question: string;
   answer: string;
-  validate: ValidateFn;
+  validate?: ValidateFn;
   hint: string;
   constructor(
     question: string,

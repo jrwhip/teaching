@@ -19,7 +19,6 @@ import { CounterValues } from 'src/app/models/counter-values.model';
 
 import { BazService } from 'src/app/services/baz.service';
 import { FooService } from 'src/app/services/foo.service';
-import { ProblemGenerationService } from 'src/app/services/problem-generation/problem-generation.service';
 import { StateService } from 'src/app/services/state.service';
 import { StudentAnswer } from 'src/app/models/student-answer.model';
 
@@ -36,8 +35,6 @@ export class BasicMathComponent implements OnInit {
   // questionSignal: ReturnType<typeof signal<MathQuestion>>;
   questionSignal: any;
   counterValues: CounterValues;
-  problemGenerationService = inject(ProblemGenerationService);
-  bazService = inject(BazService);
   fooService = inject(FooService);
   stateService = inject(StateService);
   route = inject(ActivatedRoute);
@@ -59,12 +56,6 @@ export class BasicMathComponent implements OnInit {
             if (storedMathQuestions && storedMathQuestions[currentOperation]) {
               question = of(storedMathQuestions[currentOperation]);
             } else {
-              const upperCaseOperation = currentOperation.charAt(0).toUpperCase() + currentOperation.slice(1);
-              const fooOperation = `generate${upperCaseOperation}Problem`;
-              const questionFoo = this.problemGenerationService.executeFunction(`Basics.${fooOperation}`);
-              const questionBaz = this.bazService.generateQuestion(currentOperation);
-              console.log('baz: ',questionBaz);
-              console.log('fooHEY! : ',questionFoo);
               question = this.fooService.setNewMathQuestion(currentOperation);
               console.log('question: ',question);
             }

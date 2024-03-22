@@ -1,28 +1,32 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
 import { CounterData } from '../models/state.model';
-import { MathQuestion } from '../models/math-question.model';
-import { MathQuestionGenerationService } from './math-question-generation.service';
+import { ProblemGenerationService } from './problem-generation/problem-generation.service';
 import { StateService } from './state.service';
 import { StoredMathQuestions } from '../models/stored-math-questions.model';
+
+import { Problem } from '../models/problem.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FooService {
-  constructor(
-    private mathQuestionGenerationService: MathQuestionGenerationService,
-    private stateService: StateService
-  ) {}
+  problemGenerationService = inject(ProblemGenerationService);
+  stateService = inject(StateService);
 
   getStoredMathQuestions() {
     return this.stateService.selectKey('storedMathQuestions');
   }
 
+  // TODO: This tries to store in state the validate function, but my state service is not setup to
+  // handle storing functions.
+  // This needs to be brainstormed more. Because as it is the way Jim wants to do it will not work.
+  // Validate is stripped in the calling function.
   setStoredMathQuestions(storedMathQuestions: StoredMathQuestions) {
+    console.log('WHAT IS STORED MATH QUESTIONS', storedMathQuestions);
     this.stateService.patchState({ storedMathQuestions });
   }
 
@@ -31,8 +35,12 @@ export class FooService {
   }
 
   setNewMathQuestion(operation: string) {
-    const mathQuestion: MathQuestion =
-      this.mathQuestionGenerationService.generateQuestion(operation);
+    const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+  
+    const foo = `Basics.generate${capitalizeFirstLetter(operation)}Problem`;
+    console.log('WHAT IS FOO', foo);
+    const mathQuestion: Problem =
+      this.problemGenerationService.executeFunction(foo);
 
     return this.stateService.storedMathQuestions$.pipe(
       // This subsrition is updating the same part of state that it's reading from.
@@ -40,9 +48,13 @@ export class FooService {
       // operator to complete the subscription after the first emission.
       take(1),
       map((storedMathQuestions) => {
+        // TODO: This is stripping the validate function from the mathQuestion object.
+        // This is because the state service is not setup to store functions.
+        // This needs to be brainstormed more. Because as it is the way Jim wants to do it will not work.
+        const { validate, ...newMathQuestion } = mathQuestion;
         const newStoredMathQuestions = {
           ...storedMathQuestions,
-          [operation]: mathQuestion,
+          [operation]: newMathQuestion,
         };
         this.setStoredMathQuestions(newStoredMathQuestions);
       })

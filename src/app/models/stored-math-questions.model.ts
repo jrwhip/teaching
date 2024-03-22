@@ -1,5 +1,5 @@
-import { MathQuestion } from './math-question.model';
+import { Problem } from './problem.model';
 
 export interface StoredMathQuestions {
-  [key: string]: MathQuestion;
+  [key: string]: Problem;
 }

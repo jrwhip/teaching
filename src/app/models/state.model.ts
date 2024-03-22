@@ -1,9 +1,9 @@
 import { CounterValues } from './counter-values.model';
-import { MathQuestion } from './math-question.model';
+import { Problem } from './problem.model';
 // import { StoredMathQuestions } from './stored-math-questions.model';
 
 export interface StoredMathQuestions {
-  [key: string]: MathQuestion;
+  [key: string]: Problem;
 }
 
 export interface CurrentUser {
