@@ -36,7 +36,8 @@ export class FooService {
 
   setNewMathQuestion(operation: string) {
     const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-  
+    // TODO: This is a hacky way to get the function name. This should be refactored.
+    // The function name needs to be listed in math-operations.ts.
     const foo = `Basics.generate${capitalizeFirstLetter(operation)}Problem`;
     console.log('WHAT IS FOO', foo);
     const mathQuestion: Problem =

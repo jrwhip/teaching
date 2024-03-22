@@ -7,6 +7,7 @@ export interface OperationMetadata {
 }
 
 export const operationLookup: { [category in ProblemCategory]: { [operation: string]: OperationMetadata } } = {
+  // TODO: This data needs to be corrected. The problemGenerateFn values are not correct.
   Basics: {
     addition: {
       problemGenerateFn: 'Basics.generateAdditionProblem',
