@@ -17,7 +17,6 @@ import { QuestionFormComponent } from 'src/app/components/question-form/question
 
 import { CounterValues } from 'src/app/models/counter-values.model';
 
-import { BazService } from 'src/app/services/baz.service';
 import { FooService } from 'src/app/services/foo.service';
 import { StateService } from 'src/app/services/state.service';
 import { StudentAnswer } from 'src/app/models/student-answer.model';

@@ -20,7 +20,7 @@ import {
   outputToObservable,
 } from '@angular/core/rxjs-interop';
 
-import { MathQuestion } from 'src/app/models/math-question.model';
+import { Problem } from 'src/app/models/problem.model';
 import { StudentAnswer } from 'src/app/models/student-answer.model';
 
 @Component({
@@ -34,7 +34,7 @@ import { StudentAnswer } from 'src/app/models/student-answer.model';
 export class QuestionFormComponent {
   // answeredCorrectly = output<StudentAnswer>();
   studentAnswer = output<StudentAnswer>();
-  question = input.required<MathQuestion>();
+  question = input.required<Problem>();
   hint = signal<string>('');
   correct = signal<boolean>(false);
   incorrect = signal<boolean>(false);
@@ -79,7 +79,7 @@ export class QuestionFormComponent {
         this.studentAnswer.emit({ answer: 'unknown', isCorrect: true });
       }, 2000); // delay for 2 seconds
     } else {
-      this.hint.set(this.question().hint[0]);
+      this.hint.set(this.question().hint);
       this.questionForm.reset();
       this.incorrect.set(true);
       this.studentAnswer.emit({ answer: 'unknown', isCorrect: false });
