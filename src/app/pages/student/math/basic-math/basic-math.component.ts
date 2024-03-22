@@ -57,7 +57,12 @@ export class BasicMathComponent implements OnInit {
             if (storedMathQuestions && storedMathQuestions[currentOperation]) {
               question = of(storedMathQuestions[currentOperation]);
             } else {
+              const upperCaseOperation = currentOperation.charAt(0).toUpperCase() + currentOperation.slice(1);
+              const fooOperation = `generate${upperCaseOperation}Problem`;
+              const questionFoo = this.barService.executeFunction(fooOperation);
+              console.log('foo: ',questionFoo);
               question = this.fooService.setNewMathQuestion(currentOperation);
+              console.log('question: ',question);
             }
 
             if (counterData && counterData[currentOperation]) {
@@ -89,7 +94,7 @@ export class BasicMathComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const result = this.barService.executeFunction('generateSimplifyProblem');
+    const result = this.barService.executeFunction('generateAdditionProblem');
     console.log(result);
 
     this.stateService.state$.subscribe((state) => {

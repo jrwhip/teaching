@@ -18,11 +18,9 @@ export class BarService {
   }
 
   async initializeFunctionRegistry() {
-    console.log('HEY YOU GUYS');
     if (this.isInitialized) {
       return;
     }
-    console.log('HEY YOU GUYS AGAIN');
     try {
       const module = await import('./foo');
       Object.keys(module).forEach((exportName) => {

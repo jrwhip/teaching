@@ -1,4 +1,4 @@
-type ValidateFn = (userInput: string) => boolean;
+export type ValidateFn = (userInput: string) => boolean;
 
 export class Problem {
   question: string;
