@@ -14,11 +14,16 @@ const routes: Routes = [
           import('./math/math.component').then((c) => c.MathComponent),
         children: [
           {
-            path: 'basic-math/:operation',
+            path: 'basics/:operation',
             loadComponent: () =>
               import('./math/basic-math/basic-math.component').then(
                 (c) => c.BasicMathComponent
               ),
+          },
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: 'basics/addition',
           },
         ],
       },

@@ -1,4 +1,10 @@
-export type ProblemCategory = 'Basics' | 'Ratios' | 'Fractions' | 'Equations' | 'RationalNumbers' | 'Data';
+export type ProblemCategory =
+  | 'Basics'
+  | 'Ratios'
+  | 'Fractions'
+  | 'Equations'
+  | 'RationalNumbers'
+  | 'Data';
 
 export interface OperationMetadata {
   problemGenerateFn: string;
