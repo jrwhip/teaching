@@ -18,6 +18,7 @@ import { QuestionFormComponent } from 'src/app/components/question-form/question
 import { CounterValues } from 'src/app/models/counter-values.model';
 
 import { BarService } from 'src/app/services/bar.service';
+import { BazService } from 'src/app/services/baz.service';
 import { FooService } from 'src/app/services/foo.service';
 import { StateService } from 'src/app/services/state.service';
 import { StudentAnswer } from 'src/app/models/student-answer.model';
@@ -36,6 +37,7 @@ export class BasicMathComponent implements OnInit {
   questionSignal: any;
   counterValues: CounterValues;
   barService = inject(BarService);
+  bazService = inject(BazService);
   fooService = inject(FooService);
   stateService = inject(StateService);
   route = inject(ActivatedRoute);
@@ -60,6 +62,8 @@ export class BasicMathComponent implements OnInit {
               const upperCaseOperation = currentOperation.charAt(0).toUpperCase() + currentOperation.slice(1);
               const fooOperation = `generate${upperCaseOperation}Problem`;
               const questionFoo = this.barService.executeFunction(fooOperation);
+              const questionBaz = this.bazService.generateQuestion(currentOperation);
+              console.log('baz: ',questionBaz);
               console.log('foo: ',questionFoo);
               question = this.fooService.setNewMathQuestion(currentOperation);
               console.log('question: ',question);

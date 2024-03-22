@@ -78,7 +78,7 @@ const operationLookup: { [key: string]: OperationLookup} = {
     exampleVideoId: '',
   },
   division: {
-    problemGenerateFn: 'problemGenerateFnDivisionProblem',
+    problemGenerateFn: 'generateDivisionProblem',
     teachingVideoId: 'lGEdO4cr_TA',
     exampleVideoId: 'rXjV74suB68',
   },
