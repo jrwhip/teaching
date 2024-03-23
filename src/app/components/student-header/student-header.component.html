@@ -93,20 +93,22 @@
               aria-haspopup="true"
               aria-expanded="false"
             >
-              {{ category.key }}
+              {{ category.value.label }}
             </a>
             <ul class="dropdown-menu">
-              <li *ngFor="let operation of category.value | keyvalue">
+              <li
+                *ngFor="let operation of category.value.operations | keyvalue"
+              >
                 <a
                   class="dropdown-item"
                   [routerLink]="[
                     './math',
-                    category.key.toLowerCase(),
-                    operation.key
+                    category.value.path,
+                    operation.value.path
                   ]"
                   routerLinkActive="active"
                 >
-                  {{ operation.key | titlecase }}
+                  {{ operation.value.label }}
                 </a>
               </li>
             </ul>
