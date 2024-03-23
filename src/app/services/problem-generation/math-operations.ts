@@ -12,7 +12,9 @@ export interface OperationMetadata {
   exampleVideoId: string;
 }
 
-export const operationLookup: { [category in ProblemCategory]: { [operation: string]: OperationMetadata } } = {
+export const operationLookup: {
+  [category in ProblemCategory]: { [operation: string]: OperationMetadata };
+} = {
   // TODO: This data needs to be corrected. The problemGenerateFn values are not correct.
   Basics: {
     addition: {
@@ -21,22 +23,22 @@ export const operationLookup: { [category in ProblemCategory]: { [operation: str
       exampleVideoId: '1xXibPhF3bw',
     },
     subtraction: {
-      problemGenerateFn: 'problemGenerateFnSubtractionProblem',
+      problemGenerateFn: 'Basics.generateSubtractionProblem',
       teachingVideoId: 'a8tCGNB-vOk',
       exampleVideoId: 'w6LfGwslhlw',
     },
     multiplication: {
-      problemGenerateFn: 'problemGenerateFnMultiplicationProblem',
+      problemGenerateFn: 'Basics.generateMultiplicationProblem',
       teachingVideoId: 'PZjIT9CH6bM',
       exampleVideoId: 'hV3RstrYGEA',
     },
     division: {
-      problemGenerateFn: 'generateDivisionProblem',
+      problemGenerateFn: 'Basics.generateDivisionProblem',
       teachingVideoId: 'lGEdO4cr_TA',
       exampleVideoId: 'rXjV74suB68',
     },
     rounding: {
-      problemGenerateFn: 'problemGenerateFnRoundingProblem',
+      problemGenerateFn: 'Basics.generateRoundingProblem',
       teachingVideoId: 'KqBJBMEqrZc',
       exampleVideoId: '',
     },
