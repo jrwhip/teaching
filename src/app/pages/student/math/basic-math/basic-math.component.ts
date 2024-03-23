@@ -56,7 +56,7 @@ export class BasicMathComponent implements OnInit {
               question = of(storedMathQuestions[currentOperation]);
             } else {
               question = this.fooService.setNewMathQuestion(currentOperation);
-              console.log('question: ',question);
+              console.log('question: ', question);
             }
 
             if (counterData && counterData[currentOperation]) {
@@ -94,12 +94,23 @@ export class BasicMathComponent implements OnInit {
   }
 
   onStudentAnswer({ answer, isCorrect: answeredCorrectly }: StudentAnswer) {
-    if (answeredCorrectly) {
-      // Retrieve the current operation to generate the appropriate question
-      const currentOperation = this.operation; // Assuming this.operation is available and set
+    const currentOperation = this.operation; // Assuming this.operation is available and set
+    this.fooService
+      .setNewCounterValues(currentOperation, answeredCorrectly)
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          console.log('Counter values updated:', res);
+        },
+        error: (error) => {
+          console.error('Error updating question:', error);
+        },
+      });
+    // Retrieve the current operation to generate the appropriate question
 
-      // Call setNewMathQuestion to update the state with a new question
-      // Assuming setNewMathQuestion returns an observable
+    // Call setNewMathQuestion to update the state with a new question
+    // Assuming setNewMathQuestion returns an observable
+    if (answeredCorrectly) {
       this.fooService
         .setNewMathQuestion(currentOperation)
         .pipe(

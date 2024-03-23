@@ -21,7 +21,7 @@ export class FooService {
     return this.stateService.selectKey('storedMathQuestions');
   }
 
-  //Take 1 or infinite loop
+  // Take 1 or infinite loop
 
   // TODO: This tries to store in state the validate function, but my state service is not setup to
   // handle storing functions.
@@ -32,7 +32,7 @@ export class FooService {
     this.stateService.patchState({ storedMathQuestions });
   }
 
-  updateCounterData(counterData: CounterData) {
+  setCounterData(counterData: CounterData) {
     console.log('Here is that counter Data: ', counterData);
     this.stateService.patchState({ counterData });
   }
@@ -113,24 +113,9 @@ export class FooService {
         };
 
         this.updateCounterData(newCounterData);
+
+        this.setCounterData(newCounterData);
       })
     );
   }
-
-  // setNewCounterValues(operation: string, isCorrect: boolean) {
-  //   return this.stateService.counterData$.pipe(
-  //     take(1),
-  //     map((currentCounterData) => {
-  //       const currentOperationCount = currentCounterData[operation] || { correct: 0, incorrect: 0 };
-  //       const newCounterData = {
-  //         ...currentCounterData,
-  //         [operation]: {
-  //           correct: isCorrect ? currentOperationCount.correct + 1 : currentOperationCount.correct,
-  //           incorrect: !isCorrect ? currentOperationCount.incorrect + 1 : currentOperationCount.incorrect,
-  //         },
-  //       };
-  //       this.updateCounterData(newCounterData);
-  //     })
-  //   );
-  // }
 }
