@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 
-import { combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
 import { CounterData } from '../models/state.model';
@@ -8,7 +7,7 @@ import { ProblemGenerationService } from './problem-generation/problem-generatio
 import { StateService } from './state.service';
 import { StoredMathQuestions } from '../models/stored-math-questions.model';
 
-import { Problem } from '../models/problem.model';
+import { Problem, ValidateFn } from '../models/problem.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +15,26 @@ import { Problem } from '../models/problem.model';
 export class FooService {
   problemGenerationService = inject(ProblemGenerationService);
   stateService = inject(StateService);
+
+  private functionMaps: { [name: string]: ValidateFn } = {};
+
+  // Method to register function names
+  registerfunctionMap(name: string, method: ValidateFn): string {
+    this.functionMaps[name] = method;
+    // Here you could update your StateService with the new list of function names
+    // For demonstration, we're keeping it simple
+    console.log(`Function ${name} registered`);
+    return name;
+  }
+
+  executeFunction(key: string, userInput: string): boolean | undefined {
+    const func = this.functionMaps[key];
+    if (func) {
+      return func.apply(this, [userInput]);
+    }
+    console.warn('Function not found:', key);
+    return undefined;
+  }
 
   getStoredMathQuestions() {
     return this.stateService.selectKey('storedMathQuestions');
@@ -57,11 +76,16 @@ export class FooService {
         // This is because the state service is not setup to store functions.
         // This needs to be brainstormed more. Because as it is the way Jim wants to do it will not work.
         const { validate, ...newMathQuestion } = mathQuestion;
+        let tar: string | undefined;
+        if (typeof validate === 'function') {
+          tar = this.registerfunctionMap(operation, validate as ValidateFn);
+        }
         const newStoredMathQuestions = {
           ...storedMathQuestions,
-          [operation]: newMathQuestion,
+          [operation]: { ...newMathQuestion, validate: tar },
         };
         this.setStoredMathQuestions(newStoredMathQuestions);
+
       })
     );
   }
