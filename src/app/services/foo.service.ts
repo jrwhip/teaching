@@ -112,8 +112,6 @@ export class FooService {
           },
         };
 
-        this.updateCounterData(newCounterData);
-
         this.setCounterData(newCounterData);
       })
     );

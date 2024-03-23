@@ -22,11 +22,11 @@ export const compareFractions = (
   const value2 = num2 / denom2;
   if (value1 > value2) {
     return '>';
-  } if (value1 < value2) {
+  }
+  if (value1 < value2) {
     return '<';
-  } 
-    return '=';
-  
+  }
+  return '=';
 };
 
 export function simplifyFraction(numerator: number, denominator: number) {

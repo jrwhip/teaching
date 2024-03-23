@@ -12,10 +12,11 @@ export function generateComparisonQuestion() {
   const compareDecimals = (num1: number, num2: number): string => {
     if (num1 > num2) {
       return '>';
-    } if (num1 < num2) {
+    }
+    if (num1 < num2) {
       return '<';
-    } 
-      return '=';
+    }
+    return '=';
   };
 
   if (currentType === 'fraction') {

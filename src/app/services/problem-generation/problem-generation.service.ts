@@ -21,11 +21,16 @@ export class ProblemGenerationService {
       return;
     }
     try {
-      Object.entries(ProblemCategories).forEach(([categoryName, categoryFunctions]: [string, CategoryFunctions]) => {
-        Object.keys(categoryFunctions).forEach(funcName => {
-          this.registerFunction(`${categoryName}.${funcName}`, categoryFunctions[funcName]);
-        });
-      });
+      Object.entries(ProblemCategories).forEach(
+        ([categoryName, categoryFunctions]: [string, CategoryFunctions]) => {
+          Object.keys(categoryFunctions).forEach((funcName) => {
+            this.registerFunction(
+              `${categoryName}.${funcName}`,
+              categoryFunctions[funcName]
+            );
+          });
+        }
+      );
     } catch (error) {
       console.error('Error importing module:', error);
     }

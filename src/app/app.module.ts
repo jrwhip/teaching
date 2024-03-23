@@ -9,8 +9,11 @@ import { StudentHeaderComponent } from './components/student-header/student-head
 
 import { ProblemGenerationService } from './services/problem-generation/problem-generation.service';
 
-function initializeBarService(problemGenerationService: ProblemGenerationService) {
-  return (): Promise<void> => problemGenerationService.initializeFunctionRegistry();
+function initializeBarService(
+  problemGenerationService: ProblemGenerationService
+) {
+  return (): Promise<void> =>
+    problemGenerationService.initializeFunctionRegistry();
 }
 
 @NgModule({
@@ -26,8 +29,8 @@ function initializeBarService(problemGenerationService: ProblemGenerationService
       provide: APP_INITIALIZER,
       useFactory: initializeBarService,
       deps: [ProblemGenerationService],
-      multi: true
-    }
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
 })
