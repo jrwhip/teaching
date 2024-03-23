@@ -42,6 +42,7 @@ export class QuestionFormComponent {
   constructor(private fb: FormBuilder) {
     effect(() => {
       console.log(`The answer is: ${this.question().answer}`);
+      console.log(`The validate function is: ${this.question().validate}`);
       untracked(() => {
         this.correct.set(false);
         this.questionForm.reset();

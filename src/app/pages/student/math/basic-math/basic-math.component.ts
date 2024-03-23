@@ -15,8 +15,6 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { CounterComponent } from 'src/app/components/counter/counter.component';
 import { QuestionFormComponent } from 'src/app/components/question-form/question-form.component';
 
-import { CounterValues } from 'src/app/models/counter-values.model';
-
 import { FooService } from 'src/app/services/foo.service';
 import { StateService } from 'src/app/services/state.service';
 import { StudentAnswer } from 'src/app/models/student-answer.model';
@@ -33,7 +31,6 @@ export class BasicMathComponent implements OnInit {
   operation = '';
   // questionSignal: ReturnType<typeof signal<MathQuestion>>;
   questionSignal: any;
-  counterValues: CounterValues;
   fooService = inject(FooService);
   stateService = inject(StateService);
   route = inject(ActivatedRoute);
@@ -52,12 +49,17 @@ export class BasicMathComponent implements OnInit {
             let question = null;
             let counter = null;
 
+            console.log('storedMathQuestions: ', storedMathQuestions);
+            console.log('Operation: ', currentOperation);
+
             if (storedMathQuestions && storedMathQuestions[currentOperation]) {
               question = of(storedMathQuestions[currentOperation]);
             } else {
               question = this.fooService.setNewMathQuestion(currentOperation);
               console.log('question: ', question);
             }
+
+            console.log('Question: ', question);
 
             if (counterData && counterData[currentOperation]) {
               counter = of(counterData[currentOperation]);
@@ -78,13 +80,6 @@ export class BasicMathComponent implements OnInit {
 
     this.questionSignal = toSignal(foo$);
 
-    this.counterValues = {
-      label: this.operation,
-      correct: 0,
-      incorrect: 30,
-      streak: 1,
-      highStreak: 49,
-    };
   }
 
   ngOnInit(): void {
