@@ -14,9 +14,9 @@
   ></h3>
   <!-- Form START -->
   <form
-    [formGroup]="questionForm"
-    (submit)="checkAnswer()"
     class="row g-3 mt-2 position-relative z-index-9"
+    [formGroup]="questionForm"
+    (submit)="studentAnswer.emit(questionForm.value.answer || '')"
     novalidate
   >
     <!-- Number -->
@@ -41,7 +41,6 @@
           }"
           type="button"
           id="button-addon2"
-          (click)="checkAnswer()"
         >
           {{ correct() ? 'Correct' : incorrect() ? 'Try Again' : 'Check' }}
         </button>

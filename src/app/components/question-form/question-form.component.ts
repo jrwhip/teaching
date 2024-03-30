@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ModelSignal,
   effect,
   input,
+  model,
   output,
   signal,
   untracked,
@@ -33,11 +35,17 @@ import { StudentAnswer } from 'src/app/models/student-answer.model';
 })
 export class QuestionFormComponent {
   // answeredCorrectly = output<StudentAnswer>();
-  studentAnswer = output<StudentAnswer>();
+  studentAnswer = output<string>();
   question = input.required<Problem>();
   hint = signal<string>('');
   correct = signal<boolean>(false);
   incorrect = signal<boolean>(false);
+
+  answer: ModelSignal<string> = model.required();
+
+  questionForm = this.fb.group({
+    answer: ['', Validators.required],
+  });
 
   constructor(private fb: FormBuilder) {
     effect(() => {
@@ -45,45 +53,11 @@ export class QuestionFormComponent {
       console.log(`The validate function is: ${this.question().validate}`);
       untracked(() => {
         this.correct.set(false);
-        this.questionForm.reset();
+        // this.questionForm.reset();
       });
     });
   }
+  
 
-  questionForm = this.fb.group({
-    answer: ['', Validators.required],
-  });
 
-  checkAnswer() {
-    const studentAnswer = this.questionForm.value.answer;
-    const correctAnswer = this.question().answer;
-    this.correct.set(false);
-    this.incorrect.set(false);
-    this.hint.set('');
-    // Normalize the answers if they are strings
-    let normalizedStudentAnswer = studentAnswer;
-    if (typeof studentAnswer === 'string') {
-      normalizedStudentAnswer = Number(
-        studentAnswer.trim().toLowerCase()
-      ).toString();
-    }
-    let normalizedCorrectAnswer = correctAnswer;
-    if (typeof correctAnswer === 'string') {
-      normalizedCorrectAnswer = Number(
-        correctAnswer.trim().toLowerCase()
-      ).toString();
-    }
-
-    if (normalizedStudentAnswer === normalizedCorrectAnswer) {
-      this.correct.set(true);
-      setTimeout(() => {
-        this.studentAnswer.emit({ answer: 'unknown', isCorrect: true });
-      }, 2000); // delay for 2 seconds
-    } else {
-      this.hint.set(this.question().hint);
-      this.questionForm.reset();
-      this.incorrect.set(true);
-      this.studentAnswer.emit({ answer: 'unknown', isCorrect: false });
-    }
-  }
 }

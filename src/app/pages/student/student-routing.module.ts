@@ -9,17 +9,10 @@ const routes: Routes = [
     component: StudentComponent,
     children: [
       {
-        path: 'math',
+        path: 'math/:category/:operation',
         loadComponent: () =>
           import('./math/math.component').then((c) => c.MathComponent),
         children: [
-          {
-            path: 'basics/:operation',
-            loadComponent: () =>
-              import('./math/basic-math/basic-math.component').then(
-                (c) => c.BasicMathComponent
-              ),
-          },
           {
             path: '',
             pathMatch: 'full',
