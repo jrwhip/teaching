@@ -1,20 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AgGridModule } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 
-import { NthPlainTextPipe } from '../../../nth-plain-text.pipe';
+import { CounterComponent } from 'src/app/components/counter/counter.component';
+import { QuestionFormComponent } from 'src/app/components/question-form/question-form.component';
+
+import { FooService } from 'src/app/services/foo.service';
+import { take } from 'rxjs';
+
+import { StudentAnswer } from 'src/app/models/student-answer.model';
 
 @Component({
   standalone: true,
   imports: [
     AgGridModule,
     CommonModule,
-    NthPlainTextPipe,
+    CounterComponent,
     FormsModule,
+    QuestionFormComponent,
     ReactiveFormsModule,
     RouterModule,
   ],
@@ -22,6 +29,8 @@ import { NthPlainTextPipe } from '../../../nth-plain-text.pipe';
   styleUrls: ['./math.component.scss'],
 })
 export class MathComponent implements OnInit {
+  fooService = inject(FooService);
+
   roundedNumbers: any[] = [];
   correctStreak = 0;
   highestStreak = 0;
@@ -30,6 +39,10 @@ export class MathComponent implements OnInit {
   userAnswer: number | null = null;
   result = '';
   resultColor = '';
+
+  questionSignal: any;
+
+  operation = '';
 
   columnDefs: ColDef[] = [
     {
@@ -178,6 +191,43 @@ export class MathComponent implements OnInit {
 
       this.userAnswer = null;
       this.randomizeRoundingFactor();
+    }
+  }
+
+
+  onStudentAnswer({ answer, isCorrect: answeredCorrectly }: StudentAnswer) {
+    const currentOperation = this.operation; // Assuming this.operation is available and set
+    this.fooService
+      .setNewCounterValues(currentOperation, answeredCorrectly)
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          console.log('Counter values updated:', res);
+        },
+        error: (error) => {
+          console.error('Error updating question:', error);
+        },
+      });
+    // Retrieve the current operation to generate the appropriate question
+
+    // Call setNewMathQuestion to update the state with a new question
+    // Assuming setNewMathQuestion returns an observable
+    if (answeredCorrectly) {
+      this.fooService
+        .setNewMathQuestion(currentOperation)
+        .pipe(
+          take(1) // Ensures subscription completes after receiving the first value
+        )
+        .subscribe({
+          next: (newQuestion) => {
+            // If you need to perform any action with the newQuestion, do it here
+            // Though, based on your setup, it seems the state update is handled within FooService,
+            // and the UI should reactively update based on state changes
+          },
+          error: (error) => {
+            console.error('Error updating question:', error);
+          },
+        });
     }
   }
 
