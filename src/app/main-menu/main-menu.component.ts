@@ -6,6 +6,10 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './main-menu.component.html',
-  styleUrls: ['./main-menu.component.scss']
+  styleUrls: ['./main-menu.component.scss'],
 })
-export class MainMenuComponent {}
+export class MainMenuComponent {
+  constructor() {
+    console.log('Just putint in some stuff');
+  }
+}
