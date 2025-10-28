@@ -10,7 +10,7 @@ frontend:
       commands:
         - npm run build
   artifacts:
-    baseDirectory: dist/teaching/browser
+    baseDirectory: dist/word-list
     files:
       - '**/*'
   cache:
