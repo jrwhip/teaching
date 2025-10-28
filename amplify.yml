@@ -5,10 +5,12 @@ frontend:
       commands:
         - |
           if [[ "${AWS_BRANCH}" == "experimental" ]]; then
-            echo "Using Node 18 for experimental branch"
+            echo "Installing and using Node 18 for experimental branch"
+            nvm install 18
             nvm use 18
           else
-            echo "Using Node 16 for other branches"
+            echo "Installing and using Node 16 for other branches"
+            nvm install 16
             nvm use 16
           fi
         - node --version
