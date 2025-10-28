@@ -3,6 +3,14 @@ frontend:
   phases:
     preBuild:
       commands:
+        - |
+          if [[ "${AWS_BRANCH}" == "experimental" ]]; then
+            echo "Using Node 18 for experimental branch"
+            nvm use 18
+          else
+            echo "Using Node 16 for other branches"
+            nvm use 16
+          fi
         - node --version
         - npm --version
         - npm ci --ignore-scripts
