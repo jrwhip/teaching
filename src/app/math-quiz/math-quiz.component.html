@@ -1,0 +1,31 @@
+<app-navbar></app-navbar>
+
+<div class="math-quiz-container">
+  <h1>Math Quiz</h1>
+  <p class="subtitle">Choose a problem type to practice</p>
+
+  <div class="categories-grid">
+    @for (category of categories; track category.name) {
+      <div class="category-card">
+        <div class="category-header">
+          <i class="bi {{ category.icon }}"></i>
+          <h2>{{ category.name }}</h2>
+        </div>
+        <div class="problem-types">
+          @for (type of category.types; track type.id) {
+            <a
+              class="problem-type-button"
+              [routerLink]="['/math-quiz', type.route]"
+              routerLinkActive="active"
+            >
+              {{ type.label }}
+            </a>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Router outlet for child routes -->
+  <router-outlet></router-outlet>
+</div>

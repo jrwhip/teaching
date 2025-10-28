@@ -30,6 +30,17 @@ export const appRoutes: Route[] = [
     loadComponent: () => import('./area/area.component').then(c => c.AreaComponent),
   },
   {
+    path: 'math-quiz',
+    loadComponent: () => import('./math-quiz/math-quiz.component').then(c => c.MathQuizComponent),
+    children: [
+      {
+        path: 'addition',
+        loadComponent: () => import('./math-quiz/problems/addition.component').then(c => c.AdditionComponent),
+      },
+      // More problem types will be added here
+    ]
+  },
+  {
     path: '**',
     loadComponent: () => import('./page-not-found/page-not-found.component').then(c => c.PageNotFoundComponent),
   }
