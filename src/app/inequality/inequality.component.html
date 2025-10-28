@@ -1,0 +1,98 @@
+<app-navbar></app-navbar>
+
+<div class="inequality-container">
+  <h1>{{ title }}</h1>
+
+  <div #numberLineContainer id="numberLineContainer" (click)="handleClick($event)">
+    <div class="mainNumberLine"></div>
+
+    <!-- Tick marks and labels -->
+    @for (tick of ticks; track $index) {
+      <div class="tick" [style.left]="getTickPosition($index)"></div>
+      <span class="tick-label" [style.left]="getTickPosition($index)">{{ tick }}</span>
+    }
+
+    <!-- User placed marker -->
+    @if (showMarker) {
+      <div
+        [class.marker]="!isMarkerOpen"
+        [class.open-circle]="isMarkerOpen"
+        [style.left]="markerLeft"
+      ></div>
+    }
+
+    <!-- Inequality line -->
+    @if (showLine) {
+      <div
+        class="solid-line"
+        [style.left]="lineLeft"
+        [style.width]="lineWidth"
+      ></div>
+    }
+
+    <!-- Arrow -->
+    @if (showArrow) {
+      <div
+        class="arrow"
+        [class.arrow-right]="isArrowRight"
+        [class.arrow-left]="!isArrowRight"
+        [style.left]="arrowLeft"
+      ></div>
+    }
+  </div>
+
+  <div id="controlsContainer">
+    <div id="controls">
+      <p>Select: Open or Closed</p>
+      <div
+        id="openCircleButton"
+        class="circle-button open-circle-button"
+        [class.selected]="circleChosen && circleType === 'open'"
+        (click)="setCircleType('open')"
+      ></div>
+      <div
+        id="closedCircleButton"
+        class="circle-button closed-circle-button"
+        [class.selected]="circleChosen && circleType === 'closed'"
+        (click)="setCircleType('closed')"
+      ></div>
+    </div>
+    <div id="directionControls">
+      <p>Select: Left or Right</p>
+      <button
+        id="leftButton"
+        [class.selected]="directionChosen && direction === 'left'"
+        (click)="setDirection('left')"
+      >
+        ← Left
+      </button>
+      <button
+        id="rightButton"
+        [class.selected]="directionChosen && direction === 'right'"
+        (click)="setDirection('right')"
+      >
+        Right →
+      </button>
+      <p>Then click the location on the line</p>
+    </div>
+  </div>
+
+  <button id="checkAnswerButton" (click)="checkAnswer()">Check Answer</button>
+  <button id="newProblemButton" (click)="generateProblem()">New Problem</button>
+
+  @if (message) {
+    <div id="message" [class.correct-message]="message === 'Correct!'">
+      {{ message }}
+    </div>
+  }
+
+  @if (errorMessage) {
+    <div id="error-message">{{ errorMessage }}</div>
+  }
+
+  <!-- Scoreboard -->
+  <div id="scoreboard">
+    <p>Correct: <span>{{ correctCount }}</span></p>
+    <p>Incorrect: <span>{{ incorrectCount }}</span></p>
+  </div>
+</div>

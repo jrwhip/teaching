@@ -1,0 +1,45 @@
+<app-navbar></app-navbar>
+
+<div class="area-container">
+  <h1>Area and Perimeter Practice</h1>
+
+  <div id="shapeButtons">
+    @for (shape of shapes; track shape.value) {
+      <button
+        class="shape-button"
+        [class.selected]="selectedShape === shape.value"
+        (click)="selectShape(shape.value)"
+      >
+        {{ shape.label }}
+      </button>
+    }
+  </div>
+
+  <canvas #shapeCanvas id="shapeCanvas" width="500" height="300"></canvas>
+
+  <div id="controls">
+    <p id="problem">{{ problemText }}</p>
+    <input
+      type="text"
+      id="userInput"
+      placeholder="Your Answer"
+      [(ngModel)]="userInput"
+      (keypress)="onEnterKey($event)"
+    />
+    <button (click)="insertUnit('u')">u</button>
+    <button (click)="insertUnit('u²')">u²</button>
+    <button id="submitButton" (click)="checkAnswer()">Submit</button>
+    <button id="newProblemButton" (click)="generateProblem()">New Problem</button>
+    <button id="hintButton" (click)="showHint()">Hint</button>
+  </div>
+
+  @if (message) {
+    <div id="message" [class.correct]="message === 'Correct!'">
+      {{ message }}
+    </div>
+  }
+
+  @if (solution) {
+    <div id="solution" [innerHTML]="solution"></div>
+  }
+</div>

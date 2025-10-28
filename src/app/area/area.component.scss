@@ -1,0 +1,138 @@
+.area-container {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  background-color: #f0f8ff;
+  min-height: calc(100vh - 80px);
+
+  h1 {
+    margin-bottom: 30px;
+  }
+}
+
+#shapeButtons {
+  margin-bottom: 20px;
+}
+
+.shape-button {
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+
+  &.selected {
+    background-color: #0056b3;
+    border: 3px solid #ffa500;
+  }
+}
+
+#shapeCanvas {
+  width: 500px;
+  height: 300px;
+  margin: 20px auto;
+  display: block;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+#problem {
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+#controls {
+  margin: 20px auto;
+  text-align: center;
+
+  input[type="text"] {
+    font-size: 16px;
+    padding: 5px;
+    width: 150px;
+    margin: 5px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+  }
+
+  button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+
+    &:not(#submitButton):not(#newProblemButton):not(#hintButton) {
+      background-color: #f0f0f0;
+      color: #333;
+      border: 1px solid #ccc;
+
+      &:hover {
+        background-color: #e0e0e0;
+      }
+    }
+  }
+
+  #submitButton {
+    background-color: #28a745;
+    color: white;
+
+    &:hover {
+      background-color: #218838;
+    }
+  }
+
+  #newProblemButton {
+    background-color: #007BFF;
+    color: white;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+
+  #hintButton {
+    background-color: #ffc107;
+    color: #333;
+
+    &:hover {
+      background-color: #e0a800;
+    }
+  }
+}
+
+#message {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  min-height: 30px;
+
+  &.correct {
+    color: green;
+    font-size: 36px;
+  }
+}
+
+#solution {
+  margin-top: 20px;
+  font-size: 16px;
+  text-align: left;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 15px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 5px;
+  line-height: 1.6;
+}

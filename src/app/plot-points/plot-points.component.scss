@@ -1,0 +1,142 @@
+.plot-points-container {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+  background-color: #f0f8ff;
+  min-height: calc(100vh - 80px);
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  p {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .point-value {
+    font-weight: bold;
+    color: #4CAF50;
+  }
+}
+
+#numberLineContainer {
+  margin: 50px auto;
+  width: 80%;
+  position: relative;
+  height: 50px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+#numberLine {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background-color: black;
+  transform: translateY(-50%);
+}
+
+.numberMarker {
+  position: absolute;
+  text-align: center;
+  user-select: none;
+
+  .line {
+    height: 20px;
+    width: 2px;
+    background: black;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  div {
+    position: absolute;
+    top: 25px;
+    transform: translateX(-50%);
+  }
+}
+
+.userMarker {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background-color: #00f;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0066ff;
+  }
+}
+
+.controls {
+  margin: 20px 0;
+
+  label {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 16px;
+  }
+
+  input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+    width: 150px;
+  }
+
+  button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 0 5px;
+
+    &:hover {
+      background-color: #45a049;
+    }
+
+    &#newProblemButton {
+      background-color: #2196F3;
+
+      &:hover {
+        background-color: #0b7dda;
+      }
+    }
+  }
+}
+
+#feedback {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  min-height: 24px;
+}
+
+#scoreboard {
+  margin-top: 20px;
+  font-size: 18px;
+
+  p {
+    margin: 10px 0;
+
+    span {
+      font-weight: bold;
+      color: #4CAF50;
+    }
+  }
+}

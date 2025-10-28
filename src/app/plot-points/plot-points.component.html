@@ -1,0 +1,67 @@
+<app-navbar></app-navbar>
+
+<div class="plot-points-container">
+  <h1>Interactive Number Line</h1>
+  <p>
+    Click on the number line to place the markers at the given points:
+    <span class="point-value">{{ pointA }}</span> and
+    <span class="point-value">{{ pointB }}</span>
+  </p>
+
+  <div id="numberLineContainer" (click)="placeMarker($event)">
+    <div id="numberLine">
+      <!-- Number markers -->
+      @for (marker of numberMarkers; track marker) {
+        <div class="numberMarker" [style.left]="getMarkerPosition(marker)">
+          <div class="line"></div>
+          <div>{{ marker }}</div>
+        </div>
+      }
+
+      <!-- User placed marker A -->
+      @if (userPlacedA !== null) {
+        <div
+          class="userMarker"
+          [style.left]="getMarkerPosition(userPlacedA)"
+          (click)="removeMarker('A', $event)"
+        ></div>
+      }
+
+      <!-- User placed marker B -->
+      @if (userPlacedB !== null) {
+        <div
+          class="userMarker"
+          [style.left]="getMarkerPosition(userPlacedB)"
+          (click)="removeMarker('B', $event)"
+        ></div>
+      }
+    </div>
+  </div>
+
+  <div class="controls">
+    <label for="distanceInput">How far apart are the two points?</label>
+    <input
+      type="text"
+      id="distanceInput"
+      placeholder="Enter distance"
+      [(ngModel)]="distanceInput"
+      (keypress)="onEnterKey($event)"
+    />
+    <button id="checkAnswerButton" (click)="checkAnswer()">Check Answer</button>
+    <button id="newProblemButton" (click)="generateNumberLineProblem()">
+      New Problem
+    </button>
+  </div>
+
+  @if (feedback) {
+    <div id="feedback" [style.color]="feedbackColor">
+      {{ feedback }}
+    </div>
+  }
+
+  <!-- Scoreboard -->
+  <div id="scoreboard">
+    <p>Correct Answers: <span>{{ correctCount }}</span></p>
+    <p>Incorrect Answers: <span>{{ incorrectCount }}</span></p>
+  </div>
+</div>
