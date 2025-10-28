@@ -9,11 +9,11 @@ import { WordService } from '../word.service';
 import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
 import { WordListComponent } from './word-list/word-list.component';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
+import { NavbarComponent } from '../components/navbar/navbar.component';
 
 @Component({
   selector: 'app-next-step-word-study',
-  standalone: true,
-  imports: [CommonModule, WordStudyMenuComponent, WordListComponent],
+  imports: [CommonModule, WordStudyMenuComponent, WordListComponent, NavbarComponent],
   templateUrl: './next-step-word-study.component.html',
   styleUrls: ['./next-step-word-study.component.scss']
 })

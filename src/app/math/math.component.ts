@@ -6,10 +6,10 @@ import { AgGridModule } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 
 import { NthPlainTextPipe } from '../nth-plain-text.pipe';
+import { NavbarComponent } from '../components/navbar/navbar.component';
 
 @Component({
-  standalone: true,
-  imports: [AgGridModule, CommonModule, NthPlainTextPipe, FormsModule, ReactiveFormsModule],
+  imports: [AgGridModule, CommonModule, NthPlainTextPipe, FormsModule, ReactiveFormsModule, NavbarComponent],
   templateUrl: './math.component.html',
   styleUrls: ['./math.component.scss']
 })

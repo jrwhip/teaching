@@ -1,0 +1,143 @@
+<header class="navbar-light navbar-sticky">
+  <!-- Nav START -->
+  <nav class="navbar navbar-expand-xl z-index-9">
+    <div class="container">
+      <!-- Logo START -->
+      <a class="navbar-brand" routerLink="/">
+        <img
+          class="light-mode-item navbar-brand-item"
+          src="assets/images/logo.svg"
+          alt="logo"
+        />
+        <img
+          class="dark-mode-item navbar-brand-item"
+          src="assets/images/logo-light.svg"
+          alt="logo"
+        />
+      </a>
+      <!-- Logo END -->
+
+      <!-- Responsive navbar toggler -->
+      <button
+        class="navbar-toggler ms-auto"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarCollapse"
+        aria-controls="navbarCollapse"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-animation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+
+      <!-- Main navbar START -->
+      <div class="navbar-collapse collapse" id="navbarCollapse">
+        <!-- Nav Main menu START -->
+        <ul class="navbar-nav navbar-nav-scroll mx-auto">
+          <!-- Nav item - Math -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="mathMenu"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              routerLinkActive="active"
+            >
+              <i class="bi bi-calculator me-2"></i>Math
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="mathMenu">
+              <li>
+                <a class="dropdown-item" routerLink="/math" routerLinkActive="active">
+                  <i class="bi bi-123 me-2"></i>Math Rounding
+                </a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item disabled" href="#">
+                  <i class="bi bi-grid-3x3 me-2"></i>Math Quiz
+                  <span class="badge bg-warning ms-2">Coming Soon</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item disabled" href="#">
+                  <i class="bi bi-square me-2"></i>Area & Perimeter
+                  <span class="badge bg-warning ms-2">Coming Soon</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item disabled" href="#">
+                  <i class="bi bi-arrow-left-right me-2"></i>Inequalities
+                  <span class="badge bg-warning ms-2">Coming Soon</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item disabled" href="#">
+                  <i class="bi bi-graph-up me-2"></i>Coordinate Plotting
+                  <span class="badge bg-warning ms-2">Coming Soon</span>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Nav item - Language Arts -->
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              routerLink="/next-step-word-study"
+              routerLinkActive="active"
+            >
+              <i class="bi bi-book me-2"></i>Word Study
+            </a>
+          </li>
+        </ul>
+        <!-- Nav Main menu END -->
+
+        <!-- Right side menu START -->
+        <ul class="navbar-nav ms-auto">
+          <!-- Profile dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="profileMenu"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <i class="bi bi-person-circle me-2"></i>Student
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+              <li>
+                <a class="dropdown-item disabled" href="#">
+                  <i class="bi bi-person me-2"></i>Profile
+                  <span class="badge bg-info ms-2">Login Required</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item disabled" href="#">
+                  <i class="bi bi-graph-up me-2"></i>Progress
+                  <span class="badge bg-info ms-2">Login Required</span>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider" /></li>
+              <li>
+                <a class="dropdown-item" routerLink="/">
+                  <i class="bi bi-box-arrow-left me-2"></i>Return to Home
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <!-- Right side menu END -->
+      </div>
+      <!-- Main navbar END -->
+    </div>
+  </nav>
+  <!-- Nav END -->
+</header>
