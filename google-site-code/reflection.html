@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Coordinate Grid</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f8ff;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      #mainContainer {
+        display: flex;
+        flex-direction: row-reverse; /* Switch the grid and controls */
+        justify-content: center;
+        align-items: flex-start;
+        gap: 20px;
+        margin: 0 auto;
+      }
+
+      #gridContainer {
+        position: relative;
+        width: 500px;
+        height: 500px;
+        border: 1px solid black;
+        background: #fff;
+      }
+
+      .gridLine {
+        position: absolute;
+        background: lightgray;
+      }
+
+      .horizontal {
+        width: 100%;
+        height: 1px;
+        left: 0;
+      }
+
+      .vertical {
+        width: 1px;
+        height: 100%;
+        top: 0;
+      }
+
+      .axisLine {
+        position: absolute;
+        background: black;
+        z-index: 1;
+      }
+
+      .x-axis {
+        width: 100%;
+        height: 3px;
+        left: 0;
+        top: 50%;
+      }
+
+      .y-axis {
+        width: 3px;
+        height: 100%;
+        left: 50%;
+        top: 0;
+      }
+
+      .axisLabel {
+        position: absolute;
+        font-size: 12px;
+        color: black;
+      }
+
+      .userMarker {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: #00f;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .incorrectMarker {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        color: red;
+        font-size: 16px;
+        font-weight: bold;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        pointer-events: none;
+      }
+
+      .correctMarker {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        background-color: #3e503c;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      #feedback {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      #counters {
+        margin-top: 10px;
+        font-size: 16px;
+      }
+
+     button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+
+  button.active {
+    background-color: #007bff; /* Blue color for the selected button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+    </style>
+  </head>
+  <body>
+    <div id="mainContainer">
+      <!-- Coordinate Grid -->
+      <div id="gridContainer"></div>
+
+      <!-- Directions, Buttons, and Counters -->
+      <div>
+        <button id="newProblemButton" hidden>New Problem</button>
+        <div>
+          <button id="plotCoordinateButton">Plot Coordinates</button>
+          <button id="reflectionProblemButton">Reflection Problem</button>
+        </div>
+        <div id="counters" style="width: 250px; text-align: left;">
+          <p>
+            <span id="instruction">Place the point at the given coordinate.</span>
+          </p>
+          Correct Problems: <span id="correctCount">0</span><br />
+          Incorrect Problems: <span id="incorrectCount">0</span>
+          <div id="feedback" style="margin-top: 10px; white-space: nowrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let targetPoint,
+        reflectionType,
+        userPoint = null,
+        userReflection = null,
+        mode = "plotCoordinate"; // Current problem mode
+      const gridSize = 500;
+      const axisRange = 8; // -10 to 10
+
+      let correctCount = 0; // Counter for correct answers
+      let incorrectCount = 0; // Counter for incorrect answers
+
+      function generateCoordinateGrid() {
+        const gridContainer = document.getElementById("gridContainer");
+        gridContainer.innerHTML = ""; // Clear existing grid and markers
+        userPoint = null;
+        userReflection = null;
+
+        // Clear feedback text
+        const feedback = document.getElementById("feedback");
+        feedback.textContent = "";
+        feedback.style.color = "black";
+
+        for (let i = -axisRange; i <= axisRange; i++) {
+          const offset = ((i + axisRange) / (2 * axisRange)) * 100;
+
+          const horizontalLine = document.createElement("div");
+          horizontalLine.className = "gridLine horizontal";
+          horizontalLine.style.top = `${offset}%`;
+          gridContainer.appendChild(horizontalLine);
+
+          const verticalLine = document.createElement("div");
+          verticalLine.className = "gridLine vertical";
+          verticalLine.style.left = `${offset}%`;
+          gridContainer.appendChild(verticalLine);
+
+          if (i !== 0) {
+            const xLabel = document.createElement("div");
+            xLabel.className = "axisLabel";
+            xLabel.style.left = `${offset}%`;
+            xLabel.style.top = "50%";
+            xLabel.style.transform = "translate(-50%, 10px)";
+            xLabel.textContent = i;
+            gridContainer.appendChild(xLabel);
+          }
+
+          const yLabel = document.createElement("div");
+          yLabel.className = "axisLabel";
+          yLabel.style.top = `${100 - offset}%`;
+          yLabel.style.left = "50%";
+          yLabel.style.transform = "translate(10px, -50%)";
+          yLabel.textContent = i;
+          gridContainer.appendChild(yLabel);
+        }
+
+        const xAxis = document.createElement("div");
+        xAxis.className = "axisLine x-axis";
+        gridContainer.appendChild(xAxis);
+
+        const yAxis = document.createElement("div");
+        yAxis.className = "axisLine y-axis";
+        gridContainer.appendChild(yAxis);
+
+        if (mode === "plotCoordinate") {
+          const x = Math.floor(Math.random() * (2 * axisRange + 1)) - axisRange;
+          const y = Math.floor(Math.random() * (2 * axisRange + 1)) - axisRange;
+          targetPoint = { x, y };
+          document.getElementById("instruction").textContent =
+            `Place the point at (${x}, ${y}).`;
+        } else if (mode === "reflection") {
+          const x = Math.floor(Math.random() * (2 * axisRange + 1)) - axisRange;
+          const y = Math.floor(Math.random() * (2 * axisRange + 1)) - axisRange;
+          targetPoint = { x, y };
+          reflectionType = Math.random() > 0.5 ? "x-axis" : "y-axis";
+          document.getElementById("instruction").textContent =
+            `Place the point at (${x}, ${y}) and its ${reflectionType} reflection.`;
+        }
+
+        gridContainer.onclick = handleClick;
+      }
+
+      function handleClick(event) {
+        const gridContainer = document.getElementById("gridContainer");
+        const rect = gridContainer.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
+
+        const x = Math.round((clickX / gridSize) * (2 * axisRange) - axisRange);
+        const y = Math.round(axisRange - (clickY / gridSize) * (2 * axisRange));
+
+        if (mode === "plotCoordinate" && !userPoint) {
+          userPoint = { x, y };
+          createMarker(x, y, "userMarker");
+          checkPlotCoordinateAnswer();
+        } else if (mode === "reflection") {
+          if (!userPoint) {
+            userPoint = { x, y };
+            createMarker(x, y, "userMarker");
+          } else if (!userReflection) {
+            userReflection = { x, y };
+            createMarker(x, y, "userMarker");
+            checkReflectionAnswer();
+          }
+        }
+      }
+
+      function checkPlotCoordinateAnswer() {
+  const feedback = document.getElementById("feedback");
+  let timeoutDuration; // Variable to set timeout duration
+
+  if (userPoint.x === targetPoint.x && userPoint.y === targetPoint.y) {
+    feedback.textContent = "Correct!";
+    feedback.style.color = "green";
+    correctCount++;
+    timeoutDuration = 900; // Shorter timeout for correct answers
+  } else {
+    feedback.textContent = "Incorrect.";
+    feedback.style.color = "red";
+    createCrossMarker(userPoint.x, userPoint.y); // Mark the incorrect point with an X
+    createMarker(targetPoint.x, targetPoint.y, "correctMarker"); // Show the correct point
+    incorrectCount++;
+    timeoutDuration = 3000; // Longer timeout for incorrect answers
+  }
+
+  document.getElementById("correctCount").textContent = correctCount;
+  document.getElementById("incorrectCount").textContent = incorrectCount;
+
+  setTimeout(generateCoordinateGrid, timeoutDuration); // Use dynamic timeout
+}
+
+
+      function checkReflectionAnswer() {
+  const feedback = document.getElementById("feedback");
+  const expectedReflection =
+    reflectionType === "x-axis"
+      ? { x: targetPoint.x, y: -targetPoint.y }
+      : { x: -targetPoint.x, y: targetPoint.y };
+
+  const isCorrectPoint =
+    userPoint.x === targetPoint.x && userPoint.y === targetPoint.y;
+  const isCorrectReflection =
+    userReflection &&
+    userReflection.x === expectedReflection.x &&
+    userReflection.y === expectedReflection.y;
+
+  let timeoutDuration; // Variable to set timeout duration
+
+  if (isCorrectPoint && isCorrectReflection) {
+    feedback.textContent = "Correct!";
+    feedback.style.color = "green";
+    correctCount++;
+    timeoutDuration = 900; // Shorter timeout for correct answers
+  } else {
+    feedback.textContent = "Incorrect.";
+    feedback.style.color = "red";
+
+    if (!isCorrectPoint) createCrossMarker(userPoint.x, userPoint.y);
+    if (!isCorrectReflection && userReflection)
+      createCrossMarker(userReflection.x, userReflection.y);
+
+    createMarker(targetPoint.x, targetPoint.y, "correctMarker");
+    createMarker(expectedReflection.x, expectedReflection.y, "correctMarker");
+    incorrectCount++;
+    timeoutDuration = 4000; // Longer timeout for incorrect answers
+  }
+
+  document.getElementById("correctCount").textContent = correctCount;
+  document.getElementById("incorrectCount").textContent = incorrectCount;
+
+  setTimeout(generateCoordinateGrid, timeoutDuration); // Use dynamic timeout
+}
+
+
+      function createMarker(x, y, className) {
+        const gridContainer = document.getElementById("gridContainer");
+        const marker = document.createElement("div");
+        marker.className = className;
+        moveMarker(marker, x, y);
+        gridContainer.appendChild(marker);
+      }
+
+      function createCrossMarker(x, y) {
+        const gridContainer = document.getElementById("gridContainer");
+        const cross = document.createElement("div");
+        cross.className = "incorrectMarker";
+        cross.textContent = "X";
+        moveMarker(cross, x, y);
+        gridContainer.appendChild(cross);
+      }
+
+      function moveMarker(marker, x, y) {
+        const left = ((x + axisRange) / (2 * axisRange)) * gridSize;
+        const top = ((axisRange - y) / (2 * axisRange)) * gridSize;
+        marker.style.left = `${left}px`;
+        marker.style.top = `${top}px`;
+      }
+
+      document.getElementById("plotCoordinateButton").onclick = () => {
+        mode = "plotCoordinate";
+        generateCoordinateGrid();
+      };
+
+      document.getElementById("reflectionProblemButton").onclick = () => {
+        mode = "reflection";
+        generateCoordinateGrid();
+      };
+      document.getElementById("plotCoordinateButton").onclick = () => {
+  mode = "plotCoordinate";
+  updateButtonStates("plotCoordinateButton");
+  generateCoordinateGrid();
+};
+
+document.getElementById("reflectionProblemButton").onclick = () => {
+  mode = "reflection";
+  updateButtonStates("reflectionProblemButton");
+  generateCoordinateGrid();
+};
+
+function updateButtonStates(activeButtonId) {
+  // Get all buttons
+  const buttons = document.querySelectorAll("button");
+
+  // Remove "active" class from all buttons
+  buttons.forEach((button) => {
+    button.classList.remove("active");
+  });
+
+  // Add "active" class to the currently active button
+  document.getElementById(activeButtonId).classList.add("active");
+}
+
+
+      window.onload = generateCoordinateGrid;
+    </script>
+  </body>
+</html>

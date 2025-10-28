@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graph the Inequality</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+
+      #numberLineContainer {
+        position: relative;
+        width: 90%;
+        height: 40px;
+        margin: 50px auto;
+        
+      }
+      .mainNumberLine {
+        position: absolute;
+        top: 10px; /* Adjust the vertical placement */
+        left: 0;
+        width: 100%; /* Full width of the container */
+        height: 1px; /* Line thickness */
+        background-color: black; /* Line color */
+      }
+
+      .tick {
+        position: absolute;
+        top: 0px;
+        width: 2px;
+        height: 20px;
+        background: black;
+      }
+
+      .tick-label {
+        position: absolute;
+        top: 25px;
+        font-size: 14px;
+        text-align: center;
+        transform: translateX(-50%);
+      }
+
+      .marker,
+      .open-circle {
+        position: absolute;
+        top: 3px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        transform: translateX(-50%);
+        cursor: pointer;
+      }
+
+      .marker {
+        background-color: red;
+        border: 2px solid red;
+      }
+
+      .open-circle {
+        border: 2px solid red;
+        background-color: transparent;
+      }
+
+      .solid-line {
+        position: absolute;
+        height: 4px;
+        background-color: red;
+        top: 8px;
+      }
+
+      .arrow {
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        top: 0px;
+      }
+
+      .arrow-right {
+        border-width: 10px 0 10px 20px;
+        border-color: transparent transparent transparent red;
+        left: 100%;
+      }
+
+      .arrow-left {
+        border-width: 10px 20px 10px 0;
+        border-color: transparent red transparent transparent;
+        left: 0;
+      }
+
+      #controls {
+        margin-top: -20px;
+      }
+
+      .circle-button {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        margin: 0 10px;
+        cursor: pointer;
+      }
+
+      .open-circle-button {
+        border: 2px solid black;
+        border-radius: 50%;
+        background-color: white;
+      }
+
+      .closed-circle-button {
+        border: 2px solid black;
+        border-radius: 50%;
+        background-color: black;
+      }
+
+      .selected {
+        border: 4px solid orange;
+      }
+
+      #directionControls button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin: 0 10px;
+        cursor: pointer;
+      }
+
+      #directionControls .selected {
+        border: 3px solid orange;
+      }
+
+      #message {
+        font-weight: bold;
+      }
+
+      #error-message {
+        margin-top: 10px;
+        font-size: 16px;
+        color: red;
+      }
+      #controlsContainer p {
+  font-size: 16px; /* Adjust text size */
+  font-weight: bold; /* Bold text */
+  margin: 10px 0; /* Add some spacing above and below */
+  text-align: center; /* Center-align the text */
+}
+
+
+
+      #newProblemButton {
+        margin: 20px auto;
+        display: block;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        display: none;
+      }
+
+      #newProblemButton:hover {
+        background-color: #45a049;
+      }
+
+      #checkAnswerButton {
+        margin-top: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #f39c12;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #checkAnswerButton:hover {
+        background-color: #e67e22;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">Graph the Inequality</h1>
+
+    <div id="numberLineContainer">
+      <div class="mainNumberLine"></div>
+    </div>
+
+    <div id="controlsContainer">
+  <div id="controls">
+    <p>Select: Open or Closed</p>
+    <div
+      id="openCircleButton"
+      class="circle-button open-circle-button"
+      onclick="setCircleType('open')"
+    ></div>
+    <div
+      id="closedCircleButton"
+      class="circle-button closed-circle-button"
+      onclick="setCircleType('closed')"
+    ></div>
+  </div>
+  <div id="directionControls">
+    <p>Select: Left or Right</p>
+    <button onclick="setDirection('left')" id="leftButton">← Left</button>
+    <button onclick="setDirection('right')" id="rightButton">Right →</button>
+    <p>Then click the location on the line</p>
+  </div>
+</div>
+
+    <button id="newProblemButton">New Problem</button>
+    <button id="checkAnswerButton">Check Answer</button>
+    <div id="message" style="margin-bottom: 10px; font-size: 18px"></div>
+    <div id="error-message" style="color: red; font-size: 16px"></div>
+
+    <!-- Correct and Incorrect Counters -->
+    <div id="scoreboard" style="margin-top: 20px; font-size: 18px;">
+      <p>Correct: <span id="correctCounter">0</span></p>
+      <p>Incorrect: <span id="incorrectCounter">0</span></p>
+    </div>
+
+    <script>
+      const numberLineContainer = document.getElementById("numberLineContainer")
+      const message = document.getElementById("message")
+      const newProblemButton = document.getElementById("newProblemButton")
+      const checkAnswerButton = document.getElementById("checkAnswerButton")
+      const openCircleButton = document.getElementById("openCircleButton")
+      const closedCircleButton = document.getElementById("closedCircleButton")
+      const leftButton = document.getElementById("leftButton")
+      const rightButton = document.getElementById("rightButton")
+      
+      const correctCounterElement = document.getElementById("correctCounter");
+      const incorrectCounterElement = document.getElementById("incorrectCounter");
+      
+       let correctCount = 0;
+      let incorrectCount = 0;
+
+      const tickCount = 21 // For a number line from -10 to 10
+      let step
+      let inequality
+      let targetValue
+      let direction
+      let circleType = "open" // Default to open circle
+      let placedMarker = null // Track the placed marker
+
+      function createNumberLine() {
+        numberLineContainer.innerHTML = "" // Clear existing number line
+        const mainNumberLine =
+          numberLineContainer.querySelector(".mainNumberLine")
+        if (!mainNumberLine) {
+          // If it doesn't exist, create it
+          const newMainNumberLine = document.createElement("div")
+          newMainNumberLine.classList.add("mainNumberLine")
+          numberLineContainer.appendChild(newMainNumberLine)
+        }
+        const numberLineWidth = numberLineContainer.offsetWidth
+        step = numberLineWidth / (tickCount - 1)
+
+        for (let i = 0; i < tickCount; i++) {
+          const tick = document.createElement("div")
+          tick.classList.add("tick")
+          tick.style.left = `${i * step}px`
+          numberLineContainer.appendChild(tick)
+
+          const label = document.createElement("span")
+          label.textContent = i - 10 // Numbers from -10 to 10
+          label.classList.add("tick-label")
+          label.style.left = `${i * step}px`
+          numberLineContainer.appendChild(label)
+        }
+      }
+
+      // Reset state for a new problem
+      function generateProblem() {
+        createNumberLine()
+
+        // Reset state
+        circleChosen = false
+        directionChosen = false
+        circleType = "open"
+        direction = null
+        markerPosition = null
+        placedMarker = null
+
+        // Clear UI selections
+        openCircleButton.classList.remove("selected")
+        closedCircleButton.classList.remove("selected")
+        leftButton.classList.remove("selected")
+        rightButton.classList.remove("selected")
+        const existingLine = numberLineContainer.querySelector(".solid-line")
+        if (existingLine) existingLine.remove()
+        const existingArrow = numberLineContainer.querySelector(".arrow")
+        if (existingArrow) existingArrow.remove()
+
+        // Clear error messages
+        errorMessage.textContent = ""
+
+        // Generate and display the problem
+        targetValue = Math.floor(Math.random() * 21) - 10 // Random number from -10 to 10
+        const includeEqual = Math.random() < 0.5 // 50% chance to include equality
+        direction = Math.random() < 0.5 ? "left" : "right" // Randomly pick direction
+
+        // Adjust inequality based on direction
+        if (direction === "right") {
+          inequality = `${includeEqual ? "≥" : ">"}` // Greater than
+        } else {
+          inequality = `${includeEqual ? "≤" : "<"}` // Less than
+        }
+        // Update the title with the problem
+  const title = document.getElementById("title");
+  title.innerHTML = `Graph the Inequality: x ${inequality} ${targetValue}`;
+
+        // Display the problem
+        message.innerHTML = ``;
+
+
+        // Log the generated inequality for debugging
+        console.log(`Target inequality: x ${inequality} ${targetValue}`)
+      }
+
+      let markerPosition = null // Store the current marker's position
+
+      const errorMessage = document.getElementById("error-message")
+
+      function handleClick(event) {
+        if (!circleChosen) {
+          errorMessage.textContent =
+            "Please select a circle type before placing a marker."
+          return
+        }
+
+        if (!directionChosen) {
+          errorMessage.textContent =
+            "Please select a direction before placing a marker."
+          return
+        }
+
+        // Clear any previous error message
+        errorMessage.textContent = ""
+
+        const rect = numberLineContainer.getBoundingClientRect()
+        const x = event.clientX - rect.left
+
+        // Calculate the closest tick
+        const closestIndex = Math.round(x / step)
+        markerPosition = closestIndex - 10 // Store position on number line
+
+        // Clear existing marker if any
+        if (placedMarker) {
+          placedMarker.remove()
+        }
+
+        // Place the new marker
+        placeMarker(closestIndex)
+
+        // Draw the inequality line based on the current direction
+        drawLine(closestIndex, direction)
+      }
+
+      function placeMarker(index) {
+        const marker = document.createElement("div")
+        marker.classList.add(circleType === "open" ? "open-circle" : "marker")
+        marker.style.left = `${index * step}px`
+        numberLineContainer.appendChild(marker)
+
+        placedMarker = marker
+      }
+
+      function updateMarker() {
+        if (markerPosition === null) {
+          message.textContent = "Please place a marker first!"
+          return
+        }
+
+        const closestIndex = markerPosition + 10 // Convert to number line tick index
+
+        // Clear and replace the marker
+        if (placedMarker) {
+          placedMarker.remove()
+        }
+        placeMarker(closestIndex)
+
+        // Update the inequality line
+        drawLine(closestIndex, direction)
+      }
+
+      let circleChosen = false
+      let directionChosen = false
+
+      // Update circle selection logic
+      function setCircleType(type) {
+        circleType = type
+        circleChosen = true
+
+        openCircleButton.classList.toggle("selected", type === "open")
+        closedCircleButton.classList.toggle("selected", type === "closed")
+
+        if (markerPosition !== null) {
+          updateMarker() // Only update if a marker is already placed
+        }
+      }
+
+      // Update direction selection logic
+      function setDirection(dir) {
+        direction = dir
+        directionChosen = true
+
+        leftButton.classList.toggle("selected", dir === "left")
+        rightButton.classList.toggle("selected", dir === "right")
+
+        if (markerPosition !== null) {
+          updateMarker() // Only update if a marker is already placed
+        }
+      }
+
+      function drawLine(startIndex, direction) {
+        const existingLine = numberLineContainer.querySelector(".solid-line")
+        if (existingLine) existingLine.remove()
+
+        const existingArrow = numberLineContainer.querySelector(".arrow")
+        if (existingArrow) existingArrow.remove()
+
+        const line = document.createElement("div")
+        line.classList.add("solid-line")
+
+        if (direction === "right") {
+          line.style.left = `${startIndex * step}px`
+          line.style.width = `${numberLineContainer.offsetWidth - startIndex * step}px`
+
+          // Add arrow
+          const arrow = document.createElement("div")
+          arrow.classList.add("arrow", "arrow-right")
+          arrow.style.left = `${numberLineContainer.offsetWidth - 5}px`
+          numberLineContainer.appendChild(arrow)
+        } else {
+          line.style.left = `0px`
+          line.style.width = `${startIndex * step}px`
+
+          // Add arrow
+          const arrow = document.createElement("div")
+          arrow.classList.add("arrow", "arrow-left")
+          arrow.style.left = `5px`
+          numberLineContainer.appendChild(arrow)
+        }
+
+        numberLineContainer.appendChild(line)
+      }
+
+      function checkAnswer() {
+  if (!placedMarker) {
+    errorMessage.textContent = "Please place a marker first!";
+    return;
+  }
+
+  // Round marker position to the nearest integer
+  const userMarkerPosition = Math.round(
+    parseInt(placedMarker.style.left) / step - 10
+  ); // Convert to number value and round
+
+  console.log("Correct Answer Details:");
+  console.log(`  Target Value: ${targetValue}`);
+  console.log(`  Inequality: ${inequality}`);
+  console.log("User Input Details:");
+  console.log(`  Marker Position: ${userMarkerPosition}`);
+  console.log(`  Selected Circle Type: ${circleType}`);
+  console.log(`  Selected Direction: ${direction}`);
+
+  let correctPosition = userMarkerPosition === targetValue;
+  let correctCircle = false;
+  let correctDirection = false;
+
+  // Check if the circle type matches the inequality type
+  if (
+    (inequality === "≥" && circleType === "closed") ||
+    (inequality === ">" && circleType === "open") ||
+    (inequality === "≤" && circleType === "closed") ||
+    (inequality === "<" && circleType === "open")
+  ) {
+    correctCircle = true;
+  }
+
+  // Validate direction based on inequality
+  if (
+    (inequality === ">" || inequality === "≥") &&
+    direction === "right"
+  ) {
+    correctDirection = true;
+  } else if (
+    (inequality === "<" || inequality === "≤") &&
+    direction === "left"
+  ) {
+    correctDirection = true;
+  }
+
+  // Combine checks for result
+  if (correctPosition && correctCircle && correctDirection) {
+    errorMessage.textContent = ""; // Clear any error message
+    message.textContent = "Correct!";
+    message.style.fontSize = "120px"; // Make the text larger
+    message.style.fontWeight = "bold"; // Optional: Make it bold
+    message.style.color = "green"; // Make the text green
+
+    // Increment the correct counter
+    correctCount++;
+    correctCounterElement.textContent = correctCount;
+
+    console.log("Result: Correct!");
+
+    // Automatically generate a new problem after 1 second
+    setTimeout(() => {
+      generateProblem();
+    }, 1000);
+  } else {
+    // Update incorrect counter if any check fails
+    incorrectCount++;
+    incorrectCounterElement.textContent = incorrectCount;
+
+    if (!correctDirection) {
+      errorMessage.textContent =
+        "Incorrect direction! Adjust it and try again.";
+      console.log("Result: Incorrect direction!");
+    } else if (!correctCircle) {
+      errorMessage.textContent =
+        "Incorrect circle type! Adjust it and try again.";
+      console.log("Result: Incorrect circle type!");
+    } else {
+      errorMessage.textContent = "Incorrect position! Try again.";
+      console.log("Result: Incorrect position!");
+    }
+  }
+}
+
+
+      newProblemButton.addEventListener("click", generateProblem)
+      checkAnswerButton.addEventListener("click", checkAnswer)
+      numberLineContainer.addEventListener("click", handleClick)
+
+      // Initial setup
+      window.onload = () => {
+        generateProblem()
+      }
+    </script>
+  </body>
+</html>

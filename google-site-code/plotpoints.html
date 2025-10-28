@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Number Line</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f8ff;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #numberLineContainer {
+      margin: 50px auto;
+      width: 80%;
+      position: relative;
+      height: 50px; /* Expanded height for easier clicking */
+      background-color: transparent; /* Transparent background for wider click area */
+    }
+
+    #numberLine {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background-color: black;
+      transform: translateY(-50%);
+    }
+
+    .numberMarker {
+      position: absolute;
+      text-align: center;
+      user-select: none; /* Prevents text selection on number markers */
+    }
+
+    .numberMarker .line {
+      height: 20px;
+      width: 2px;
+      background: black;
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .numberMarker div {
+      position: absolute;
+      top: 25px;
+      transform: translateX(-50%);
+    }
+
+    .userMarker {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background-color: #00f;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #feedback {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interactive Number Line</h1>
+  <p>Click on the number line to place the markers at the given points: <span id="pointAValue"></span> and <span id="pointBValue"></span></p>
+  <div id="numberLineContainer">
+    <div id="numberLine"></div>
+  </div>
+  <div>
+    <label for="distanceInput">How far apart are the two points?</label>
+    <input type="text" id="distanceInput" placeholder="Enter distance">
+    <button id="checkAnswerButton">Check Answer</button>
+    <button id="newProblemButton">New Problem</button>
+  </div>
+  <div id="feedback"></div>
+
+  <!-- Correct Counter Display -->
+  <div id="scoreboard" style="margin-top: 20px; font-size: 18px;">
+    <p>Correct Answers: <span id="correctCounter">0</span></p>
+    <p>Incorrect Answers: <span id="incorrectCounter">0</span></p>
+  </div>
+
+  <script>
+    let pointA, pointB;
+    let userPlacedA = null;
+    let userPlacedB = null;
+     let correctCount = 0; // Initialize the correct counter
+     let incorrectCount = 0; // Incorrect answer counter
+
+    function generateNumberLineProblem() {
+      const numberLineContainer = document.getElementById("numberLineContainer");
+      const numberLine = document.getElementById("numberLine");
+      numberLine.innerHTML = ""; // Clear existing number line
+
+      const start = -10;
+      const end = 10;
+      const step = 1;
+
+      // Randomly select two distinct points
+      do {
+        pointA = Math.floor(Math.random() * (end - start + 1)) + start;
+        pointB = Math.floor(Math.random() * (end - start + 1)) + start;
+      } while (pointA === pointB);
+
+      // Display the target points
+      document.getElementById("pointAValue").textContent = pointA;
+      document.getElementById("pointBValue").textContent = pointB;
+
+      // Generate number markers
+      for (let i = start; i <= end; i += step) {
+        const marker = document.createElement("div");
+        marker.className = "numberMarker";
+        marker.style.left = `${((i - start) / (end - start)) * 100}%`;
+
+        const line = document.createElement("div");
+        line.className = "line";
+
+        const label = document.createElement("div");
+        label.textContent = i;
+
+        marker.appendChild(line);
+        marker.appendChild(label);
+        numberLine.appendChild(marker);
+      }
+
+      // Clear feedback and input
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("distanceInput").value = "";
+
+      // Reset user placements
+      userPlacedA = null;
+      userPlacedB = null;
+
+      // Add click handler to number line container (expanded area)
+      numberLineContainer.onclick = (event) => placeMarker(event, start, end);
+    }
+
+    function placeMarker(event, start, end) {
+      const numberLineContainer = document.getElementById("numberLineContainer");
+      const rect = numberLineContainer.getBoundingClientRect();
+      const clickPosition = event.clientX - rect.left;
+      const numberLineWidth = rect.width;
+
+      // Calculate the clicked value on the number line
+      const value = Math.round(((clickPosition / numberLineWidth) * (end - start)) + start);
+
+      // Check if clicking on an existing marker
+      if (userPlacedA === value) {
+        removeMarker("userMarkerA");
+        userPlacedA = null;
+        return;
+      }
+      if (userPlacedB === value) {
+        removeMarker("userMarkerB");
+        userPlacedB = null;
+        return;
+      }
+
+      // Place new markers if not already set
+      if (userPlacedA === null) {
+        createUserMarker(value, start, end, "userMarkerA");
+        userPlacedA = value;
+      } else if (userPlacedB === null) {
+        createUserMarker(value, start, end, "userMarkerB");
+        userPlacedB = value;
+      }
+    }
+
+    function createUserMarker(value, start, end, id) {
+      const userMarker = document.createElement("div");
+      userMarker.className = "userMarker";
+      userMarker.id = id;
+      userMarker.style.left = `${((value - start) / (end - start)) * 100}%`;
+
+      // Add a click event to remove the marker when clicked
+      userMarker.onclick = (event) => {
+        event.stopPropagation(); // Prevent triggering the number line click
+        removeMarker(id);
+        if (id === "userMarkerA") userPlacedA = null;
+        if (id === "userMarkerB") userPlacedB = null;
+      };
+
+      document.getElementById("numberLine").appendChild(userMarker);
+    }
+
+    function removeMarker(id) {
+      const marker = document.getElementById(id);
+      if (marker) {
+        marker.remove();
+      }
+    }
+
+    function checkAnswer() {
+      const userInput = document.getElementById("distanceInput").value.trim();
+      const correctDistance = Math.abs(pointA - pointB);
+
+      const feedback = document.getElementById("feedback");
+
+      // Check if both markers are placed correctly
+      if (userPlacedA === null || userPlacedB === null) {
+        feedback.textContent = "Please place both markers on the number line.";
+        feedback.style.color = "red";
+        return;
+      }
+
+      // Ensure the order of points is correct (pointA and pointB are interchangeable)
+      const correctPoints = [pointA, pointB].sort();
+      const userPoints = [userPlacedA, userPlacedB].sort();
+
+      if (JSON.stringify(correctPoints) !== JSON.stringify(userPoints)) {
+        feedback.textContent = `Incorrect marker placement. Place markers at ${pointA} and ${pointB}.`;
+        feedback.style.color = "red";
+        incorrectCount++; // Increment incorrect counter
+        document.getElementById("incorrectCounter").textContent = incorrectCount;
+        return;
+      }
+
+      // Check distance answer
+      if (parseInt(userInput) === correctDistance) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+
+        // Increment correct counter
+        correctCount++;
+        document.getElementById("correctCounter").textContent = correctCount;
+
+        setTimeout(() => generateNumberLineProblem(), 1000); // 1-second delay before generating a new problem
+      } else {
+        feedback.textContent = `Incorrect. The correct distance is ${correctDistance}.`;
+        feedback.style.color = "red";
+
+        // Increment incorrect counter
+        incorrectCount++;
+        document.getElementById("incorrectCounter").textContent = incorrectCount;
+      }
+    }
+
+    // Add event listeners
+    window.onload = () => {
+      generateNumberLineProblem();
+
+      document.getElementById("checkAnswerButton").onclick = checkAnswer;
+      document.getElementById("newProblemButton").onclick = generateNumberLineProblem;
+
+      // Add Enter key listener to the input box
+      document.getElementById("distanceInput").addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+          checkAnswer();
+        }
+      });
+    };
+  </script>
+</body>
+</html>

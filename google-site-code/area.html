@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Area and Perimeter Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #shapeButtons {
+      margin-bottom: 20px;
+    }
+
+    .shape-button {
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .shape-button.selected {
+      background-color: #0056b3;
+    }
+
+    #shapeCanvas {
+      width: 500px;
+      height: 300px;
+      margin: 20px auto;
+      position: relative;
+    }
+    #problem {
+  font-size: 30px; /* Adjust size as needed */
+  font-weight: bold; /* Makes the text bold (optional) */
+  margin-bottom: 20px; /* Adds spacing below the question */
+}
+
+    #controls {
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    #userInput {
+      font-size: 16px;
+      padding: 5px;
+      width: 100px;
+    }
+
+    #submitButton, #newProblemButton {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #submitButton {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #submitButton:hover {
+      background-color: #218838;
+    }
+
+    #newProblemButton {
+      background-color: #007BFF;
+      color: white;
+    }
+    #submitButton,
+#newProblemButton {
+  display: none; /* Hides the buttons */
+}
+
+    #newProblemButton:hover {
+      background-color: #0056b3;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Area and Perimeter Practice</h1>
+  <div id="shapeButtons">
+    <button class="shape-button" onclick="selectShape('rectangle')">Rectangle</button>
+    <button class="shape-button" onclick="selectShape('square')">Square</button>
+    <button class="shape-button" onclick="selectShape('triangle')">Triangle</button>
+    <button class="shape-button" onclick="selectShape('trapezoid')">Trapezoid</button>
+    <button class="shape-button" onclick="selectShape('two-rectangles-side')">Two Rectangles (Side by Side)</button>
+    <button class="shape-button" onclick="selectShape('irregular-l')">Irregular Shape (L-Shape)</button>
+  </div>
+
+  <canvas id="shapeCanvas" width="500" height="300"></canvas>
+
+  <div id="controls">
+  <p id="problem"></p>
+  <input type="text" id="userInput" placeholder="Your Answer">
+  <button onclick="insertUnit('u')">u</button>
+  <button onclick="insertUnit('u²')">u²</button>
+  <button id="submitButton" onclick="checkAnswer()">Submit</button>
+  <button id="newProblemButton" onclick="generateProblem()">New Problem</button>
+  <button id="hintButton" onclick="showHint()">Hint</button>
+</div>
+
+  <div id="message"></div>
+  <div id="solution"></div>
+
+  <script>
+    const shapeCanvas = document.getElementById('shapeCanvas');
+    const problemText = document.getElementById('problem');
+    const userInput = document.getElementById('userInput');
+    const message = document.getElementById('message');
+    const solution = document.getElementById('solution');
+    let selectedShape = null;
+    let currentProblem = null;
+
+    function selectShape(shape) {
+      selectedShape = shape;
+      document.querySelectorAll('.shape-button').forEach(btn => btn.classList.remove('selected'));
+      document.querySelector(`[onclick="selectShape('${shape}')"]`).classList.add('selected');
+      generateProblem();
+    }
+
+    function generateProblem() {
+      if (!selectedShape) {
+        alert('Please select a shape first!');
+        return;
+      }
+
+      shapeCanvas.innerHTML = ''; // Clear canvas
+      message.textContent = ''; // Clear message
+      solution.textContent = ''; // Clear solution
+      userInput.value = ''; // Clear input
+
+      // Determine if the question should be for area or perimeter
+      const isArea = selectedShape === 'triangle' || selectedShape === 'trapezoid' || Math.random() < 0.5;
+
+  // Generate a problem based on the selected shape
+      currentProblem = createShapeProblem(selectedShape, isArea);
+
+      // Update the problem text
+      problemText.textContent = `Calculate the ${isArea ? 'area' : 'perimeter'} of the ${selectedShape}`;
+
+      // Draw the selected shape with its dimensions
+      drawShape(selectedShape, currentProblem.dimensions);
+    }
+
+    function createShapeProblem(shape, isArea) {
+  switch (shape) {
+    case 'rectangle': {
+      const width = randomInt(4, 12);
+      const height = randomInt(4, 12);
+      return {
+        dimensions: { width, height },
+        answer: isArea ? width * height : 2 * (width + height),
+      };
+    }
+    case 'square': {
+      const side = randomInt(5, 12);
+      return {
+        dimensions: { side },
+        answer: isArea ? side ** 2 : 4 * side,
+      };
+    }
+    case 'triangle': {
+      const base = randomInt(5, 12);
+      const heightTriangle = randomInt(5, 20);
+      const sideA = randomInt(5, 20);
+      const sideB = randomInt(5, 20);
+      return {
+        dimensions: { base, height: heightTriangle, sideA, sideB },
+        answer: isArea ? 0.5 * base * heightTriangle : base + sideA + sideB,
+      };
+    }
+    case 'trapezoid': {
+      const base1 = randomInt(5, 15);
+      const base2 = randomInt(5, 15);
+      const heightTrap = randomInt(5, 16);
+      const sideTrapA = randomInt(5, 20);
+      const sideTrapB = randomInt(5, 20);
+      return {
+        dimensions: { base1, base2, height: heightTrap, sideTrapA, sideTrapB },
+        answer: isArea
+          ? ((base1 + base2) * heightTrap) / 2
+          : base1 + base2 + sideTrapA + sideTrapB,
+      };
+    }
+    case 'two-rectangles-side': {
+      const width1 = randomInt(5, 12);
+      const width2 = randomInt(5, 12);
+      const commonHeight = randomInt(5, 12);
+      return {
+        dimensions: { width1, width2, height: commonHeight },
+        answer: isArea
+          ? (width1 + width2) * commonHeight
+          : 2 * commonHeight + 2 * (width1 + width2),
+      };
+    }
+   case 'irregular-l': {
+  let rect1Width = randomInt(4, 12);
+  let rect2Width;
+
+  // Ensure widths are not identical
+  do {
+    rect2Width = randomInt(4, 12);
+  } while (rect2Width === rect1Width); // Regenerate if widths are identical
+
+  const rect1Height = randomInt(4, 10);
+  const rect2Height = randomInt(4, 10);
+
+  // Randomly decide alignment (left or right)
+  const alignSide = Math.random() < 0.5 ? 'left' : 'right';
+
+  // Calculate area
+  const area = rect1Width * rect1Height + rect2Width * rect2Height;
+
+  // Calculate perimeter
+  let perimeter;
+  if (alignSide === 'left') {
+    perimeter =
+      rect1Width +
+      rect1Height*2 +
+      rect2Width +
+      rect2Height*2 +
+      Math.abs(rect1Width - rect2Width); // Shared side (width difference)
+  } else {
+    perimeter =
+      rect1Width +
+      rect1Height*2 +
+      rect2Width +
+      rect2Height*2 +
+      Math.abs(rect1Width - rect2Width); // Shared side (width difference)
+  }
+
+  // Log for debugging
+  console.log(`Irregular L-Shape (${alignSide} alignment):`);
+  console.log(
+    `  Area: Top Rectangle (${rect1Width} x ${rect1Height}) + Bottom Rectangle (${rect2Width} x ${rect2Height}) = ${area}`
+  );
+  console.log(
+    `  Perimeter: Top Rectangle (${rect1Width} + ${rect1Height}) + Bottom Rectangle (${rect2Width} + ${rect2Height}) + Shared Side = ${perimeter}`
+  );
+
+  return {
+    dimensions: { rect1Width, rect1Height, rect2Width, rect2Height, alignSide },
+    answer: isArea ? area : perimeter,
+  };
+}
+
+  }
+}
+
+
+    function drawShape(shape, dimensions) {
+  const ctx = shapeCanvas.getContext('2d');
+  ctx.clearRect(0, 0, shapeCanvas.width, shapeCanvas.height); // Clear previous drawings
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "black";
+
+  const canvasWidth = shapeCanvas.width;
+  const canvasHeight = shapeCanvas.height;
+  const maxSize = Math.min(canvasWidth, canvasHeight) * 0.8; // Scale shapes to 80% of the canvas
+
+  function scale(value, maxOriginalSize) {
+  return (value / maxOriginalSize) * maxSize;
+}
+
+
+  ctx.save(); // Save the context state
+  ctx.translate(canvasWidth / 2, canvasHeight / 2); // Center the drawing
+
+  switch (shape) {
+    case 'rectangle': {
+      const width = scale(dimensions.width, 20);
+      const height = scale(dimensions.height, 20);
+      ctx.strokeRect(-width / 2, -height / 2, width, height);
+      ctx.fillText(`${dimensions.width}u`, -20, -height / 2 - 10); // Width label
+      ctx.fillText(`${dimensions.height}u`, -width / 2 - 30, 0); // Height label
+      break;
+    }
+    case 'square': {
+      const side = scale(dimensions.side, 20);
+      ctx.strokeRect(-side / 2, -side / 2, side, side);
+      ctx.fillText(`${dimensions.side}u`, -20, -side / 2 - 10); // Side label
+      break;
+    }
+    case 'triangle': {
+      const base = scale(dimensions.base, 20);
+      const height = scale(dimensions.height, 20);
+
+      // Draw triangle
+      ctx.beginPath();
+      ctx.moveTo(-base / 2, height / 2); // Left corner
+      ctx.lineTo(base / 2, height / 2); // Right corner
+      ctx.lineTo(-base / 2, -height / 2); // Top corner
+      ctx.closePath();
+      ctx.stroke();
+
+      // Draw height as a dotted line
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(-base / 2, height / 2); // Bottom-left corner
+      ctx.lineTo(-base / 2, -height / 2); // Top-left corner
+      ctx.stroke();
+      ctx.setLineDash([]); // Reset to solid lines
+
+      // Add labels
+      ctx.fillText(`${dimensions.base}u`, -20, height / 2 + 20); // Base label
+      ctx.fillText(`${dimensions.height}u`, -base / 2 - 50, 0); // Height label
+      break;
+    }
+    case 'trapezoid': {
+  const base1 = scale(dimensions.base1, 20); // Bottom base
+  const base2 = scale(dimensions.base2, 20); // Top base
+  const height = scale(dimensions.height, 20); // Height
+
+  // Draw trapezoid
+  ctx.beginPath();
+  ctx.moveTo(-base1 / 2, height / 2); // Bottom-left corner
+  ctx.lineTo(base1 / 2, height / 2); // Bottom-right corner
+  ctx.lineTo(base2 / 2, -height / 2); // Top-right corner
+  ctx.lineTo(-base2 / 2, -height / 2); // Top-left corner
+  ctx.closePath();
+  ctx.stroke();
+
+  // Calculate the x-position for the center of the trapezoid
+  const centerX = (-base1 / 2 + base2 / 2) / 2;
+
+  // Draw height as a dotted line (centered in the trapezoid)
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.moveTo(centerX, height / 2); // Start at the bottom center of the trapezoid
+  ctx.lineTo(centerX, -height / 2); // End at the top center of the trapezoid
+  ctx.stroke();
+  ctx.setLineDash([]); // Reset to solid lines
+
+  // Add labels
+  ctx.fillText(`${dimensions.base1}u`, -20, height / 2 + 20); // Bottom base label
+  ctx.fillText(`${dimensions.base2}u`, -20, -height / 2 - 10); // Top base label
+  ctx.fillText(`${dimensions.height}u`, centerX + 10, 0); // Height label (right of the dotted line)
+  break;
+}
+
+
+    case 'two-rectangles-side': {
+  const width1 = scale(dimensions.width1, 20);
+  const width2 = scale(dimensions.width2, 20);
+  const height = scale(dimensions.height, 20);
+
+  // Draw first rectangle (left)
+  ctx.strokeRect(-width1 - width2 / 2, -height / 2, width1, height);
+  ctx.fillText(`${dimensions.width1}u`, -width1 - width2 / 2 + width1 / 2 - 10, -height / 2 - 10); // Width1 label
+
+  // Draw second rectangle (right)
+  ctx.strokeRect(-width2 / 2, -height / 2, width2, height);
+  ctx.fillText(`${dimensions.width2}u`, -width2 / 2 + width2 / 2 - 10, -height / 2 - 10); // Width2 label
+
+  // Height label
+  ctx.fillText(`${dimensions.height}u`, -width1 - width2 / 2 - 30, 0); // Common height label
+  break;
+}
+
+    case 'irregular-l': {
+  const rect1Width = scale(dimensions.rect1Width, 20);
+  const rect1Height = scale(dimensions.rect1Height, 20);
+  const rect2Width = scale(dimensions.rect2Width, 20);
+  const rect2Height = scale(dimensions.rect2Height, 20);
+  const alignSide = dimensions.alignSide; // "left" or "right"
+
+  const irregularOffset = -canvasHeight * 0.15; // Move irregular shape 15% higher
+  ctx.save(); // Save the current context
+  ctx.translate(0, irregularOffset); // Apply vertical offset only to irregular shape
+
+  ctx.beginPath();
+
+  if (alignSide === 'left') {
+    ctx.moveTo(-rect1Width / 2, -rect1Height / 2);
+    ctx.lineTo(rect1Width / 2, -rect1Height / 2);
+    ctx.lineTo(rect1Width / 2, rect1Height / 2);
+    ctx.lineTo(-rect1Width / 2 + rect2Width, rect1Height / 2);
+    ctx.lineTo(-rect1Width / 2 + rect2Width, rect1Height / 2 + rect2Height);
+    ctx.lineTo(-rect1Width / 2, rect1Height / 2 + rect2Height);
+    ctx.lineTo(-rect1Width / 2, -rect1Height / 2);
+  } else {
+    ctx.moveTo(-rect1Width / 2, -rect1Height / 2);
+    ctx.lineTo(rect1Width / 2, -rect1Height / 2);
+    ctx.lineTo(rect1Width / 2, rect1Height / 2 + rect2Height);
+    ctx.lineTo(rect1Width / 2 - rect2Width, rect1Height / 2 + rect2Height);
+    ctx.lineTo(rect1Width / 2 - rect2Width, rect1Height / 2);
+    ctx.lineTo(-rect1Width / 2, rect1Height / 2);
+    ctx.lineTo(-rect1Width / 2, -rect1Height / 2);
+  }
+
+  ctx.closePath();
+  ctx.stroke();
+
+  // Restore the context to ensure subsequent drawing is not affected
+  ctx.restore();
+
+  // Add labels with vertical offset applied
+  const totalHeight = dimensions.rect1Height + dimensions.rect2Height;
+
+  if (alignSide === 'left') {
+    // Unified height on the left
+    ctx.fillText(
+      `${totalHeight}u`,
+      -rect1Width / 2 - 30, // Position left of the shape
+      irregularOffset + rect1Height / 2 // Centered vertically on the total shape
+    );
+
+    // Bottom rectangle height on the right
+    ctx.fillText(
+      `${dimensions.rect2Height}u`,
+      -rect1Width / 2 + rect2Width + 10, // Right of the bottom rectangle
+      irregularOffset + rect1Height / 2 + rect2Height / 2 // Centered on the bottom rectangle
+    );
+  } else {
+    // Unified height on the right
+    ctx.fillText(
+      `${totalHeight}u`,
+      rect1Width / 2 + 10, // Position right of the shape
+      irregularOffset + rect1Height / 2 // Centered vertically on the total shape
+    );
+
+    // Bottom rectangle height on the left
+    ctx.fillText(
+      `${dimensions.rect2Height}u`,
+      rect1Width / 2 - rect2Width - 30, // Left of the bottom rectangle
+      irregularOffset + rect1Height / 2 + rect2Height / 2 // Centered on the bottom rectangle
+    );
+  }
+
+  // Width Labels
+  ctx.fillText(
+    `${dimensions.rect1Width}u`,
+    -rect1Width / 2 + rect1Width / 2 - 10, // Center horizontally on the top rectangle
+    irregularOffset - rect1Height / 2 - 10 // Above the top rectangle
+  );
+
+  ctx.fillText(
+  `${dimensions.rect2Width}u`,
+  alignSide === 'left'
+    ? -rect1Width / 2 + rect2Width / 2 - 10 // Centered horizontally on the bottom rectangle
+    : rect1Width / 2 - rect2Width / 2 - 10, // Centered horizontally on the bottom rectangle
+  irregularOffset + rect1Height / 2 + rect2Height + 15 // Slightly below the bottom rectangle
+);
+
+  break;
+}
+
+
+
+
+
+
+  }
+  ctx.restore(); // Restore the context state
+}
+
+userInput.addEventListener('keypress', (event) => {
+  if (event.key === 'Enter') {
+    checkAnswer();
+  }
+});
+
+
+
+
+   function insertUnit(unit) {
+  const currentValue = userInput.value.trim();
+  if (!currentValue.endsWith(unit)) {
+    userInput.value = currentValue + ' ' + unit;
+  }
+
+  // Focus back on the input box and place the cursor at the end
+  userInput.focus();
+  userInput.setSelectionRange(userInput.value.length, userInput.value.length);
+}
+
+
+function checkAnswer() {
+  const userAnswer = userInput.value.trim();
+  const isArea = problemText.textContent.includes('area');
+  const expectedUnit = isArea ? 'u²' : 'u';
+  const correctAnswer = `${currentProblem.answer} ${expectedUnit}`;
+
+  if (userAnswer === correctAnswer) {
+    message.textContent = 'Correct!';
+    solution.textContent = ''; // Clear the solution
+
+    // Automatically generate a new problem after 1 second
+    setTimeout(() => {
+      generateProblem();
+    }, 1000);
+  } else {
+    message.textContent = 'Incorrect, try again!';
+    showSolution();
+  }
+}
+
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+   function showHint() {
+    if (!selectedShape) {
+      alert('Please select a shape first!');
+      return;
+    }
+
+    const isArea = problemText.textContent.includes('area');
+    const hintMessage = {
+      rectangle: isArea
+        ? 'Area = Multiply the width and height of the rectangle to find how many square units fit inside.'
+        : 'Perimeter = Add all four sides of the rectangle.',
+      square: isArea
+        ? 'Area = base x Height (with a square all sides are the same lenght).'
+        : 'Perimeter = Choice 1.) Add all 4 sides of the square.  Choice 2.) Multiply the side length by 4.',
+      triangle: isArea
+        ? 'Area = ½ × base × height. Multiply the base and height, then divide by 2.'
+        : 'Perimeter = base + sideA + sideB. Add all three sides together.',
+      trapezoid: isArea
+        ? 'Area = ½ × (base1 + base2) × height. Add the two bases, multiply by height, then divide by 2.'
+        : 'Perimeter = base1 + base2 + sideA + sideB. Add all four sides together.',
+      'two-rectangles-side': isArea
+        ? 'Area = (width1 + width2) × height. Add the widths of both rectangles and multiply by the height.'
+        : 'Perimeter = 2 × (width1 + width2) + 2 × height. Add the widths of both rectangles and the height, then multiply by 2.',
+      'irregular-l': isArea
+        ? 'Area = sum of areas of two rectangles. Calculate each rectangle\'s area and add them.'
+        : 'Perimeter = total length of all sides, considering shared edges. Add lengths of each side carefully.',
+    };
+
+    message.textContent = hintMessage[selectedShape];
+  }
+
+    function showSolution() {
+  const { dimensions, answer } = currentProblem;
+  const isArea = problemText.textContent.includes('area');
+  const unit = isArea ? 'u²' : 'u';
+
+  const solutionMessage = {
+    rectangle: isArea
+      ? `Formula: A = w × h (Area = width × height).<br>
+         What it means: w = width, h = height.<br>
+         Example: A = ${dimensions.width} × ${dimensions.height} = ${answer} ${unit}.`
+      : `Formula: P = 2 × (w + h) (Perimeter = 2 × (width + height)).<br>
+         What it means: w = width, h = height.<br>
+         Example: P = 2 × (${dimensions.width} + ${dimensions.height}) = ${answer} ${unit}.`,
+    square: isArea
+      ? `Formula: A = s × s (Area = side × side).<br>
+         What it means: s = side length.<br>
+         Example: A = ${dimensions.side} × ${dimensions.side} = ${answer} ${unit}.`
+      : `Formula: P = 4 × s (Perimeter = 4 × side).<br>
+         What it means: s = side length.<br>
+         Example: P = 4 × ${dimensions.side} = ${answer} ${unit}.`,
+    triangle: isArea
+      ? `Formula: A = ½ × b × h or A = (b × h) ÷ 2 (Area = one-half base times height).<br>
+         What it means: b = base, h = height.<br>
+         Example: A = ½ × ${dimensions.base} × ${dimensions.height} = ${answer} ${unit}.<br>
+         Or: A = (${dimensions.base} × ${dimensions.height}) ÷ 2 = ${answer} ${unit}.`
+      : `Formula: P = b + s₁ + s₂ (Perimeter = base + side1 + side2).<br>
+         What it means: b = base, s₁ = side1, s₂ = side2.<br>
+         Example: P = ${dimensions.base} + ${dimensions.sideA} + ${dimensions.sideB} = ${answer} ${unit}.`,
+    trapezoid: isArea
+      ? `Formula: A = ½ × (b₁ + b₂) × h or A = ((b₁ + b₂) × h) ÷ 2 (Area = one-half the sum of bases times height).<br>
+         What it means: b₁ = base1, b₂ = base2, h = height.<br>
+         Example: A = ½ × (${dimensions.base1} + ${dimensions.base2}) × ${dimensions.height} = ${answer} ${unit}.<br>
+         Or: A = ((${dimensions.base1} + ${dimensions.base2}) × ${dimensions.height}) ÷ 2 = ${answer} ${unit}.`
+      : `Formula: P = b₁ + b₂ + s₁ + s₂ (Perimeter = sum of all sides).<br>
+         What it means: b₁ = base1, b₂ = base2, s₁ = side1, s₂ = side2.<br>
+         Example: P = ${dimensions.base1} + ${dimensions.base2} + ${dimensions.sideTrapA} + ${dimensions.sideTrapB} = ${answer} ${unit}.`,
+    'two-rectangles-side': isArea
+      ? `Formula: A = (w₁ + w₂) × h (Area = sum of widths times height).<br>
+         What it means: w₁ = width1, w₂ = width2, h = height.<br>
+         Example: A = (${dimensions.width1} + ${dimensions.width2}) × ${dimensions.height} = ${answer} ${unit}.`
+      : `Formula: P = 2 × (w₁ + w₂ + h) (Perimeter = two times sum of widths and height).<br>
+         What it means: w₁ = width1, w₂ = width2, h = height.<br>
+         Example: P = 2 × (${dimensions.width1} + ${dimensions.width2} + ${dimensions.height}) = ${answer} ${unit}.`,
+    'irregular-l': isArea
+      ? `Formula: A = A₁ + A₂ (Area = sum of areas of two rectangles).<br>
+         What it means: A₁ = area of the top rectangle, A₂ = area of the bottom rectangle.<br>
+         Example:<br>
+         Top rectangle: A₁ = ${dimensions.rect1Width} × ${dimensions.rect1Height} = ${dimensions.rect1Width * dimensions.rect1Height}.<br>
+         Bottom rectangle: A₂ = ${dimensions.rect2Width} × ${dimensions.rect2Height} = ${dimensions.rect2Width * dimensions.rect2Height}.<br>
+         Total Area: A = A₁ + A₂ = ${answer} ${unit}.`
+      : `Formula: P = total length of all sides (including shared sides).<br>
+         What it means: Add the lengths of all sides.<br>
+         Example: Total Perimeter = ${answer} ${unit}.`,
+  };
+
+  solution.innerHTML = solutionMessage[selectedShape];
+}
+
+
+
+  </script>
+</body>
+</html>
