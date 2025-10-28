@@ -3,9 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        - nvm install 18
-        - nvm use 18
         - node --version
+        - npm --version
         - npm ci --ignore-scripts
     build:
       commands:
