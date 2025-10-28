@@ -41,3 +41,7 @@ Thumbs.db
 .angular
 
 .nx/cache
+
+# Override global ignore for .claude directory
+!.claude
+!.claude/**

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "WebFetch(domain:sites.google.com)",
+      "Read(//Users/jaredwhipple/.claude/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
