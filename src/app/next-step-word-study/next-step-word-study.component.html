@@ -1,13 +1,15 @@
 <app-word-study-menu></app-word-study-menu>
 
-<div class="link-list" *ngIf="wordGroups$ | async as wordGroups">
-  <ng-container *ngFor="let wordGroup of wordGroups | keyvalue">
-    <a role="button" (click)="suffleWords(wordGroup.value)">{{
-      wordGroup.key
-    }}</a>
-  </ng-container>
-  <a role="button" (click)="clearWordsArr()">Clear</a>
-  <a role="button" (click)="randomize()">Randomize</a>
-</div>
+@if (wordGroups$ | async; as wordGroups) {
+  <div class="link-list">
+    @for (wordGroup of wordGroups | keyvalue; track wordGroup) {
+      <a role="button" (click)="suffleWords(wordGroup.value)">{{
+        wordGroup.key
+      }}</a>
+    }
+    <a role="button" (click)="clearWordsArr()">Clear</a>
+    <a role="button" (click)="randomize()">Randomize</a>
+  </div>
+}
 
 <app-word-list [words]="words"></app-word-list>
