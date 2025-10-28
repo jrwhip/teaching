@@ -21,10 +21,7 @@
       <button
         class="navbar-toggler ms-auto"
         type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarCollapse"
-        aria-controls="navbarCollapse"
-        aria-expanded="false"
+        (click)="toggleMobileMenu()"
         aria-label="Toggle navigation"
       >
         <span class="navbar-toggler-animation">
@@ -35,7 +32,7 @@
       </button>
 
       <!-- Main navbar START -->
-      <div class="navbar-collapse collapse" id="navbarCollapse">
+      <div class="navbar-collapse" [class.collapse]="!mobileMenuOpen" [class.show]="mobileMenuOpen">
         <!-- Nav Main menu START -->
         <ul class="navbar-nav navbar-nav-scroll">
           <!-- Nav item - Math -->
@@ -43,14 +40,11 @@
             <a
               class="nav-link dropdown-toggle"
               href="#"
-              id="mathMenu"
-              data-bs-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
+              (click)="toggleMathMenu(); $event.preventDefault()"
             >
               <i class="bi bi-calculator me-2"></i>Math
             </a>
-            <ul class="dropdown-menu" aria-labelledby="mathMenu">
+            <ul class="dropdown-menu" [class.show]="mathMenuOpen">
               <li>
                 <a class="dropdown-item" routerLink="/math" routerLinkActive="active">
                   <i class="bi bi-123 me-2"></i>Math Rounding
@@ -108,9 +102,7 @@
             class="btn btn-light btn-round mb-0"
             href="#"
             role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            data-bs-auto-close="outside"
+            (click)="toggleNotificationMenu(); $event.preventDefault()"
           >
             <i class="bi bi-bell fa-fw"></i>
           </a>
@@ -120,6 +112,7 @@
           <!-- Notification dropdown menu START -->
           <div
             class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg border-0"
+            [class.show]="notificationMenuOpen"
           >
             <div class="card bg-transparent">
               <div
@@ -150,12 +143,8 @@
           <a
             class="avatar avatar-sm p-0"
             href="#"
-            id="profileDropdown"
             role="button"
-            data-bs-auto-close="outside"
-            data-bs-display="static"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+            (click)="toggleProfileMenu(); $event.preventDefault()"
           >
             <img
               class="avatar-img rounded-circle"
@@ -167,7 +156,7 @@
           <!-- Profile dropdown START -->
           <ul
             class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3"
-            aria-labelledby="profileDropdown"
+            [class.show]="profileMenuOpen"
           >
             <!-- Profile info -->
             <li class="px-3 mb-3">
