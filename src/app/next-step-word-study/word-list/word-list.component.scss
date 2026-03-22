@@ -1,6 +1,4 @@
-@import "../../../variables";
-
 a:hover {
-  color: $white;
-  background-color: $green;
+  color: #fff;
+  background-color: var(--color-success);
 }

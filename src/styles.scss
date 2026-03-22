@@ -1,8 +1,24 @@
-@import 'bootstrap';
 @import '@fortawesome/fontawesome-free/css/all.css';
-@import 'typeface-roboto/index.css';
-@import './scss/style';
-// styles.scss or styles.css
+@import 'ag-grid-community/styles/ag-grid.css';
+@import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-@import "~ag-grid-community/styles/ag-grid.css";
-@import "~ag-grid-community/styles/ag-theme-alpine.css";
+@import './styles/reset';
+@import './styles/tokens';
+@import './styles/tokens-dark';
+@import './styles/typography';
+@import './styles/layout';
+@import './styles/buttons';
+@import './styles/cards';
+@import './styles/forms';
+@import './styles/tables';
+@import './styles/navbar';
+@import './styles/alerts';
+@import './styles/pills';
+@import './styles/progress';
+@import './styles/accordion';
+@import './styles/icon-badge';
+@import './styles/streak';
+@import './styles/theme-toggle';
+@import './styles/utilities';
+@import './styles/animations';
+@import './styles/ag-grid-override';

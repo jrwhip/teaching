@@ -1,0 +1,38 @@
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.icon-badge-primary {
+  background: rgba(var(--color-primary-rgb), .1);
+  color: var(--color-primary);
+}
+.icon-badge-success {
+  background: rgba(var(--color-success-rgb), .1);
+  color: var(--color-success);
+}
+.icon-badge-info {
+  background: rgba(var(--color-info-rgb), .1);
+  color: var(--color-info);
+}
+.icon-badge-warning {
+  background: rgba(var(--color-warning-rgb), .12);
+  color: var(--color-warning);
+}
+.icon-badge-purple {
+  background: rgba(var(--color-purple-rgb), .1);
+  color: var(--color-purple);
+}
+.icon-badge-orange {
+  background: rgba(var(--color-orange-rgb), .1);
+  color: var(--color-orange);
+}
+.icon-badge-danger {
+  background: rgba(var(--color-danger-rgb), .1);
+  color: var(--color-danger);
+}

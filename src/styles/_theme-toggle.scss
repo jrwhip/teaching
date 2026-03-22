@@ -1,0 +1,27 @@
+.theme-toggle {
+  display: inline-flex;
+  background: var(--bg-muted);
+  border-radius: 9999px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+}
+.theme-toggle button {
+  padding: .35rem .75rem;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  font-family: var(--font-body);
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--text-body);
+  cursor: pointer;
+  transition: all var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.theme-toggle button.active {
+  background: var(--bg-surface);
+  color: var(--text-heading);
+  box-shadow: var(--shadow-sm);
+}

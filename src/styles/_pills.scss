@@ -1,0 +1,24 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: .2rem .65rem;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border-radius: 9999px;
+}
+.pill-success {
+  background: rgba(var(--color-success-rgb), .12);
+  color: var(--color-success);
+}
+.pill-danger {
+  background: rgba(var(--color-danger-rgb), .12);
+  color: var(--color-danger);
+}
+.pill-warning {
+  background: rgba(var(--color-warning-rgb), .15);
+  color: #b08800;
+}
+.pill-info {
+  background: rgba(var(--color-info-rgb), .12);
+  color: var(--color-info);
+}

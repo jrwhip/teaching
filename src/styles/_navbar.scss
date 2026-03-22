@@ -1,0 +1,193 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  transition: box-shadow var(--ease), background var(--ease);
+}
+.navbar.scrolled {
+  box-shadow: var(--shadow-sm);
+}
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+.navbar-brand {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.navbar-brand:hover { color: var(--color-primary); }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  list-style: none;
+}
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem 1rem;
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text-body);
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: color var(--ease), background var(--ease);
+}
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), .06);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+/* Icon button */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-muted);
+  color: var(--text-body);
+  font-size: 1rem;
+  cursor: pointer;
+  position: relative;
+  transition: background var(--ease), color var(--ease);
+}
+.icon-btn:hover {
+  background: rgba(var(--color-primary-rgb), .1);
+  color: var(--color-primary);
+}
+.icon-btn .badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .65rem;
+  font-weight: 700;
+  border-radius: 50%;
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* Avatar */
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid var(--border-color);
+  transition: border-color var(--ease);
+}
+.avatar:hover { border-color: var(--color-primary); }
+
+/* Dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 15rem;
+  padding: .75rem;
+  background: var(--bg-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all .2s ease;
+  z-index: 50;
+}
+.dropdown.open .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.dropdown-item {
+  display: block;
+  padding: .4rem .85rem;
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--text-body);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: all var(--ease);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.dropdown-item:hover {
+  color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), .08);
+}
+.dropdown-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: .5rem 0;
+}
+
+/* Mobile nav toggle */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-heading);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: .5rem;
+}
+
+@media (max-width: 991px) {
+  .nav-toggle { display: block; }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    padding: 1rem;
+    z-index: 99;
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .nav-links a {
+    width: 100%;
+    padding: .75rem 1rem;
+  }
+}

@@ -1,0 +1,28 @@
+/* Map ag-Grid Alpine theme CSS variables to design system tokens */
+.ag-theme-alpine {
+  --ag-background-color: var(--bg-surface);
+  --ag-foreground-color: var(--text-body);
+  --ag-header-background-color: var(--bg-muted);
+  --ag-header-foreground-color: var(--text-heading);
+  --ag-border-color: var(--border-color);
+  --ag-row-hover-color: rgba(var(--color-primary-rgb), .04);
+  --ag-selected-row-background-color: rgba(var(--color-primary-rgb), .08);
+  --ag-range-selection-border-color: var(--color-primary);
+  --ag-font-family: var(--font-body);
+  --ag-font-size: var(--text-sm);
+  --ag-odd-row-background-color: transparent;
+  --ag-alpine-active-color: var(--color-primary);
+  --ag-input-focus-border-color: var(--color-primary);
+  --ag-card-shadow: var(--shadow);
+  --ag-borders: solid 1px;
+}
+
+[data-theme="dark"] .ag-theme-alpine {
+  --ag-background-color: var(--bg-surface);
+  --ag-foreground-color: var(--text-body);
+  --ag-header-background-color: var(--bg-muted);
+  --ag-header-foreground-color: var(--text-heading);
+  --ag-border-color: var(--border-color);
+  --ag-row-hover-color: rgba(var(--color-primary-rgb), .06);
+  --ag-selected-row-background-color: rgba(var(--color-primary-rgb), .1);
+}
