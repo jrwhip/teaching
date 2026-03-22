@@ -53,9 +53,7 @@ export class AuthService {
           userAttributes: {
             email,
             name: displayName,
-          },
-          clientMetadata: {
-            role,
+            'custom:role': role,
           },
         },
       });
