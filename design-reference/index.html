@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teaching App — Design Reference</title>
+
+  <!-- Fonts: Roboto (body), Heebo (headings), Poppins (display) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&family=Poppins:wght@300;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* Page-specific reference layout */
+    .ref-section { padding-block: 3rem; }
+    .ref-section + .ref-section { border-top: 1px solid var(--border-color); }
+    .ref-label {
+      display: inline-block;
+      font-family: var(--font-heading);
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--color-primary);
+      background: rgba(var(--color-primary-rgb), .08);
+      padding: .25rem .65rem;
+      border-radius: 9999px;
+      margin-bottom: 1rem;
+    }
+    .component-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .75rem;
+    }
+    .type-sample h1,
+    .type-sample h2,
+    .type-sample h3,
+    .type-sample h4,
+    .type-sample h5,
+    .type-sample h6 { margin-bottom: 0; }
+
+    .hero-deco-orange {
+      position: absolute;
+      top: 2rem;
+      left: -1rem;
+      width: 90px;
+      opacity: .7;
+      z-index: 0;
+    }
+    .hero-deco-dots {
+      position: absolute;
+      bottom: -1.5rem;
+      right: 2rem;
+      opacity: .15;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVBAR
+       ============================================================ -->
+  <nav class="navbar" id="navbar">
+    <div class="container navbar-inner">
+      <a href="#" class="navbar-brand">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect width="28" height="28" rx="6" fill="#066ac9"/>
+          <path d="M8 20V10l6 5 6-5v10" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Teaching
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#" class="active">Home</a></li>
+        <li class="dropdown">
+          <a href="#">Subjects</a>
+          <div class="dropdown-menu">
+            <a href="#" class="dropdown-item">Math</a>
+            <a href="#" class="dropdown-item">Word Study</a>
+            <a href="#" class="dropdown-item">Science</a>
+            <a href="#" class="dropdown-item">Reading</a>
+          </div>
+        </li>
+        <li><a href="#">Progress</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="icon-btn" aria-label="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="badge">2</span>
+        </button>
+        <img src="https://i.pravatar.cc/72?img=32" alt="Profile" class="avatar">
+
+        <div class="theme-toggle" id="themeToggle">
+          <button class="active" data-theme="light" aria-label="Light mode">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            Light
+          </button>
+          <button data-theme="dark" aria-label="Dark mode">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+            Dark
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO (inspired by main-menu landing)
+       ============================================================ -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div style="position:relative; z-index:1;">
+          <!-- Decorative SVG accent (orange strokes) -->
+          <svg class="hero-deco-orange" viewBox="0 0 114 140" fill="#fd7e14">
+            <path d="M67.6,6.2c0.8-0.5,7.2,7.6,14.2,18c7.1,10.2,14.7,22.7,18.9,30c8.3,14.7,13.2,27.5,11.4,28.5 c-1.9,1-9.6-10.2-17.9-24.9c-4.2-7.3-11.1-20.1-16.9-31C71.4,15.9,66.7,6.7,67.6,6.2z"/>
+            <path d="M85,89c-0.8,0.7-4.6-2.2-9.2-5.5c-4.6-3.2-10.1-6.8-13.1-8.8c-6.1-4.2-10.9-8.2-10-10.2 c0.8-1.8,7.5-0.6,14.2,3.8c3.4,2.1,8.7,6.7,12.6,11.2C83.3,84,85.7,88.3,85,89z"/>
+            <path d="M73.1,114.7c0,1.1-8.5,1.8-18.8,2.1c-10.2,0.3-22.2-0.2-29.1-0.8c-13.8-1.2-24.7-4.4-24.4-6.4 c0.3-2.1,11.5-2.3,25.1-1.1c6.8,0.6,18.5,1.9,28.6,3C64.7,112.7,73.1,113.8,73.1,114.7z"/>
+          </svg>
+
+          <h1 class="display-heading animate-in">
+            Essentials Only.<br>
+            Distractions Not&nbsp;Included.
+          </h1>
+          <p style="max-width:520px; margin-top:1.25rem; margin-bottom:2rem;" class="animate-in delay-1">
+            Concise, clear, and crucial lessons for K-6 learners. Grasp core
+            concepts without unnecessary noise. Pure, focused learning.
+          </p>
+          <div class="component-row animate-in delay-2">
+            <a href="#" class="btn btn-primary-soft btn-lg">Get Started</a>
+            <a href="#" class="btn btn-primary btn-lg">Log In</a>
+          </div>
+
+          <!-- Stats row -->
+          <div class="grid grid-3 animate-in delay-3" style="margin-top:2.5rem; max-width:480px;">
+            <div class="stat-item">
+              <div class="icon-badge icon-badge-info">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg>
+              </div>
+              <div>
+                <div class="stat-value">400+</div>
+                <div class="stat-label">Students</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="icon-badge icon-badge-purple">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              </div>
+              <div>
+                <div class="stat-value">25+</div>
+                <div class="stat-label">Teachers</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="icon-badge icon-badge-warning">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+              </div>
+              <div>
+                <div class="stat-value">12+</div>
+                <div class="stat-label">Years Exp.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero image -->
+        <div class="hero-image-wrap animate-in delay-2">
+          <svg class="hero-blob" viewBox="0 0 600 600" fill="#0cbc87">
+            <path d="M161.4,200.8c-9,40.1-7.5,82.5-20.8,121.6c-17.5,52.8-58.5,93.8-92,138.1c-33,44.8-59.9,101.8-42.5,154.6 c23.1,70.2,109,94.8,181.6,108.4c77.4,14.6,154.7,29.2,232.5,43.8c41,8,85.8,15.1,123.1-4.7c47.2-25,63.7-83,72.2-135.3 C650.5,419.6,675-127.8,306.2,27.3C234,57.5,178.4,124.5,161.4,200.8z"/>
+          </svg>
+          <img
+            src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80"
+            alt="Students learning"
+            loading="lazy"
+          >
+          <!-- Dot pattern decoration -->
+          <svg class="hero-deco-dots" width="120" height="120" viewBox="0 0 120 120" fill="#6f42c1">
+            <circle cx="10" cy="10" r="3"/><circle cx="30" cy="10" r="3"/><circle cx="50" cy="10" r="3"/><circle cx="70" cy="10" r="3"/><circle cx="90" cy="10" r="3"/><circle cx="110" cy="10" r="3"/>
+            <circle cx="10" cy="30" r="3"/><circle cx="30" cy="30" r="3"/><circle cx="50" cy="30" r="3"/><circle cx="70" cy="30" r="3"/><circle cx="90" cy="30" r="3"/><circle cx="110" cy="30" r="3"/>
+            <circle cx="10" cy="50" r="3"/><circle cx="30" cy="50" r="3"/><circle cx="50" cy="50" r="3"/><circle cx="70" cy="50" r="3"/><circle cx="90" cy="50" r="3"/><circle cx="110" cy="50" r="3"/>
+            <circle cx="10" cy="70" r="3"/><circle cx="30" cy="70" r="3"/><circle cx="50" cy="70" r="3"/><circle cx="70" cy="70" r="3"/><circle cx="90" cy="70" r="3"/><circle cx="110" cy="70" r="3"/>
+            <circle cx="10" cy="90" r="3"/><circle cx="30" cy="90" r="3"/><circle cx="50" cy="90" r="3"/><circle cx="70" cy="90" r="3"/><circle cx="90" cy="90" r="3"/><circle cx="110" cy="90" r="3"/>
+            <circle cx="10" cy="110" r="3"/><circle cx="30" cy="110" r="3"/><circle cx="50" cy="110" r="3"/><circle cx="70" cy="110" r="3"/><circle cx="90" cy="110" r="3"/><circle cx="110" cy="110" r="3"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+
+    <!-- ============================================================
+         COLOR PALETTE
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Color Palette</span>
+      <h2>Theme Colors</h2>
+      <p class="mb-3">Primary and semantic colors used throughout the design system.</p>
+
+      <div class="swatch-grid mb-4">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#066ac9"></div>
+          <div class="swatch-info"><strong>Primary</strong><code>#066ac9</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#0cbc87"></div>
+          <div class="swatch-info"><strong>Success</strong><code>#0cbc87</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#17a2b8"></div>
+          <div class="swatch-info"><strong>Info</strong><code>#17a2b8</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#f7c32e"></div>
+          <div class="swatch-info"><strong>Warning</strong><code>#f7c32e</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#d6293e"></div>
+          <div class="swatch-info"><strong>Danger</strong><code>#d6293e</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#fd7e14"></div>
+          <div class="swatch-info"><strong>Orange</strong><code>#fd7e14</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#6f42c1"></div>
+          <div class="swatch-info"><strong>Purple</strong><code>#6f42c1</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#1d3b53"></div>
+          <div class="swatch-info"><strong>Dark Blue</strong><code>#1d3b53</code></div>
+        </div>
+      </div>
+
+      <h5>Gray Scale</h5>
+      <div class="swatch-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#f5f7f9"></div>
+          <div class="swatch-info"><strong>Gray 100</strong><code>#f5f7f9</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#eff1f2"></div>
+          <div class="swatch-info"><strong>Gray 200</strong><code>#eff1f2</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#dde0e3"></div>
+          <div class="swatch-info"><strong>Gray 300</strong><code>#dde0e3</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#9a9ea4"></div>
+          <div class="swatch-info"><strong>Gray 500</strong><code>#9a9ea4</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#747579"></div>
+          <div class="swatch-info"><strong>Gray 600</strong><code>#747579</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#404448"></div>
+          <div class="swatch-info"><strong>Gray 700</strong><code>#404448</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#24292d"></div>
+          <div class="swatch-info"><strong>Gray 800</strong><code>#24292d</code></div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#0b0f13"></div>
+          <div class="swatch-info"><strong>Gray 900</strong><code>#0b0f13</code></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         TYPOGRAPHY
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Typography</span>
+      <h2>Type Scale</h2>
+      <p class="mb-3">Body: <strong>Roboto</strong> &middot; Headings: <strong>Heebo</strong> &middot; Display: <strong>Poppins</strong></p>
+
+      <div class="type-sample" style="display:grid; gap:.75rem;">
+        <h1>h1 &mdash; Heading One (2.813rem)</h1>
+        <h2>h2 &mdash; Heading Two (2.344rem)</h2>
+        <h3>h3 &mdash; Heading Three (1.875rem)</h3>
+        <h4>h4 &mdash; Heading Four (1.641rem)</h4>
+        <h5>h5 &mdash; Heading Five (1.313rem)</h5>
+        <h6>h6 &mdash; Heading Six (0.938rem)</h6>
+        <p>Body text (.9375rem / 15px) &mdash; The quick brown fox jumps over the lazy dog. Clean, readable, and professional at every size.</p>
+        <p><small>Small text (.828rem) &mdash; Used for captions, timestamps, and supporting details.</small></p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         BUTTONS
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Buttons</span>
+      <h2>Button Variants</h2>
+
+      <h5 class="mt-4 mb-2">Solid</h5>
+      <div class="component-row mb-3">
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn btn-success">Success</button>
+        <button class="btn btn-danger">Danger</button>
+        <button class="btn btn-light">Light</button>
+      </div>
+
+      <h5 class="mb-2">Soft / Ghost (signature pattern)</h5>
+      <div class="component-row mb-3">
+        <button class="btn btn-primary-soft">Primary Soft</button>
+        <button class="btn btn-success-soft">Success Soft</button>
+        <button class="btn btn-danger-soft">Danger Soft</button>
+        <button class="btn btn-warning-soft">Warning Soft</button>
+        <button class="btn btn-purple-soft">Purple Soft</button>
+      </div>
+
+      <h5 class="mb-2">Outline</h5>
+      <div class="component-row mb-3">
+        <button class="btn btn-outline">Outline Primary</button>
+      </div>
+
+      <h5 class="mb-2">Sizes</h5>
+      <div class="component-row">
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary btn-lg">Large</button>
+        <button class="btn btn-primary btn-xl">Extra Large</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CARDS
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Cards</span>
+      <h2 class="mb-3">Card Components</h2>
+
+      <div class="grid grid-3">
+        <!-- Shadow card -->
+        <div class="card">
+          <div class="card-body">
+            <div class="icon-badge icon-badge-primary mb-2">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            </div>
+            <h5>Shadow Card</h5>
+            <p class="text-sm">Default card with subtle shadow. Lifts on hover to indicate interactivity.</p>
+            <a href="#" class="btn btn-primary-soft btn-sm mt-4">View Details</a>
+          </div>
+        </div>
+
+        <!-- Flat / bordered card -->
+        <div class="card card-flat">
+          <div class="card-body">
+            <div class="icon-badge icon-badge-success mb-2">
+              <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <h5>Flat / Bordered Card</h5>
+            <p class="text-sm">Subtle border, no shadow. Lighter visual weight for dense layouts.</p>
+            <a href="#" class="btn btn-success-soft btn-sm mt-4">Complete</a>
+          </div>
+        </div>
+
+        <!-- Card with header/footer -->
+        <div class="card card-flat">
+          <div class="card-header">
+            <h5 class="mb-0">With Header</h5>
+          </div>
+          <div class="card-body">
+            <p class="text-sm">Cards can include header and footer sections for structured content like settings panels or data summaries.</p>
+          </div>
+          <div class="card-footer flex justify-between items-center">
+            <span class="text-sm text-muted">Updated 2 days ago</span>
+            <button class="btn btn-primary btn-sm">Save</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         MATH GAME MOCKUP
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">App Pattern</span>
+      <h2 class="mb-3">Number Rounding Game</h2>
+
+      <div class="card card-flat">
+        <div class="card-header">
+          <h4 class="mb-0">Round the number to the nearest Tenth</h4>
+        </div>
+        <div class="card-body">
+          <p style="font-family:var(--font-display); font-size:3.5rem; font-weight:600; color:var(--text-heading); margin-bottom:1.5rem;">
+            4,827
+          </p>
+
+          <div class="input-group" style="max-width:400px; margin-bottom:1.5rem;">
+            <input type="number" class="form-input" placeholder="Enter your answer" aria-label="Answer">
+            <button class="btn btn-outline">Check Answer</button>
+          </div>
+
+          <p style="font-size:var(--text-lg); font-weight:600; color:var(--color-success);">
+            Correct! Great job!
+          </p>
+
+          <div class="streak-display" style="max-width:320px; margin-top:1.5rem;">
+            <div class="streak-item">
+              <div class="streak-number">7</div>
+              <div class="streak-label">Current Streak</div>
+            </div>
+            <div class="streak-item">
+              <div class="streak-number best">14</div>
+              <div class="streak-label">Best Streak</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         FORMS
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Forms</span>
+      <h2 class="mb-3">Form Elements</h2>
+
+      <div style="max-width:480px;">
+        <div class="mb-3">
+          <label class="form-label">Text Input</label>
+          <input type="text" class="form-input" placeholder="Enter text here...">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Select</label>
+          <select class="form-select">
+            <option>Choose an option...</option>
+            <option>Mathematics</option>
+            <option>Word Study</option>
+            <option>Science</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Disabled Input</label>
+          <input type="text" class="form-input" placeholder="Cannot edit" disabled>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Input Group</label>
+          <div class="input-group">
+            <input type="text" class="form-input" placeholder="Search...">
+            <button class="btn btn-primary">Search</button>
+          </div>
+        </div>
+        <div class="flex gap-3 mb-3">
+          <label class="form-check">
+            <input type="checkbox" checked> Remember me
+          </label>
+          <label class="form-check">
+            <input type="radio" name="demo" checked> Option A
+          </label>
+          <label class="form-check">
+            <input type="radio" name="demo"> Option B
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         TABLE
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Data</span>
+      <h2 class="mb-3">Table (Answer History)</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Original #</th>
+              <th>Rounding Factor</th>
+              <th>Correct Answer</th>
+              <th>Your Answer</th>
+              <th>Result</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>4,827</td>
+              <td>Nearest Ten</td>
+              <td>4,830</td>
+              <td>4,830</td>
+              <td><span class="pill pill-success">Correct</span></td>
+              <td>Mar 22, 2026</td>
+            </tr>
+            <tr>
+              <td>3,564</td>
+              <td>Nearest Hundred</td>
+              <td>3,600</td>
+              <td>3,600</td>
+              <td><span class="pill pill-success">Correct</span></td>
+              <td>Mar 22, 2026</td>
+            </tr>
+            <tr>
+              <td>7,239</td>
+              <td>Nearest Ten</td>
+              <td>7,240</td>
+              <td>7,230</td>
+              <td><span class="pill pill-danger">Incorrect</span></td>
+              <td>Mar 22, 2026</td>
+            </tr>
+            <tr>
+              <td>1,455</td>
+              <td>Nearest Thousand</td>
+              <td>1,000</td>
+              <td>1,000</td>
+              <td><span class="pill pill-success">Correct</span></td>
+              <td>Mar 21, 2026</td>
+            </tr>
+            <tr>
+              <td>8,912</td>
+              <td>Nearest Hundred</td>
+              <td>8,900</td>
+              <td>9,000</td>
+              <td><span class="pill pill-danger">Incorrect</span></td>
+              <td>Mar 21, 2026</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ALERTS
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Feedback</span>
+      <h2 class="mb-3">Alerts & Status Pills</h2>
+
+      <div class="flex flex-col gap-2 mb-4" style="max-width:600px;">
+        <div class="alert alert-info">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          Hints are available! Tap the lightbulb for a clue.
+        </div>
+        <div class="alert alert-success">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          Lesson complete! You scored 92%.
+        </div>
+        <div class="alert alert-warning">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          Your streak will reset if you leave this page.
+        </div>
+        <div class="alert alert-danger">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          That answer is incorrect. Try again!
+        </div>
+      </div>
+
+      <h5 class="mb-2">Status Pills</h5>
+      <div class="component-row">
+        <span class="pill pill-success">Correct</span>
+        <span class="pill pill-danger">Incorrect</span>
+        <span class="pill pill-warning">Pending</span>
+        <span class="pill pill-info">In Progress</span>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PROGRESS BARS
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Progress</span>
+      <h2 class="mb-3">Progress Bars</h2>
+
+      <div style="max-width:500px;">
+        <div class="mb-2">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm fw-normal">Math</span>
+            <span class="text-sm text-muted">72%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:72%"></div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm fw-normal">Word Study</span>
+            <span class="text-sm text-muted">45%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill progress-fill-success" style="width:45%"></div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm fw-normal">Science</span>
+            <span class="text-sm text-muted">18%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill progress-fill-warning" style="width:18%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ACCORDION
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Expand/Collapse</span>
+      <h2 class="mb-3">Accordion</h2>
+
+      <div style="max-width:600px;">
+        <div class="accordion-item open">
+          <button class="accordion-trigger" onclick="this.parentElement.classList.toggle('open')">
+            What grade levels are supported?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content">
+            The app currently supports K through 6th grade, with math as the primary subject. Word study and additional subjects are being added.
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-trigger" onclick="this.parentElement.classList.toggle('open')">
+            How is progress tracked?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content">
+            Progress is stored locally using your browser's storage. Streaks, answer history, and completion rates are all tracked automatically.
+          </div>
+        </div>
+        <div class="accordion-item">
+          <button class="accordion-trigger" onclick="this.parentElement.classList.toggle('open')">
+            Can I use this on a tablet?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-content">
+            Yes. The interface is fully responsive and works on tablets and phones. The number input uses a numeric keypad on mobile devices.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SHADOWS & RADIUS
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Elevation</span>
+      <h2 class="mb-3">Shadows & Radius</h2>
+
+      <div class="grid grid-3 mb-4">
+        <div style="padding:2rem; border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); background:var(--bg-surface); text-align:center;">
+          <code class="text-xs">shadow-sm</code>
+        </div>
+        <div style="padding:2rem; border-radius:var(--radius-lg); box-shadow:var(--shadow); background:var(--bg-surface); text-align:center;">
+          <code class="text-xs">shadow</code>
+        </div>
+        <div style="padding:2rem; border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); background:var(--bg-surface); text-align:center;">
+          <code class="text-xs">shadow-lg</code>
+        </div>
+      </div>
+
+      <h5 class="mb-2">Border Radius</h5>
+      <div class="component-row">
+        <div style="width:64px;height:64px;background:rgba(var(--color-primary-rgb),.1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;"><code class="text-xs">sm</code></div>
+        <div style="width:64px;height:64px;background:rgba(var(--color-primary-rgb),.1);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;"><code class="text-xs">base</code></div>
+        <div style="width:64px;height:64px;background:rgba(var(--color-primary-rgb),.1);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;"><code class="text-xs">lg</code></div>
+        <div style="width:64px;height:64px;background:rgba(var(--color-primary-rgb),.1);border-radius:var(--radius-xl);display:flex;align-items:center;justify-content:center;"><code class="text-xs">xl</code></div>
+        <div style="width:64px;height:64px;background:rgba(var(--color-primary-rgb),.1);border-radius:9999px;display:flex;align-items:center;justify-content:center;"><code class="text-xs">full</code></div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ICON BADGES
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Icons</span>
+      <h2 class="mb-3">Icon Badges</h2>
+      <p class="mb-3">Soft-background icon containers used for stat counters and feature highlights.</p>
+
+      <div class="component-row">
+        <div class="icon-badge icon-badge-primary">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        </div>
+        <div class="icon-badge icon-badge-success">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <div class="icon-badge icon-badge-info">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </div>
+        <div class="icon-badge icon-badge-warning">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        </div>
+        <div class="icon-badge icon-badge-danger">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        </div>
+        <div class="icon-badge icon-badge-purple">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11L12 2zm0 3.84L13.93 9h-3.87L12 5.84zM17.5 13c-2.49 0-4.5 2.01-4.5 4.5s2.01 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7a2.5 2.5 0 010-5 2.5 2.5 0 010 5zM3 21.5h8v-8H3v8zm2-6h4v4H5v-4z"/></svg>
+        </div>
+        <div class="icon-badge icon-badge-orange">
+          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SPACING REFERENCE
+         ============================================================ -->
+    <section class="ref-section">
+      <span class="ref-label">Spacing</span>
+      <h2 class="mb-3">Spacing Scale</h2>
+      <p class="mb-3">Base unit: <code>1rem</code> (16px)</p>
+
+      <div style="max-width:500px; display:grid; gap:.5rem;">
+        <div>
+          <div class="text-xs text-muted mb-1">0.25rem (4px) &mdash; sp-1</div>
+          <div class="spacing-bar" style="width:4%;" data-label=""></div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-1">0.5rem (8px) &mdash; sp-2</div>
+          <div class="spacing-bar" style="width:8%;" data-label=""></div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-1">1rem (16px) &mdash; sp-3</div>
+          <div class="spacing-bar" style="width:16%;" data-label=""></div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-1">1.6rem (25.6px) &mdash; sp-4</div>
+          <div class="spacing-bar" style="width:26%;" data-label=""></div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-1">3rem (48px) &mdash; sp-5</div>
+          <div class="spacing-bar" style="width:48%;" data-label=""></div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-1">3.5rem (56px) &mdash; sp-6</div>
+          <div class="spacing-bar" style="width:56%;" data-label=""></div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-1">6rem (96px) &mdash; sp-7</div>
+          <div class="spacing-bar" style="width:80%;" data-label=""></div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-1">7rem (112px) &mdash; sp-8</div>
+          <div class="spacing-bar" style="width:90%;" data-label=""></div>
+        </div>
+        <div>
+          <div class="text-xs text-muted mb-1">10rem (160px) &mdash; sp-9</div>
+          <div class="spacing-bar" style="width:100%;" data-label=""></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /container -->
+
+  <!-- Footer -->
+  <footer style="background:var(--gray-900); color:var(--gray-500); padding:2rem 0; margin-top:3rem;">
+    <div class="container text-center">
+      <p class="text-sm mb-0">Teaching App Design Reference &mdash; Bootstrap-free implementation based on the existing theme.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Theme toggle
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const theme = btn.dataset.theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+
+    // Navbar scroll shadow
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+
+</body>
+</html>
