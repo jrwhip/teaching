@@ -17,7 +17,7 @@ const cognitoClient = new CognitoIdentityProviderClient();
 export const handler: PostConfirmationTriggerHandler = async (event) => {
   const { userPoolId, userName } = event;
   const role =
-    (event.request.userAttributes['custom:role'] as
+    (event.request.clientMetadata?.['role'] as
       | 'TEACHER'
       | 'PARENT'
       | undefined) ?? 'PARENT';

@@ -7,6 +7,7 @@ import {
   signOut,
   getCurrentUser,
   fetchUserAttributes,
+  fetchAuthSession,
   resetPassword,
   confirmResetPassword,
   type AuthUser,
@@ -51,8 +52,10 @@ export class AuthService {
         options: {
           userAttributes: {
             email,
-            'custom:role': role,
-            'custom:displayName': displayName,
+            name: displayName,
+          },
+          clientMetadata: {
+            role,
           },
         },
       });
@@ -148,9 +151,11 @@ export class AuthService {
     if (existing && existing.length > 0) return;
 
     const attrs = await fetchUserAttributes();
+    const session = await fetchAuthSession();
+    const groups = (session.tokens?.idToken?.payload?.['cognito:groups'] as string[] | undefined) ?? [];
     const email = attrs.email ?? '';
-    const displayName = attrs['custom:displayName'] ?? email.split('@')[0];
-    const role = (attrs['custom:role'] as UserRole) ?? 'STUDENT';
+    const displayName = attrs.name ?? email.split('@')[0];
+    const role = (groups[0] as UserRole) ?? 'STUDENT';
 
     await client.models.UserProfile.create({
       cognitoSub,
