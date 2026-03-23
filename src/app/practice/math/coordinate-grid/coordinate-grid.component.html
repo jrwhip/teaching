@@ -1,0 +1,62 @@
+<div class="section">
+  <div class="container">
+    <div class="grid-layout">
+      <div class="grid-container" #gridContainer (click)="onGridClick($event)">
+        <!-- Grid lines -->
+        @for (line of gridLines(); track line.value) {
+          <div class="grid-line horizontal" [style.top.%]="line.offset"></div>
+          <div class="grid-line vertical" [style.left.%]="line.offset"></div>
+
+          @if (line.value !== 0) {
+            <div class="axis-label x-label" [style.left.%]="line.offset">{{ line.value }}</div>
+          }
+          <div class="axis-label y-label" [style.top.%]="100 - line.offset">{{ line.value }}</div>
+        }
+
+        <!-- Axes -->
+        <div class="axis-line x-axis"></div>
+        <div class="axis-line y-axis"></div>
+
+        <!-- Markers -->
+        @for (marker of markers(); track $index) {
+          <div
+            [class]="'marker marker-' + marker.type"
+            [style.left.px]="getMarkerLeft(marker.x)"
+            [style.top.px]="getMarkerTop(marker.y)"
+          >
+            @if (marker.type === 'incorrect') {
+              X
+            }
+          </div>
+        }
+      </div>
+
+      <div class="sidebar">
+        <div class="mode-buttons">
+          <button
+            class="btn"
+            [class.btn-primary]="mode() === 'plotCoordinate'"
+            [class.btn-light]="mode() !== 'plotCoordinate'"
+            (click)="setMode('plotCoordinate')"
+          >Plot Coordinates</button>
+          <button
+            class="btn"
+            [class.btn-primary]="mode() === 'reflection'"
+            [class.btn-light]="mode() !== 'reflection'"
+            (click)="setMode('reflection')"
+          >Reflection Problem</button>
+        </div>
+
+        <div class="info-panel">
+          <p class="instruction">{{ instruction() }}</p>
+          <p>Correct Problems: <strong>{{ correctCount() }}</strong></p>
+          <p>Incorrect Problems: <strong>{{ incorrectCount() }}</strong></p>
+
+          @if (feedback()) {
+            <div class="feedback" [style.color]="feedbackColor()">{{ feedback() }}</div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

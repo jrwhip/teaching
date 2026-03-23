@@ -12,7 +12,39 @@ const routes: Routes = [
       },
       {
         path: 'math',
+        loadComponent: () => import('./math/math-menu.component'),
+      },
+      {
+        path: 'math/rounding',
         loadComponent: () => import('../math/math.component').then(c => c.MathComponent),
+      },
+      {
+        path: 'math/number-line',
+        loadComponent: () => import('./math/number-line/number-line.component'),
+      },
+      {
+        path: 'math/inequality',
+        loadComponent: () => import('./math/inequality/inequality.component'),
+      },
+      {
+        path: 'math/coordinate-grid',
+        loadComponent: () => import('./math/coordinate-grid/coordinate-grid.component'),
+      },
+      {
+        path: 'math/area-perimeter',
+        loadComponent: () => import('./math/area-perimeter/area-perimeter.component'),
+      },
+      {
+        path: 'math/quiz3',
+        loadComponent: () => import('./math/quiz3/quiz3.component'),
+      },
+      {
+        path: 'math/quiz2',
+        loadComponent: () => import('./math/quiz2/quiz2.component'),
+      },
+      {
+        path: 'math/quiz',
+        loadComponent: () => import('./math/quiz/quiz.component'),
       },
       {
         path: 'word-study',

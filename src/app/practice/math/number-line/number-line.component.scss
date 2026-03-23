@@ -1,0 +1,91 @@
+.number-line-container {
+  margin: 50px auto;
+  width: 80%;
+  position: relative;
+  height: 50px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.number-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background-color: black;
+  transform: translateY(-50%);
+}
+
+.number-marker {
+  position: absolute;
+  text-align: center;
+  user-select: none;
+
+  .tick {
+    height: 20px;
+    width: 2px;
+    background: black;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .label {
+    position: absolute;
+    top: 25px;
+    transform: translateX(-50%);
+    font-size: var(--text-sm);
+  }
+}
+
+.user-marker {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1.5rem;
+
+  label {
+    font-weight: 500;
+  }
+
+  input {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--text-base);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius);
+    width: 140px;
+  }
+}
+
+.feedback {
+  margin-top: 1.25rem;
+  font-size: var(--text-lg);
+  font-weight: bold;
+  text-align: center;
+}
+
+.scoreboard {
+  margin-top: 1.25rem;
+  font-size: var(--text-base);
+  text-align: center;
+
+  p {
+    margin: 0.25rem 0;
+  }
+}

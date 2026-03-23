@@ -1,0 +1,51 @@
+<div class="section">
+  <div class="container">
+    <h2>Interactive Number Line</h2>
+    <p>
+      Click on the number line to place the markers at the given points:
+      <strong>{{ pointA() }}</strong> and <strong>{{ pointB() }}</strong>
+    </p>
+
+    <div class="number-line-container" #numberLineContainer (click)="onNumberLineClick($event)">
+      <div class="number-line"></div>
+
+      @for (marker of markers(); track marker.value) {
+        <div class="number-marker" [style.left.%]="marker.leftPercent">
+          <div class="tick"></div>
+          <div class="label">{{ marker.value }}</div>
+        </div>
+      }
+
+      @if (userMarkerA(); as m) {
+        <div class="user-marker" [style.left.%]="m.leftPercent" (click)="removeMarkerA($event)"></div>
+      }
+
+      @if (userMarkerB(); as m) {
+        <div class="user-marker" [style.left.%]="m.leftPercent" (click)="removeMarkerB($event)"></div>
+      }
+    </div>
+
+    <div class="controls">
+      <label for="distanceInput">How far apart are the two points?</label>
+      <input
+        type="text"
+        id="distanceInput"
+        placeholder="Enter distance"
+        [ngModel]="distanceInput()"
+        (ngModelChange)="distanceInput.set($event)"
+        (keypress)="onKeypress($event)"
+      />
+      <button class="btn btn-primary" (click)="checkAnswer()">Check Answer</button>
+      <button class="btn btn-light" (click)="generateProblem()">New Problem</button>
+    </div>
+
+    @if (feedback()) {
+      <div class="feedback" [style.color]="feedbackColor()">{{ feedback() }}</div>
+    }
+
+    <div class="scoreboard">
+      <p>Correct Answers: <strong>{{ correctCount() }}</strong></p>
+      <p>Incorrect Answers: <strong>{{ incorrectCount() }}</strong></p>
+    </div>
+  </div>
+</div>

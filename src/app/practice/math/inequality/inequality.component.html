@@ -1,0 +1,86 @@
+<div class="section">
+  <div class="container">
+    <h2>Graph the Inequality: x {{ inequality() }} {{ targetValue() }}</h2>
+
+    <div class="number-line-container" #numberLineContainer (click)="onNumberLineClick($event)">
+      <div class="main-number-line"></div>
+
+      @for (tick of ticks(); track tick.index) {
+        <div class="tick" [style.left.%]="(tick.index / (tickCount - 1)) * 100"></div>
+        <span class="tick-label" [style.left.%]="(tick.index / (tickCount - 1)) * 100">{{ tick.value }}</span>
+      }
+
+      @if (markerPosition() !== null && selectedDirection()) {
+        @if (getLineStyle(); as ls) {
+          <div class="solid-line" [style.left]="ls.left" [style.width]="ls.width"></div>
+        }
+        @if (selectedDirection() === 'right') {
+          <div class="arrow arrow-right"></div>
+        } @else {
+          <div class="arrow arrow-left"></div>
+        }
+      }
+
+      @if (markerPosition() !== null) {
+        <div
+          [class]="circleType() === 'open' ? 'open-circle' : 'filled-circle'"
+          [style.left.px]="getMarkerLeftPx()"
+        ></div>
+      }
+    </div>
+
+    <div class="controls-panel">
+      <div class="control-group">
+        <p class="control-label">Select: Open or Closed</p>
+        <div class="circle-buttons">
+          <div
+            class="circle-button open-circle-button"
+            [class.selected]="circleType() === 'open' && circleChosen()"
+            (click)="setCircleType('open')"
+          ></div>
+          <div
+            class="circle-button closed-circle-button"
+            [class.selected]="circleType() === 'closed'"
+            (click)="setCircleType('closed')"
+          ></div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <p class="control-label">Select: Left or Right</p>
+        <div class="direction-buttons">
+          <button
+            class="btn btn-light"
+            [class.selected]="selectedDirection() === 'left'"
+            (click)="setDirection('left')"
+          >&larr; Left</button>
+          <button
+            class="btn btn-light"
+            [class.selected]="selectedDirection() === 'right'"
+            (click)="setDirection('right')"
+          >Right &rarr;</button>
+        </div>
+      </div>
+
+      <p class="hint-text">Then click the location on the line</p>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="checkAnswer()">Check Answer</button>
+        <button class="btn btn-light" (click)="generateProblem()">New Problem</button>
+      </div>
+    </div>
+
+    @if (resultMessage()) {
+      <div class="result-message" [class]="resultStyle()">{{ resultMessage() }}</div>
+    }
+
+    @if (errorMessage()) {
+      <div class="error-message">{{ errorMessage() }}</div>
+    }
+
+    <div class="scoreboard">
+      <p>Correct: <strong>{{ correctCount() }}</strong></p>
+      <p>Incorrect: <strong>{{ incorrectCount() }}</strong></p>
+    </div>
+  </div>
+</div>

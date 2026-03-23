@@ -1,0 +1,50 @@
+<div class="section">
+  <div class="container">
+    <h2>Area and Perimeter Practice</h2>
+
+    <div class="shape-buttons">
+      @for (shape of shapes; track shape.type) {
+        <button
+          class="btn"
+          [class.btn-primary]="selectedShape() === shape.type"
+          [class.btn-light]="selectedShape() !== shape.type"
+          (click)="selectShape(shape.type)"
+        >{{ shape.label }}</button>
+      }
+    </div>
+
+    <canvas #shapeCanvas width="500" height="300" class="shape-canvas"></canvas>
+
+    @if (problemText()) {
+      <div class="problem-area">
+        <p class="problem-text">{{ problemText() }}</p>
+
+        <div class="input-row">
+          <input
+            type="text"
+            placeholder="Your Answer"
+            [ngModel]="userInput()"
+            (ngModelChange)="userInput.set($event)"
+            (keypress)="onKeypress($event)"
+          />
+          <button class="btn btn-light btn-sm" (click)="insertUnit('u')">u</button>
+          <button class="btn btn-light btn-sm" (click)="insertUnit('u²')">u²</button>
+          <button class="btn btn-primary" (click)="checkAnswer()">Submit</button>
+          <button class="btn btn-light" (click)="showHintMessage()">Hint</button>
+        </div>
+      </div>
+    }
+
+    @if (showHint()) {
+      <div class="hint-box">{{ hintText() }}</div>
+    }
+
+    @if (message()) {
+      <div class="message" [style.color]="messageColor()">{{ message() }}</div>
+    }
+
+    @if (solution()) {
+      <div class="solution">{{ solution() }}</div>
+    }
+  </div>
+</div>

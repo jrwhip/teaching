@@ -17,7 +17,7 @@ import { RouterLink } from '@angular/router';
                 <i class="fas fa-calculator"></i>
               </div>
               <h3>Math</h3>
-              <p class="text-muted">Practice number rounding with instant feedback and streak tracking.</p>
+              <p class="text-muted">Quizzes, number lines, coordinate grids, geometry, and more.</p>
               <span class="btn btn-primary-soft btn-sm">Start Practice</span>
             </div>
           </a>

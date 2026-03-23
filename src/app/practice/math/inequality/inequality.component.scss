@@ -1,0 +1,179 @@
+.number-line-container {
+  position: relative;
+  width: 90%;
+  height: 40px;
+  margin: 50px auto;
+  cursor: pointer;
+  user-select: none;
+}
+
+.main-number-line {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: black;
+}
+
+.tick {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 20px;
+  background: black;
+  transform: translateX(-50%);
+}
+
+.tick-label {
+  position: absolute;
+  top: 25px;
+  font-size: 14px;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.filled-circle,
+.open-circle {
+  position: absolute;
+  top: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.filled-circle {
+  background-color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+}
+
+.open-circle {
+  border: 2px solid var(--color-danger);
+  background-color: white;
+}
+
+.solid-line {
+  position: absolute;
+  height: 4px;
+  background-color: var(--color-danger);
+  top: 8px;
+  z-index: 2;
+}
+
+.arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  top: 0;
+  z-index: 3;
+
+  &.arrow-right {
+    border-width: 10px 0 10px 20px;
+    border-color: transparent transparent transparent var(--color-danger);
+    right: 0;
+  }
+
+  &.arrow-left {
+    border-width: 10px 20px 10px 0;
+    border-color: transparent var(--color-danger) transparent transparent;
+    left: 5px;
+  }
+}
+
+.controls-panel {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.control-group {
+  margin-bottom: 1rem;
+}
+
+.control-label {
+  font-size: var(--text-base);
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.circle-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.circle-button {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: border-color 0.2s;
+
+  &.open-circle-button {
+    border: 2px solid black;
+    background-color: white;
+  }
+
+  &.closed-circle-button {
+    border: 2px solid black;
+    background-color: black;
+  }
+
+  &.selected {
+    border: 4px solid var(--color-orange);
+  }
+}
+
+.direction-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+
+  .selected {
+    border: 3px solid var(--color-orange);
+  }
+}
+
+.hint-text {
+  margin-top: 0.75rem;
+  font-style: italic;
+  color: var(--gray-500);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.result-message {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: var(--text-3xl);
+  font-weight: bold;
+
+  &.correct {
+    color: var(--color-success);
+  }
+}
+
+.error-message {
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: var(--text-base);
+  color: var(--color-danger);
+}
+
+.scoreboard {
+  margin-top: 1.25rem;
+  font-size: var(--text-base);
+  text-align: center;
+
+  p {
+    margin: 0.25rem 0;
+  }
+}

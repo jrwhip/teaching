@@ -1,0 +1,220 @@
+.quiz3-page {
+  min-height: 100vh;
+  padding: 1rem;
+  transition: background-color 0.3s;
+}
+
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  select {
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--radius);
+  }
+}
+
+.problems-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.problem-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: opacity 0.3s;
+
+  &.completed {
+    opacity: 0.6;
+  }
+}
+
+.problem-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.problem-number {
+  font-weight: bold;
+  font-size: var(--text-lg);
+}
+
+.streak-indicators {
+  display: flex;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.streak-check {
+  font-size: 1.2rem;
+  color: var(--gray-400);
+
+  &.filled {
+    color: var(--color-success);
+  }
+}
+
+.zoom-btn {
+  background: none;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+}
+
+.problem-question {
+  font-size: var(--text-xl);
+  margin-bottom: 0.75rem;
+  min-height: 2em;
+
+  :host ::ng-deep .frac {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+
+    sup, sub {
+      display: block;
+      font: inherit;
+      font-size: 75%;
+      padding: 0 0.3em;
+    }
+
+    sup {
+      border-bottom: 0.08em solid;
+    }
+
+    > span {
+      display: none;
+    }
+  }
+}
+
+.problem-input {
+  display: flex;
+  gap: 0.5rem;
+
+  input {
+    flex: 1;
+    padding: 0.375rem 0.5rem;
+    font-size: var(--text-base);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius);
+  }
+}
+
+.completed-badge {
+  color: var(--color-success);
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Zoom Modal */
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.zoom-modal {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  min-width: 400px;
+  max-width: 90vw;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-500);
+}
+
+.zoom-question {
+  font-size: var(--text-3xl);
+  margin-bottom: 1rem;
+  text-align: center;
+
+  :host ::ng-deep .frac {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+
+    sup, sub {
+      display: block;
+      font: inherit;
+      font-size: 75%;
+      padding: 0 0.3em;
+    }
+
+    sup {
+      border-bottom: 0.08em solid;
+    }
+
+    > span {
+      display: none;
+    }
+  }
+}
+
+.zoom-streak {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.zoom-input {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+
+  input {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--text-xl);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius);
+    width: 200px;
+    text-align: center;
+  }
+}
