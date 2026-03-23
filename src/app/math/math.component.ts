@@ -1,8 +1,8 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AgGridModule } from 'ag-grid-angular';
-import { ColDef, GridApi } from 'ag-grid-community';
+import { ColDef } from 'ag-grid-community';
 import { NthPlainTextPipe } from '../nth-plain-text.pipe';
 import { StreakDisplayComponent } from '../shared/components/streak-display.component';
 
@@ -16,11 +16,10 @@ interface RoundedNumberEntry {
 }
 
 @Component({
-  standalone: true,
-  imports: [AgGridModule, CommonModule, NthPlainTextPipe, FormsModule, StreakDisplayComponent],
-  templateUrl: './math.component.html',
+    imports: [AgGridModule, CommonModule, NthPlainTextPipe, FormsModule, StreakDisplayComponent],
+    templateUrl: './math.component.html'
 })
-export class MathComponent implements OnInit, AfterViewInit {
+export class MathComponent implements OnInit {
   roundedNumbers: RoundedNumberEntry[] = [];
   correctStreak = 0;
   highestStreak = 0;
@@ -56,26 +55,16 @@ export class MathComponent implements OnInit, AfterViewInit {
     },
   ];
 
-  private gridApi: GridApi | null = null;
-
   ngOnInit(): void {
     this.generateNewNumber();
     const storedHighestStreak = localStorage.getItem('highestStreak');
     if (storedHighestStreak) {
       this.highestStreak = JSON.parse(storedHighestStreak);
     }
-  }
-
-  ngAfterViewInit(): void {
     const storedData = localStorage.getItem('roundedNumbers');
     if (storedData) {
       this.roundedNumbers = JSON.parse(storedData);
-      this.gridApi?.setRowData(this.roundedNumbers);
     }
-  }
-
-  onGridReady(params: { api: GridApi }): void {
-    this.gridApi = params.api;
   }
 
   checkAnswer(userAnswer: number | null): void {
@@ -120,7 +109,6 @@ export class MathComponent implements OnInit, AfterViewInit {
 
       const newRowData = [newEntry, ...this.roundedNumbers];
       this.roundedNumbers = newRowData;
-      this.gridApi?.setRowData(newRowData);
       localStorage.setItem('roundedNumbers', JSON.stringify(newRowData));
 
       this.userAnswer = null;

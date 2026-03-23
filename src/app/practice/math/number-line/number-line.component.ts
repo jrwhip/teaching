@@ -3,10 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { MathResultsService } from '../shared/math-results.service';
 
 @Component({
-  standalone: true,
-  imports: [FormsModule],
-  templateUrl: './number-line.component.html',
-  styleUrl: './number-line.component.scss',
+    imports: [FormsModule],
+    templateUrl: './number-line.component.html',
+    styleUrl: './number-line.component.scss'
 })
 export default class NumberLineComponent {
   private readonly containerRef = viewChild<ElementRef<HTMLDivElement>>('numberLineContainer');

@@ -21,10 +21,9 @@ interface ProblemState {
 }
 
 @Component({
-  standalone: true,
-  imports: [FormsModule],
-  templateUrl: './quiz2.component.html',
-  styleUrl: './quiz2.component.scss',
+    imports: [FormsModule],
+    templateUrl: './quiz2.component.html',
+    styleUrl: './quiz2.component.scss'
 })
 export default class Quiz2Component {
   private readonly results = inject(MathResultsService);

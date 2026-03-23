@@ -7,40 +7,54 @@
 **Users:** Jerry + family (K-6 students)
 **Feedback:** Math components worked but looked foreign — hardcoded colors, own navbars, no dark mode, per-component color pickers, localStorage-only scoring
 **Codebase:**
-- Angular 17 standalone components with signals
+- Angular 17.2.4 standalone components with signals
+- Nx 18.0.7, TypeScript 5.3.3
 - AWS Amplify Gen 2 (Cognito + AppSync + DynamoDB)
 - Custom CSS design system with light/dark tokens
-- pnpm, Nx workspace
+- ag-Grid 30, Jest 29, ESLint 8
+- pnpm, zone.js still in dependency tree
 
 **Known Issues:**
 - Results tracking needs integration testing with live DynamoDB
 - Teacher/parent dashboards need real classroom/enrollment seed data
 - Canvas components need visual verification on actual mobile devices
+- Angular 17 is 4 major versions behind current (21.2.5)
+- Jest deprecated in Angular 21, Vitest is now recommended
+- zone.js still present despite app being signal-based
 
 ## v1.1 Goals
 
-**Vision:** Integration testing, seed data, and messaging system
+**Vision:** Upgrade to Angular 21 + Nx 22.3, go zoneless, modernize tooling
 
 **Motivation:**
-- v1.0 shipped UI + service layer but needs end-to-end verification
-- Dashboards built but need real student data flowing through
-- Messaging system requested for teacher-parent-student communication
+- Angular 17 is end-of-life, missing 4 major versions of improvements
+- Zoneless change detection is stable since Angular 20.2 — app already uses signals
+- Jest deprecated in Angular 21, Vitest is the future
+- ESLint 8 → 9 flat config needed for modern tooling
 
 **Scope (v1.1):**
-- Integration testing with live Amplify backend
-- Seed data for classrooms, enrollments, parent-student links
-- Messaging system (iCloud Mail-inspired 3-pane layout)
+- Angular 17 → 21 upgrade via Nx migrate
+- Nx 18 → 22.3 (required for Angular 21 support)
+- TypeScript 5.3 → 5.8+
+- Zoneless change detection (remove zone.js)
+- Jest → Vitest migration
+- ESLint 8 → 9 flat config
+- ag-Grid 30 → 35
 
 **Success Criteria:**
-- [ ] Student completes math practice, results appear in DynamoDB
-- [ ] Teacher dashboard shows student results from their classroom
-- [ ] Parent dashboard shows linked student results
-- [ ] Messaging system functional between all three roles
+- [ ] pnpm build passes on Angular 21 + Nx 22.3
+- [ ] All components render correctly (no regressions)
+- [ ] zone.js fully removed, app runs zoneless
+- [ ] Vitest runs all existing tests
+- [ ] ESLint 9 flat config with no lint errors
+- [ ] ag-Grid 35 renders data grid correctly
 
 **Out of Scope:**
+- Signal Forms (experimental in Angular 21 — wait for stable)
+- Angular Aria adoption
 - Additional subjects beyond math
+- Messaging system (deferred to v1.2)
 - Mobile native app
-- Public deployment / production hosting
 
 ---
 
@@ -65,7 +79,7 @@ Seven math practice components translated from standalone HTML/JS pages looked f
 
 ## Constraints
 
-- Angular 17 with signals (no RxJS for new code)
+- Angular 17 with signals (no RxJS for new code) — upgrading to 21 in v1.1
 - pnpm only
 - Must preserve all existing math problem generation logic
 - CSS custom properties from _tokens.scss / _tokens-dark.scss

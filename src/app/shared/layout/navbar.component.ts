@@ -4,10 +4,9 @@ import { AuthService } from '../../core/auth/auth.service';
 import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
 
 @Component({
-  selector: 'app-navbar',
-  standalone: true,
-  imports: [RouterLink, RouterLinkActive],
-  template: `
+    selector: 'app-navbar',
+    imports: [RouterLink, RouterLinkActive],
+    template: `
     <nav class="navbar" [class.scrolled]="scrolled">
       <div class="container navbar-inner">
         <a routerLink="/dashboard" class="navbar-brand">
@@ -103,7 +102,7 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
       </div>
     </nav>
   `,
-  styles: [`
+    styles: [`
     .accent-picker .accent-menu {
       padding: .5rem;
       min-width: auto;
@@ -137,7 +136,7 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
         box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), .3);
       }
     }
-  `],
+  `]
 })
 export class NavbarComponent {
   readonly auth = inject(AuthService);

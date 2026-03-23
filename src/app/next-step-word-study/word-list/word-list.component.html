@@ -1,5 +1,7 @@
 <div class="container">
-  <a class="item" *ngFor="let word of words">
-    <p>{{ word }}</p>
-  </a>
+  @for (word of words; track word) {
+    <a class="item">
+      <p>{{ word }}</p>
+    </a>
+  }
 </div>

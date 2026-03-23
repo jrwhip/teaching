@@ -12,10 +12,9 @@ interface ShapeProblem {
 }
 
 @Component({
-  standalone: true,
-  imports: [FormsModule],
-  templateUrl: './area-perimeter.component.html',
-  styleUrl: './area-perimeter.component.scss',
+    imports: [FormsModule],
+    templateUrl: './area-perimeter.component.html',
+    styleUrl: './area-perimeter.component.scss'
 })
 export default class AreaPerimeterComponent {
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('shapeCanvas');

@@ -2,9 +2,8 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  standalone: true,
-  imports: [RouterLink],
-  template: `
+    imports: [RouterLink],
+    template: `
     <div class="section">
       <div class="container">
         <h2 class="mb-1">Practice</h2>
@@ -34,6 +33,6 @@ import { RouterLink } from '@angular/router';
         </div>
       </div>
     </div>
-  `,
+  `
 })
 export default class PracticeMenuComponent {}

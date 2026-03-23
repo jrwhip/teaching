@@ -5,9 +5,8 @@ import { StatCardComponent } from '../../shared/components/stat-card.component';
 import { StreakDisplayComponent } from '../../shared/components/streak-display.component';
 
 @Component({
-  standalone: true,
-  imports: [RouterLink, StatCardComponent, StreakDisplayComponent],
-  template: `
+    imports: [RouterLink, StatCardComponent, StreakDisplayComponent],
+    template: `
     <div class="section">
       <div class="container">
         <h2 class="mb-1">Hey, {{ auth.userProfile()?.displayName }}!</h2>
@@ -48,7 +47,7 @@ import { StreakDisplayComponent } from '../../shared/components/streak-display.c
         </div>
       </div>
     </div>
-  `,
+  `
 })
 export default class StudentHomeComponent {
   readonly auth = inject(AuthService);

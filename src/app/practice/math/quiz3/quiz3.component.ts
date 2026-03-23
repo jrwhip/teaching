@@ -12,10 +12,9 @@ interface Problem {
 }
 
 @Component({
-  standalone: true,
-  imports: [FormsModule],
-  templateUrl: './quiz3.component.html',
-  styleUrl: './quiz3.component.scss',
+    imports: [FormsModule],
+    templateUrl: './quiz3.component.html',
+    styleUrl: './quiz3.component.scss'
 })
 export default class Quiz3Component {
   private readonly results = inject(MathResultsService);

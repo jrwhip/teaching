@@ -5,9 +5,8 @@ import { AuthService } from '../../core/auth/auth.service';
 import { UserRole } from '../../core/auth/auth.types';
 
 @Component({
-  standalone: true,
-  imports: [FormsModule, RouterLink],
-  template: `
+    imports: [FormsModule, RouterLink],
+    template: `
     <div class="section">
       <div class="container" style="max-width: 460px;">
         <div class="text-center mb-4">
@@ -112,7 +111,7 @@ import { UserRole } from '../../core/auth/auth.types';
         </p>
       </div>
     </div>
-  `,
+  `
 })
 export default class RegisterComponent {
   readonly auth = inject(AuthService);

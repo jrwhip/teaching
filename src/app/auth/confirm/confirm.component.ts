@@ -4,9 +4,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
-  standalone: true,
-  imports: [FormsModule, RouterLink],
-  template: `
+    imports: [FormsModule, RouterLink],
+    template: `
     <div class="section">
       <div class="container" style="max-width: 460px;">
         <div class="text-center mb-4">
@@ -60,7 +59,7 @@ import { AuthService } from '../../core/auth/auth.service';
         </p>
       </div>
     </div>
-  `,
+  `
 })
 export default class ConfirmComponent {
   readonly auth = inject(AuthService);

@@ -3,9 +3,8 @@ import { RouterLink } from '@angular/router';
 import { ThemeService } from '../core/theme.service';
 
 @Component({
-  standalone: true,
-  imports: [RouterLink],
-  template: `
+    imports: [RouterLink],
+    template: `
     <div class="hero">
       <div class="container">
         <div class="hero-grid">
@@ -74,7 +73,7 @@ import { ThemeService } from '../core/theme.service';
         </div>
       </div>
     </div>
-  `,
+  `
 })
 export default class LandingComponent {
   readonly theme = inject(ThemeService);

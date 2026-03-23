@@ -11,11 +11,10 @@ import { WordListComponent } from './word-list/word-list.component';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 @Component({
-  selector: 'app-next-step-word-study',
-  standalone: true,
-  imports: [CommonModule, WordStudyMenuComponent, WordListComponent],
-  templateUrl: './next-step-word-study.component.html',
-  styleUrls: ['./next-step-word-study.component.scss']
+    selector: 'app-next-step-word-study',
+    imports: [CommonModule, WordStudyMenuComponent, WordListComponent],
+    templateUrl: './next-step-word-study.component.html',
+    styleUrls: ['./next-step-word-study.component.scss']
 })
 export class NextStepWordStudyComponent implements OnInit {
   wordGroups$!: Observable<any>;

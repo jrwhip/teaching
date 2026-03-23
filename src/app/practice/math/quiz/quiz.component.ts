@@ -13,11 +13,10 @@ interface AnswerLogEntry {
 }
 
 @Component({
-  selector: 'app-quiz',
-  standalone: true,
-  imports: [FormsModule],
-  templateUrl: './quiz.component.html',
-  styleUrl: './quiz.component.scss',
+    selector: 'app-quiz',
+    imports: [FormsModule],
+    templateUrl: './quiz.component.html',
+    styleUrl: './quiz.component.scss'
 })
 export default class QuizComponent {
   private readonly results = inject(MathResultsService);

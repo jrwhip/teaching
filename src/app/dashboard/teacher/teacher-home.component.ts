@@ -4,9 +4,8 @@ import { AuthService } from '../../core/auth/auth.service';
 import { StatCardComponent } from '../../shared/components/stat-card.component';
 
 @Component({
-  standalone: true,
-  imports: [RouterLink, StatCardComponent],
-  template: `
+    imports: [RouterLink, StatCardComponent],
+    template: `
     <div class="section">
       <div class="container">
         <h2 class="mb-1">Welcome, {{ auth.userProfile()?.displayName }}</h2>
@@ -36,7 +35,7 @@ import { StatCardComponent } from '../../shared/components/stat-card.component';
         </div>
       </div>
     </div>
-  `,
+  `
 })
 export default class TeacherHomeComponent {
   readonly auth = inject(AuthService);

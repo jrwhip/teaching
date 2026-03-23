@@ -5,10 +5,9 @@ import { MathResultsService } from './shared/math-results.service';
 import { getTaxonomy } from './shared/problem-taxonomy';
 
 @Component({
-  standalone: true,
-  imports: [RouterLink],
-  templateUrl: './math-menu.component.html',
-  styleUrl: './math-menu.component.scss',
+    imports: [RouterLink],
+    templateUrl: './math-menu.component.html',
+    styleUrl: './math-menu.component.scss'
 })
 export default class MathMenuComponent implements OnInit {
   readonly auth = inject(AuthService);
