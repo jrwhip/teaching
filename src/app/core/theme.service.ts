@@ -1,4 +1,5 @@
-import { Injectable, signal, effect, computed } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 
 export type Theme = 'light' | 'dark';
 
@@ -29,6 +30,9 @@ export const ACCENT_COLORS: AccentColor[] = [
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
+  private readonly doc = inject(DOCUMENT);
+  private readonly win = this.doc.defaultView!;
+
   readonly theme = signal<Theme>(this.getInitialTheme());
   readonly accentBg = signal<string>(this.getInitialAccent());
 
@@ -41,18 +45,22 @@ export class ThemeService {
     // Apply theme attribute
     effect(() => {
       const t = this.theme();
-      document.documentElement.setAttribute('data-theme', t);
-      localStorage.setItem('theme', t);
+      this.doc.documentElement.setAttribute('data-theme', t);
+      this.win.localStorage.setItem('theme', t);
     });
 
-    // Apply accent background CSS variable
+    // Apply accent background + derived surface tokens
     effect(() => {
       const accent = this.effectiveAccent();
-      const el = document.documentElement;
+      const el = this.doc.documentElement;
       if (accent) {
         el.style.setProperty('--bg-accent', accent);
+        el.style.setProperty('--bg-surface', `color-mix(in srgb, ${accent} 60%, white)`);
+        el.style.setProperty('--bg-muted', `color-mix(in srgb, ${accent} 75%, white)`);
       } else {
         el.style.removeProperty('--bg-accent');
+        el.style.removeProperty('--bg-surface');
+        el.style.removeProperty('--bg-muted');
       }
     });
 
@@ -60,9 +68,9 @@ export class ThemeService {
     effect(() => {
       const raw = this.accentBg();
       if (raw) {
-        localStorage.setItem('accentBg', raw);
+        this.win.localStorage.setItem('accentBg', raw);
       } else {
-        localStorage.removeItem('accentBg');
+        this.win.localStorage.removeItem('accentBg');
       }
     });
   }
@@ -76,12 +84,12 @@ export class ThemeService {
   }
 
   private getInitialTheme(): Theme {
-    const stored = localStorage.getItem('theme');
+    const stored = this.win.localStorage.getItem('theme');
     if (stored === 'light' || stored === 'dark') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return this.win.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
 
   private getInitialAccent(): string {
-    return localStorage.getItem('accentBg') ?? '';
+    return this.win.localStorage.getItem('accentBg') ?? '';
   }
 }

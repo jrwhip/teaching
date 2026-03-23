@@ -11,7 +11,7 @@ body {
   font-weight: 400;
   line-height: 1.6;
   color: var(--text-body);
-  background: var(--bg-body);
+  background: var(--bg-accent, var(--bg-body));
   transition: background var(--ease), color var(--ease);
 }
 
