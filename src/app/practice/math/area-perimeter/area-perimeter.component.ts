@@ -1,5 +1,7 @@
-import { Component, signal, ElementRef, viewChild, AfterViewInit } from '@angular/core';
+import { Component, signal, ElementRef, viewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { getCanvasTheme } from '../shared/canvas-theme.util';
+import { MathResultsService } from '../shared/math-results.service';
 
 type ShapeType = 'rectangle' | 'square' | 'triangle' | 'trapezoid' | 'two-rectangles-side' | 'irregular-l';
 
@@ -17,6 +19,7 @@ interface ShapeProblem {
 })
 export default class AreaPerimeterComponent {
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('shapeCanvas');
+  private readonly results = inject(MathResultsService);
 
   readonly selectedShape = signal<ShapeType | null>(null);
   readonly problemText = signal('');
@@ -37,6 +40,10 @@ export default class AreaPerimeterComponent {
     { type: 'two-rectangles-side', label: 'Two Rectangles (Side by Side)' },
     { type: 'irregular-l', label: 'Irregular Shape (L-Shape)' },
   ];
+
+  constructor() {
+    this.results.startNewSession();
+  }
 
   selectShape(shape: ShapeType): void {
     this.selectedShape.set(shape);
@@ -71,8 +78,19 @@ export default class AreaPerimeterComponent {
     const userAnswer = this.userInput().trim();
     const expectedUnit = this.currentProblem.isArea ? 'u\u00B2' : 'u';
     const correctAnswer = `${this.currentProblem.answer} ${expectedUnit}`;
+    const isCorrect = userAnswer === correctAnswer;
 
-    if (userAnswer === correctAnswer) {
+    this.results.recordAttempt({
+      problemType: 'area-perimeter',
+      problemCategory: 'Geometry',
+      question: this.problemText(),
+      correctAnswer,
+      studentAnswer: userAnswer,
+      isCorrect,
+      hint: this.showHint() ? this.hintText() : undefined,
+    });
+
+    if (isCorrect) {
       this.message.set('Correct!');
       this.messageColor.set('green');
       this.solution.set('');
@@ -169,10 +187,12 @@ export default class AreaPerimeterComponent {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const theme = getCanvasTheme();
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = '16px Arial';
-    ctx.fillStyle = 'black';
-    ctx.strokeStyle = 'black';
+    ctx.fillStyle = theme.textColor;
+    ctx.strokeStyle = theme.textColor;
     ctx.lineWidth = 1;
 
     const canvasWidth = canvas.width;

@@ -1,4 +1,5 @@
-import { Component, signal, computed, ElementRef, viewChild } from '@angular/core';
+import { Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
+import { MathResultsService } from '../shared/math-results.service';
 
 type Mode = 'plotCoordinate' | 'reflection';
 interface Point { x: number; y: number; }
@@ -10,8 +11,8 @@ interface Point { x: number; y: number; }
 })
 export default class CoordinateGridComponent {
   private readonly gridRef = viewChild<ElementRef<HTMLDivElement>>('gridContainer');
+  private readonly results = inject(MathResultsService);
 
-  readonly gridSize = 500;
   readonly axisRange = 8;
 
   readonly mode = signal<Mode>('plotCoordinate');
@@ -25,7 +26,6 @@ export default class CoordinateGridComponent {
   readonly correctCount = signal(0);
   readonly incorrectCount = signal(0);
 
-  // Markers to render
   readonly markers = signal<Array<{ x: number; y: number; type: 'user' | 'correct' | 'incorrect' }>>([]);
 
   readonly gridLines = computed(() => {
@@ -40,6 +40,7 @@ export default class CoordinateGridComponent {
   });
 
   constructor() {
+    this.results.startNewSession();
     this.generateProblem();
   }
 
@@ -75,9 +76,10 @@ export default class CoordinateGridComponent {
     const rect = grid.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
     const clickY = event.clientY - rect.top;
+    const gridSize = rect.width; // responsive: use actual rendered size
 
-    const x = Math.round((clickX / this.gridSize) * (2 * this.axisRange) - this.axisRange);
-    const y = Math.round(this.axisRange - (clickY / this.gridSize) * (2 * this.axisRange));
+    const x = Math.round((clickX / gridSize) * (2 * this.axisRange) - this.axisRange);
+    const y = Math.round(this.axisRange - (clickY / gridSize) * (2 * this.axisRange));
 
     if (this.mode() === 'plotCoordinate' && !this.userPoint()) {
       this.userPoint.set({ x, y });
@@ -95,20 +97,31 @@ export default class CoordinateGridComponent {
     }
   }
 
-  getMarkerLeft(x: number): number {
-    return ((x + this.axisRange) / (2 * this.axisRange)) * this.gridSize;
+  getMarkerPercent(x: number): number {
+    return ((x + this.axisRange) / (2 * this.axisRange)) * 100;
   }
 
-  getMarkerTop(y: number): number {
-    return ((this.axisRange - y) / (2 * this.axisRange)) * this.gridSize;
+  getMarkerTopPercent(y: number): number {
+    return ((this.axisRange - y) / (2 * this.axisRange)) * 100;
   }
 
   private checkPlotCoordinateAnswer(): void {
     const user = this.userPoint()!;
     const target = this.targetPoint();
+    const question = `Plot (${target.x}, ${target.y})`;
+    const isCorrect = user.x === target.x && user.y === target.y;
     let timeout: number;
 
-    if (user.x === target.x && user.y === target.y) {
+    this.results.recordAttempt({
+      problemType: 'coordinate-grid',
+      problemCategory: 'Geometry',
+      question,
+      correctAnswer: `(${target.x}, ${target.y})`,
+      studentAnswer: `(${user.x}, ${user.y})`,
+      isCorrect,
+    });
+
+    if (isCorrect) {
       this.feedback.set('Correct!');
       this.feedbackColor.set('green');
       this.correctCount.update(c => c + 1);
@@ -124,7 +137,6 @@ export default class CoordinateGridComponent {
       timeout = 3000;
     }
 
-    this.correctCount(); // trigger reactivity
     setTimeout(() => this.generateProblem(), timeout);
   }
 
@@ -139,10 +151,22 @@ export default class CoordinateGridComponent {
 
     const isCorrectPoint = user.x === target.x && user.y === target.y;
     const isCorrectReflection = userRef.x === expectedReflection.x && userRef.y === expectedReflection.y;
+    const isCorrect = isCorrectPoint && isCorrectReflection;
+
+    const question = `Plot (${target.x}, ${target.y}) and its ${this.reflectionType()} reflection`;
+
+    this.results.recordAttempt({
+      problemType: 'coordinate-grid',
+      problemCategory: 'Geometry',
+      question,
+      correctAnswer: `(${target.x}, ${target.y}) + (${expectedReflection.x}, ${expectedReflection.y})`,
+      studentAnswer: `(${user.x}, ${user.y}) + (${userRef.x}, ${userRef.y})`,
+      isCorrect,
+    });
 
     let timeout: number;
 
-    if (isCorrectPoint && isCorrectReflection) {
+    if (isCorrect) {
       this.feedback.set('Correct!');
       this.feedbackColor.set('green');
       this.correctCount.update(c => c + 1);

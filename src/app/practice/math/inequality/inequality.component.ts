@@ -1,4 +1,5 @@
-import { Component, signal, computed, ElementRef, viewChild } from '@angular/core';
+import { Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
+import { MathResultsService } from '../shared/math-results.service';
 
 type CircleType = 'open' | 'closed';
 type Direction = 'left' | 'right';
@@ -10,6 +11,7 @@ type Direction = 'left' | 'right';
 })
 export default class InequalityComponent {
   private readonly containerRef = viewChild<ElementRef<HTMLDivElement>>('numberLineContainer');
+  private readonly results = inject(MathResultsService);
 
   readonly tickCount = 21;
   readonly correctCount = signal(0);
@@ -37,6 +39,7 @@ export default class InequalityComponent {
   private step = 0;
 
   constructor() {
+    this.results.startNewSession();
     this.generateProblem();
   }
 
@@ -133,6 +136,7 @@ export default class InequalityComponent {
       return;
     }
 
+    const question = `x ${this.inequality()} ${this.targetValue()}`;
     const correctPosition = this.markerPosition() === this.targetValue();
 
     let correctCircle = false;
@@ -155,7 +159,20 @@ export default class InequalityComponent {
       correctDir = true;
     }
 
-    if (correctPosition && correctCircle && correctDir) {
+    const isCorrect = correctPosition && correctCircle && correctDir;
+    const studentAnswer = `pos=${this.markerPosition()}, circle=${circle}, dir=${dir}`;
+    const correctAnswer = `pos=${this.targetValue()}, circle=${ineq.includes('=') ? 'closed' : 'open'}, dir=${this.correctDirection()}`;
+
+    this.results.recordAttempt({
+      problemType: 'inequality',
+      problemCategory: 'Geometry',
+      question,
+      correctAnswer,
+      studentAnswer,
+      isCorrect,
+    });
+
+    if (isCorrect) {
       this.errorMessage.set('');
       this.resultMessage.set('Correct!');
       this.resultStyle.set('correct');

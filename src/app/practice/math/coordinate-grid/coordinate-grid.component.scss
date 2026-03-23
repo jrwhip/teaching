@@ -5,20 +5,26 @@
   align-items: flex-start;
   gap: 20px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 .grid-container {
   position: relative;
-  width: 500px;
-  height: 500px;
-  border: 1px solid black;
-  background: #fff;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
   cursor: crosshair;
 }
 
 .grid-line {
   position: absolute;
-  background: lightgray;
+  background: var(--border-color);
 
   &.horizontal {
     width: 100%;
@@ -35,7 +41,7 @@
 
 .axis-line {
   position: absolute;
-  background: black;
+  background: var(--text-heading);
   z-index: 1;
 
   &.x-axis {
@@ -55,8 +61,8 @@
 
 .axis-label {
   position: absolute;
-  font-size: 12px;
-  color: black;
+  font-size: var(--text-xs);
+  color: var(--text-body);
   z-index: 2;
 
   &.x-label {
@@ -86,7 +92,7 @@
   &.marker-correct {
     width: 16px;
     height: 16px;
-    background-color: #3e503c;
+    background-color: var(--color-success);
     border-radius: 50%;
   }
 
@@ -103,6 +109,12 @@
 
 .sidebar {
   width: 250px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 500px;
+  }
 }
 
 .mode-buttons {
@@ -114,18 +126,28 @@
   .btn {
     width: 100%;
   }
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+  }
 }
 
 .info-panel {
   text-align: left;
+  color: var(--text-body);
 
   .instruction {
     font-weight: 500;
     margin-bottom: 1rem;
+    color: var(--text-heading);
   }
 
   p {
     margin: 0.25rem 0;
+  }
+
+  strong {
+    color: var(--text-heading);
   }
 }
 
@@ -133,4 +155,12 @@
   margin-top: 0.75rem;
   font-size: var(--text-lg);
   font-weight: bold;
+
+  &.feedback-correct {
+    color: var(--color-success);
+  }
+
+  &.feedback-incorrect {
+    color: var(--color-danger);
+  }
 }

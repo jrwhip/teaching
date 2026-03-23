@@ -1,0 +1,21 @@
+/* Fraction rendering — shared by quiz, quiz2, quiz3 */
+.frac {
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+
+  sup, sub {
+    display: block;
+    font: inherit;
+    font-size: 75%;
+    padding: 0 0.3em;
+  }
+
+  sup {
+    border-bottom: 0.08em solid;
+  }
+
+  > span {
+    display: none;
+  }
+}

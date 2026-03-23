@@ -13,7 +13,7 @@
   left: 0;
   width: 100%;
   height: 1px;
-  background-color: black;
+  background-color: var(--text-heading);
 }
 
 .tick {
@@ -21,16 +21,17 @@
   top: 0;
   width: 2px;
   height: 20px;
-  background: black;
+  background: var(--text-heading);
   transform: translateX(-50%);
 }
 
 .tick-label {
   position: absolute;
   top: 25px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   text-align: center;
   transform: translateX(-50%);
+  color: var(--text-body);
 }
 
 .filled-circle,
@@ -51,7 +52,7 @@
 
 .open-circle {
   border: 2px solid var(--color-danger);
-  background-color: white;
+  background-color: var(--bg-surface);
 }
 
 .solid-line {
@@ -96,6 +97,7 @@
   font-size: var(--text-base);
   font-weight: bold;
   margin-bottom: 0.5rem;
+  color: var(--text-heading);
 }
 
 .circle-buttons {
@@ -113,13 +115,13 @@
   transition: border-color 0.2s;
 
   &.open-circle-button {
-    border: 2px solid black;
-    background-color: white;
+    border: 2px solid var(--text-heading);
+    background-color: var(--bg-surface);
   }
 
   &.closed-circle-button {
-    border: 2px solid black;
-    background-color: black;
+    border: 2px solid var(--text-heading);
+    background-color: var(--text-heading);
   }
 
   &.selected {
@@ -172,8 +174,13 @@
   margin-top: 1.25rem;
   font-size: var(--text-base);
   text-align: center;
+  color: var(--text-body);
 
   p {
     margin: 0.25rem 0;
+  }
+
+  strong {
+    color: var(--text-heading);
   }
 }

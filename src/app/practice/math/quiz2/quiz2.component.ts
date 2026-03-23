@@ -1,15 +1,15 @@
-import { Component, signal, computed, ElementRef, viewChild, viewChildren, QueryList } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MathResultsService } from '../shared/math-results.service';
+import { QUIZ2_INDEX_TYPES, getTaxonomy } from '../shared/problem-taxonomy';
 
 interface Quiz2Problem {
   question: SafeHtml;
+  questionText: string;
   answer: string;
   validate: (input: string, extra?: string) => boolean;
   streakTarget: number;
-  needsCanvas?: boolean;
-  canvasDraw?: (ctx: CanvasRenderingContext2D, w: number, h: number) => void;
-  scaffoldedInputs?: string[];
 }
 
 interface ProblemState {
@@ -27,21 +27,12 @@ interface ProblemState {
   styleUrl: './quiz2.component.scss',
 })
 export default class Quiz2Component {
+  private readonly results = inject(MathResultsService);
+
   readonly problemCount = 20;
   readonly problems = signal<ProblemState[]>([]);
   readonly zoomIndex = signal<number | null>(null);
   readonly zoomInput = signal('');
-  readonly colorTheme = signal('#f0f8ff');
-
-  readonly colorOptions = [
-    { label: 'Light Blue', value: '#f0f8ff' },
-    { label: 'Beige', value: '#f5f5dc' },
-    { label: 'Mint', value: '#98ff98' },
-    { label: 'Lavender', value: '#e6e6fa' },
-    { label: 'Coral', value: '#ff7f50' },
-    { label: 'Sky Blue', value: '#87ceeb' },
-    { label: 'White', value: '#FFFFFF' },
-  ];
 
   readonly topEmojis = computed(() => {
     const streakCounts = this.problems().map((p, i) => ({
@@ -67,27 +58,29 @@ export default class Quiz2Component {
   }
 
   generateAllProblems(): void {
+    this.results.startNewSession();
+
     const generators: Array<() => Quiz2Problem> = [
-      () => this.genBasicFact(),           // 1
-      () => this.genUnknown(),             // 2
-      () => this.genDistributive(),        // 3
-      () => this.genSingleDigitDiv(),      // 4 (2 streak points)
-      () => this.genDoubleDigitDiv(),      // 5 (2 streak points)
-      () => this.genPercentConvert(),      // 6
-      () => this.genFractionConvert(),     // 7
-      () => this.genNumberConvert(),       // 8
-      () => this.genPercentCalc(),         // 9
-      () => this.genDecimalCompare(),      // 10
-      () => this.genFractionCompare(),     // 11
-      () => this.genFractionToDecimal(),   // 12
-      () => this.genDecimalToFraction(),   // 13
-      () => this.genLShapeArea(),          // 14
-      () => this.genSquareArea(),          // 15
-      () => this.genTwoRectangles(),       // 16
-      () => this.genTriangleArea(),        // 17
-      () => this.genParallelogramArea(),   // 18
-      () => this.genTrapezoidArea(),       // 19
-      () => this.genBasicFact(),           // 20
+      () => this.genBasicFact(),
+      () => this.genUnknown(),
+      () => this.genDistributive(),
+      () => this.genSingleDigitDiv(),
+      () => this.genDoubleDigitDiv(),
+      () => this.genPercentConvert(),
+      () => this.genFractionConvert(),
+      () => this.genNumberConvert(),
+      () => this.genPercentCalc(),
+      () => this.genDecimalCompare(),
+      () => this.genFractionCompare(),
+      () => this.genFractionToDecimal(),
+      () => this.genDecimalToFraction(),
+      () => this.genLShapeArea(),
+      () => this.genSquareArea(),
+      () => this.genTwoRectangles(),
+      () => this.genTriangleArea(),
+      () => this.genParallelogramArea(),
+      () => this.genTrapezoidArea(),
+      () => this.genBasicFact(),
     ];
 
     const problems: ProblemState[] = generators.map((gen, i) => {
@@ -113,6 +106,16 @@ export default class Quiz2Component {
 
     const input = this.zoomIndex() === index ? this.zoomInput() : item.userInput;
     const isCorrect = item.problem.validate(input.trim(), item.extraInput.trim());
+
+    const taxonomy = getTaxonomy(QUIZ2_INDEX_TYPES[index]);
+    this.results.recordAttempt({
+      problemType: taxonomy.problemType,
+      problemCategory: taxonomy.category,
+      question: item.problem.questionText,
+      correctAnswer: item.problem.answer,
+      studentAnswer: input.trim(),
+      isCorrect,
+    });
 
     const updated = [...items];
     if (isCorrect) {
@@ -161,11 +164,6 @@ export default class Quiz2Component {
     if (event.key === 'Enter') this.checkAnswer(index);
   }
 
-  setColor(color: string): void {
-    this.colorTheme.set(color);
-  }
-
-  // --- Regeneration by index ---
   private regenerateProblemAt(index: number): Quiz2Problem {
     const generators: Array<() => Quiz2Problem> = [
       () => this.genBasicFact(),
@@ -217,6 +215,7 @@ export default class Quiz2Component {
       const product = a * b;
       return {
         question: this.safe(`${a} &times; ${b} = ?`),
+        questionText: `${a} × ${b} = ?`,
         answer: String(product),
         validate: (input) => parseInt(input) === product,
         streakTarget: 3,
@@ -225,6 +224,7 @@ export default class Quiz2Component {
       const product = a * b;
       return {
         question: this.safe(`${product} &divide; ${a} = ?`),
+        questionText: `${product} ÷ ${a} = ?`,
         answer: String(b),
         validate: (input) => parseInt(input) === b,
         streakTarget: 3,
@@ -238,6 +238,7 @@ export default class Quiz2Component {
     const product = a * b;
     return {
       question: this.safe(`${a} &times; ? = ${product}`),
+      questionText: `${a} × ? = ${product}`,
       answer: String(b),
       validate: (input) => parseInt(input) === b,
       streakTarget: 3,
@@ -251,6 +252,7 @@ export default class Quiz2Component {
     const result = a * (b + c);
     return {
       question: this.safe(`${a}(${b} + ${c}) = ?`),
+      questionText: `${a}(${b} + ${c}) = ?`,
       answer: String(result),
       validate: (input) => parseInt(input) === result,
       streakTarget: 3,
@@ -265,6 +267,7 @@ export default class Quiz2Component {
     const answer = parseFloat((dividend / divisor).toFixed(1));
     return {
       question: this.safe(`${dividend} &divide; ${divisor} = ? (round to tenth)`),
+      questionText: `${dividend} ÷ ${divisor} = ? (round to tenth)`,
       answer: String(answer),
       validate: (input) => Math.abs(parseFloat(input) - answer) < 0.05,
       streakTarget: 6,
@@ -278,6 +281,7 @@ export default class Quiz2Component {
     const answer = parseFloat((dividend / divisor).toFixed(2));
     return {
       question: this.safe(`${dividend} &divide; ${divisor} = ? (round to hundredth)`),
+      questionText: `${dividend} ÷ ${divisor} = ? (round to hundredth)`,
       answer: String(answer),
       validate: (input) => Math.abs(parseFloat(input) - answer) < 0.005,
       streakTarget: 6,
@@ -289,6 +293,7 @@ export default class Quiz2Component {
     const decimal = percent / 100;
     return {
       question: this.safe(`Convert ${percent}% to a decimal`),
+      questionText: `Convert ${percent}% to a decimal`,
       answer: String(decimal),
       validate: (input) => Math.abs(parseFloat(input) - decimal) < 0.001,
       streakTarget: 3,
@@ -301,6 +306,7 @@ export default class Quiz2Component {
     const decimal = parseFloat((num / den).toFixed(4));
     return {
       question: this.safe(`Convert ${this.fracHtml(num, den)} to a decimal`),
+      questionText: `Convert ${num}/${den} to a decimal`,
       answer: String(decimal),
       validate: (input) => Math.abs(parseFloat(input) - decimal) < 0.001,
       streakTarget: 3,
@@ -312,6 +318,7 @@ export default class Quiz2Component {
     const percent = Math.round(decimal * 100);
     return {
       question: this.safe(`Convert ${decimal} to a percent`),
+      questionText: `Convert ${decimal} to a percent`,
       answer: `${percent}%`,
       validate: (input) => parseInt(input.replace('%', '')) === percent,
       streakTarget: 3,
@@ -324,6 +331,7 @@ export default class Quiz2Component {
     const answer = (percent / 100) * number;
     return {
       question: this.safe(`What is ${percent}% of ${number}?`),
+      questionText: `What is ${percent}% of ${number}?`,
       answer: String(answer),
       validate: (input) => Math.abs(parseFloat(input) - answer) < 0.01,
       streakTarget: 3,
@@ -337,6 +345,7 @@ export default class Quiz2Component {
     const symbol = a < b ? '<' : a > b ? '>' : '=';
     return {
       question: this.safe(`Compare: ${a} ___ ${b}`),
+      questionText: `Compare: ${a} ___ ${b}`,
       answer: symbol,
       validate: (input) => input.trim() === symbol,
       streakTarget: 3,
@@ -353,6 +362,7 @@ export default class Quiz2Component {
     const symbol = v1 < v2 ? '<' : v1 > v2 ? '>' : '=';
     return {
       question: this.safe(`Compare: ${this.fracHtml(n1, d1)} ___ ${this.fracHtml(n2, d2)}`),
+      questionText: `Compare: ${n1}/${d1} ___ ${n2}/${d2}`,
       answer: symbol,
       validate: (input) => input.trim() === symbol,
       streakTarget: 3,
@@ -365,6 +375,7 @@ export default class Quiz2Component {
     const decimal = parseFloat((num / den).toFixed(4));
     return {
       question: this.safe(`${this.fracHtml(num, den)} = ? (decimal)`),
+      questionText: `${num}/${den} = ? (decimal)`,
       answer: String(decimal),
       validate: (input) => Math.abs(parseFloat(input) - decimal) < 0.001,
       streakTarget: 3,
@@ -380,6 +391,7 @@ export default class Quiz2Component {
     const rd = den / g;
     return {
       question: this.safe(`Convert ${decimal} to a fraction (simplified)`),
+      questionText: `Convert ${decimal} to a fraction (simplified)`,
       answer: `${rn}/${rd}`,
       validate: (input) => {
         const parts = input.split('/');
@@ -402,6 +414,7 @@ export default class Quiz2Component {
     const area = w1 * h1 + w2 * h2;
     return {
       question: this.safe(`L-Shape: Top ${w1}\u00D7${h1}, Bottom ${w2}\u00D7${h2}. Area?`),
+      questionText: `L-Shape: Top ${w1}×${h1}, Bottom ${w2}×${h2}. Area?`,
       answer: String(area),
       validate: (input) => parseInt(input) === area,
       streakTarget: 3,
@@ -412,8 +425,10 @@ export default class Quiz2Component {
     const side = Math.floor(Math.random() * 15) + 3;
     const isArea = Math.random() < 0.5;
     const answer = isArea ? side * side : 4 * side;
+    const label = isArea ? 'Area' : 'Perimeter';
     return {
-      question: this.safe(`Square side=${side}. ${isArea ? 'Area' : 'Perimeter'}?`),
+      question: this.safe(`Square side=${side}. ${label}?`),
+      questionText: `Square side=${side}. ${label}?`,
       answer: String(answer),
       validate: (input) => parseInt(input) === answer,
       streakTarget: 3,
@@ -427,6 +442,7 @@ export default class Quiz2Component {
     const area = (w1 + w2) * h;
     return {
       question: this.safe(`Two rectangles side by side: ${w1}\u00D7${h} and ${w2}\u00D7${h}. Total area?`),
+      questionText: `Two rectangles: ${w1}×${h} and ${w2}×${h}. Total area?`,
       answer: String(area),
       validate: (input) => parseInt(input) === area,
       streakTarget: 3,
@@ -439,6 +455,7 @@ export default class Quiz2Component {
     const area = 0.5 * base * height;
     return {
       question: this.safe(`Triangle: base=${base}, height=${height}. Area?`),
+      questionText: `Triangle: base=${base}, height=${height}. Area?`,
       answer: String(area),
       validate: (input) => Math.abs(parseFloat(input) - area) < 0.01,
       streakTarget: 3,
@@ -451,6 +468,7 @@ export default class Quiz2Component {
     const area = base * height;
     return {
       question: this.safe(`Parallelogram: base=${base}, height=${height}. Area?`),
+      questionText: `Parallelogram: base=${base}, height=${height}. Area?`,
       answer: String(area),
       validate: (input) => parseInt(input) === area,
       streakTarget: 3,
@@ -464,6 +482,7 @@ export default class Quiz2Component {
     const area = ((b1 + b2) * height) / 2;
     return {
       question: this.safe(`Trapezoid: b1=${b1}, b2=${b2}, h=${height}. Area?`),
+      questionText: `Trapezoid: b1=${b1}, b2=${b2}, h=${height}. Area?`,
       answer: String(area),
       validate: (input) => Math.abs(parseFloat(input) - area) < 0.01,
       streakTarget: 3,

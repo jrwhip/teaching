@@ -1,8 +1,10 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Problem, ProblemType, MENU_CATEGORIES, MenuCategory } from './problem.model';
 import { GENERATORS } from './generators';
+import { MathResultsService } from '../shared/math-results.service';
+import { getTaxonomy } from '../shared/problem-taxonomy';
 
 interface AnswerLogEntry {
   question: string;
@@ -18,25 +20,9 @@ interface AnswerLogEntry {
   styleUrl: './quiz.component.scss',
 })
 export default class QuizComponent {
+  private readonly results = inject(MathResultsService);
+
   readonly categories: MenuCategory[] = MENU_CATEGORIES;
-  readonly colorOptions = [
-    { label: 'Sky Blue', value: '#87ceeb' },
-    { label: 'Light Green', value: '#90ee90' },
-    { label: 'Lavender', value: '#e6e6fa' },
-    { label: 'Peach', value: '#ffdab9' },
-    { label: 'Light Pink', value: '#ffb6c1' },
-    { label: 'Light Yellow', value: '#ffffe0' },
-    { label: 'Thistle', value: '#d8bfd8' },
-    { label: 'Powder Blue', value: '#b0e0e6' },
-    { label: 'Honeydew', value: '#f0fff0' },
-    { label: 'Misty Rose', value: '#ffe4e1' },
-    { label: 'Alice Blue', value: '#f0f8ff' },
-    { label: 'Lemon Chiffon', value: '#fffacd' },
-    { label: 'Cornsilk', value: '#fff8dc' },
-    { label: 'Seashell', value: '#fff5ee' },
-    { label: 'Mint Cream', value: '#f5fffa' },
-    { label: 'Snow', value: '#fffafa' },
-  ];
   readonly fontSizes = [
     { label: 'S', cssClass: 'small-font' },
     { label: 'M', cssClass: 'medium-font' },
@@ -49,7 +35,6 @@ export default class QuizComponent {
   readonly currentProblem = signal<Problem | null>(null);
   readonly userInput = signal('');
   readonly extraInput = signal('');
-  readonly colorTheme = signal('#87ceeb');
   readonly fontSize = signal('medium-font');
   readonly correctCount = signal(0);
   readonly incorrectCount = signal(0);
@@ -75,6 +60,7 @@ export default class QuizComponent {
   });
 
   constructor(private sanitizer: DomSanitizer) {
+    this.results.startNewSession();
     this.generateProblem('addition');
   }
 
@@ -97,10 +83,6 @@ export default class QuizComponent {
       this.extraInput.set('');
       this.showHint.set(false);
     }
-  }
-
-  setColor(color: string): void {
-    this.colorTheme.set(color);
   }
 
   setFontSize(cssClass: string): void {
@@ -131,6 +113,19 @@ export default class QuizComponent {
       this.incorrectCount.update(c => c + 1);
     }
 
+    const taxonomy = getTaxonomy(this.activeProblemType());
+    this.results.recordAttempt({
+      problemType: taxonomy.problemType,
+      problemCategory: taxonomy.category,
+      question: problem.question,
+      correctAnswer: problem.answer ?? '',
+      studentAnswer: problem.needsExtraInput
+        ? `${this.userInput()}, ${this.extraInput()}`
+        : this.userInput(),
+      isCorrect: correct,
+      hint: problem.hint,
+    });
+
     // Log the answer
     const entry: AnswerLogEntry = {
       question: problem.question,
@@ -140,9 +135,6 @@ export default class QuizComponent {
       correct,
     };
     this.answerLog.update(log => [entry, ...log]);
-
-    // Update localStorage
-    this.updateStorage(correct);
 
     if (correct) {
       this.showHint.set(false);
@@ -157,34 +149,5 @@ export default class QuizComponent {
       event.preventDefault();
       this.checkAnswer();
     }
-  }
-
-  private updateStorage(correct: boolean): void {
-    try {
-      const raw = localStorage.getItem('mathQuizData');
-      const data = raw ? JSON.parse(raw) : { correct: 0, incorrect: 0, resetDate: this.getNextSunday() };
-
-      const now = new Date();
-      const resetDate = new Date(data.resetDate);
-      if (now >= resetDate) {
-        data.correct = correct ? 1 : 0;
-        data.incorrect = correct ? 0 : 1;
-        data.resetDate = this.getNextSunday();
-      } else {
-        data.correct += correct ? 1 : 0;
-        data.incorrect += correct ? 0 : 1;
-      }
-
-      localStorage.setItem('mathQuizData', JSON.stringify(data));
-    } catch {
-      // localStorage unavailable
-    }
-  }
-
-  private getNextSunday(): string {
-    const today = new Date();
-    const next = new Date();
-    next.setDate(today.getDate() + (7 - today.getDay()));
-    return next.toISOString().split('T')[0];
   }
 }

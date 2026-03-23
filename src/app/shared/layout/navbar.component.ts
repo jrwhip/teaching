@@ -1,7 +1,7 @@
 import { Component, inject, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
-import { ThemeService } from '../../core/theme.service';
+import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
 
 @Component({
   selector: 'app-navbar',
@@ -37,6 +37,37 @@ import { ThemeService } from '../../core/theme.service';
         </ul>
 
         <div class="nav-actions">
+          <!-- Accent color picker (light mode only) -->
+          @if (theme.theme() === 'light') {
+            <div class="dropdown accent-picker" [class.open]="accentOpen">
+              <button
+                class="icon-btn"
+                (click)="accentOpen = !accentOpen"
+                aria-label="Background color"
+                [style.background]="theme.effectiveAccent() || null"
+              >
+                <i class="fas fa-palette"></i>
+              </button>
+              <div class="dropdown-menu accent-menu">
+                <div class="accent-grid">
+                  @for (color of accentColors; track color.value) {
+                    <button
+                      class="accent-swatch"
+                      [class.active]="theme.accentBg() === color.value"
+                      [style.background]="color.value || 'var(--bg-surface)'"
+                      [title]="color.label"
+                      (click)="theme.setAccent(color.value); accentOpen = false"
+                    >
+                      @if (!color.value) {
+                        <i class="fas fa-ban" style="color: var(--gray-400);"></i>
+                      }
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
           <div class="theme-toggle">
             <button
               [class.active]="theme.theme() === 'light'"
@@ -72,14 +103,51 @@ import { ThemeService } from '../../core/theme.service';
       </div>
     </nav>
   `,
+  styles: [`
+    .accent-picker .accent-menu {
+      padding: .5rem;
+      min-width: auto;
+      width: 196px;
+    }
+
+    .accent-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+
+    .accent-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius);
+      border: 2px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color var(--ease), transform var(--ease);
+
+      &:hover {
+        border-color: var(--color-primary);
+        transform: scale(1.1);
+      }
+
+      &.active {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), .3);
+      }
+    }
+  `],
 })
 export class NavbarComponent {
   readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
+  readonly accentColors = ACCENT_COLORS;
 
   scrolled = false;
   menuOpen = false;
   profileOpen = false;
+  accentOpen = false;
 
   @HostListener('window:scroll')
   onScroll(): void {
@@ -91,6 +159,7 @@ export class NavbarComponent {
     const target = event.target as HTMLElement;
     if (!target.closest('.dropdown')) {
       this.profileOpen = false;
+      this.accentOpen = false;
     }
   }
 

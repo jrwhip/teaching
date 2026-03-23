@@ -23,6 +23,9 @@ import { StatCardComponent } from '../../shared/components/stat-card.component';
             <h5 class="mb-0">Quick Actions</h5>
           </div>
           <div class="card-body flex gap-2">
+            <a routerLink="/practice/math/results/teacher" class="btn btn-primary-soft">
+              <i class="fas fa-chart-bar"></i> Student Results
+            </a>
             <a routerLink="/practice/math" class="btn btn-primary-soft">
               <i class="fas fa-calculator"></i> Try Math Practice
             </a>

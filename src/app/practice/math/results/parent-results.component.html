@@ -1,0 +1,88 @@
+<div class="section">
+  <div class="container">
+    <h2 class="mb-1">My Children's Progress</h2>
+    <p class="text-muted mb-4">View math practice results for your linked students</p>
+
+    @if (loading()) {
+      <div class="card-flat" style="padding: 2rem; text-align: center;">
+        <span class="text-muted">Loading student data...</span>
+      </div>
+    } @else if (students().length === 0) {
+      <div class="card-flat" style="padding: 2rem; text-align: center;">
+        <span class="text-muted">No linked students found. Link a student from your dashboard to see their results.</span>
+      </div>
+    } @else {
+      @if (selectedStudent(); as student) {
+        <button class="btn btn-sm btn-light mb-3" (click)="clearSelection()">&larr; Back</button>
+
+        <div class="card-flat mb-3" style="padding: 1rem;">
+          <h3 style="margin: 0 0 0.5rem;">{{ student.displayName }}</h3>
+          <div class="detail-stats">
+            <span>Solved: <strong>{{ student.totalCorrect + student.totalIncorrect }}</strong></span>
+            <span>Accuracy: <strong>{{ student.accuracy }}%</strong></span>
+            <span>Best Streak: <strong>{{ student.bestStreak }}</strong></span>
+          </div>
+        </div>
+
+        @if (detailLoading()) {
+          <div class="card-flat" style="padding: 1rem; text-align: center;">
+            <span class="text-muted">Loading attempts...</span>
+          </div>
+        } @else {
+          <div class="card-flat">
+            <table class="results-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Answer</th>
+                  <th>Correct</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (a of selectedAttempts(); track a.id) {
+                  <tr [class]="a.isCorrect ? 'row-correct' : 'row-incorrect'">
+                    <td>{{ formatDate(a.attemptedAt) }}</td>
+                    <td>{{ formatType(a.problemType) }}</td>
+                    <td>{{ a.studentAnswer }}</td>
+                    <td>{{ a.correctAnswer }}</td>
+                    <td>{{ a.isCorrect ? 'Correct' : 'Incorrect' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      } @else {
+        <!-- Student Cards -->
+        <div class="student-cards">
+          @for (s of students(); track s.studentId) {
+            <div class="card student-card" (click)="selectStudent(s)">
+              <div class="card-body">
+                <h4>{{ s.displayName }}</h4>
+                <div class="student-stats">
+                  <div class="stat">
+                    <div class="stat-value">{{ s.totalCorrect + s.totalIncorrect }}</div>
+                    <div class="stat-label">Solved</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">{{ s.accuracy }}%</div>
+                    <div class="stat-label">Accuracy</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">{{ s.bestStreak }}</div>
+                    <div class="stat-label">Best Streak</div>
+                  </div>
+                </div>
+                <div class="text-muted" style="font-size: var(--text-xs); margin-top: 0.5rem;">
+                  Last active: {{ formatDate(s.lastActive) }}
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

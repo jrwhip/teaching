@@ -40,7 +40,7 @@
     </div>
 
     @if (feedback()) {
-      <div class="feedback" [style.color]="feedbackColor()">{{ feedback() }}</div>
+      <div class="feedback" [class.feedback-correct]="feedbackColor() === 'green'" [class.feedback-incorrect]="feedbackColor() === 'red'">{{ feedback() }}</div>
     }
 
     <div class="scoreboard">

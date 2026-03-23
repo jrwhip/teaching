@@ -1,79 +1,76 @@
-<div class="quiz2-page" [style.background-color]="colorTheme()">
-  <div class="header-bar">
-    <h2>Quiz 2</h2>
-    <div class="header-controls">
-      <div class="top-emojis">
-        @for (e of topEmojis(); track e.index) {
-          <span class="emoji-badge">{{ e.emoji }} #{{ e.index }}</span>
-        }
+<div class="section">
+  <div class="container">
+    <div class="header-bar card-flat">
+      <h2>Quiz 2</h2>
+      <div class="header-controls">
+        <div class="top-emojis">
+          @for (e of topEmojis(); track e.index) {
+            <span class="emoji-badge">{{ e.emoji }} #{{ e.index }}</span>
+          }
+        </div>
+        <span>Correct: <strong>{{ correctCount() }}</strong></span>
+        <span>Incorrect: <strong>{{ incorrectCount() }}</strong></span>
+        <button class="btn btn-primary btn-sm" (click)="generateAllProblems()">New Quiz</button>
       </div>
-      <span>Correct: <strong>{{ correctCount() }}</strong></span>
-      <span>Incorrect: <strong>{{ incorrectCount() }}</strong></span>
-      <select (change)="setColor($any($event.target).value)">
-        @for (color of colorOptions; track color.value) {
-          <option [value]="color.value" [selected]="colorTheme() === color.value">{{ color.label }}</option>
-        }
-      </select>
-      <button class="btn btn-primary btn-sm" (click)="generateAllProblems()">New Quiz</button>
     </div>
-  </div>
 
-  <div class="problems-grid">
-    @for (item of problems(); track $index) {
-      <div class="problem-card" [class.completed]="item.completed">
-        <div class="problem-header">
-          <span class="problem-number">{{ $index + 1 }}.</span>
-          <div class="streak-indicators">
-            @for (s of item.streak; track $index) {
+    <div class="problems-grid">
+      @for (item of problems(); track $index) {
+        <div class="problem-card card-flat" [class.completed]="item.completed">
+          <div class="problem-header">
+            <span class="problem-number">{{ $index + 1 }}.</span>
+            <div class="streak-indicators">
+              @for (s of item.streak; track $index) {
+                <span [class]="s ? 'streak-dot filled' : 'streak-dot'"></span>
+              }
+            </div>
+            <button class="zoom-btn" (click)="openZoom($index)" [disabled]="item.completed">🔍</button>
+          </div>
+
+          <div class="problem-question" [innerHTML]="item.problem.question"></div>
+
+          @if (!item.completed) {
+            <div class="problem-input">
+              <input
+                type="text"
+                placeholder="Answer"
+                [ngModel]="item.userInput"
+                (ngModelChange)="updateUserInput($index, $event)"
+                (keypress)="onKeypress($event, $index)"
+              />
+              <button class="btn btn-primary btn-sm" (click)="checkAnswer($index)">Go</button>
+            </div>
+          } @else {
+            <div class="completed-badge">Complete</div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Zoom Modal -->
+    @if (zoomIndex() !== null) {
+      <div class="zoom-overlay" (click)="closeZoom()">
+        <div class="zoom-modal" (click)="$event.stopPropagation()">
+          <button class="close-btn" (click)="closeZoom()">&times;</button>
+          <div class="zoom-question" [innerHTML]="problems()[zoomIndex()!].problem.question"></div>
+          <div class="zoom-streak">
+            @for (s of problems()[zoomIndex()!].streak; track $index) {
               <span [class]="s ? 'streak-dot filled' : 'streak-dot'"></span>
             }
           </div>
-          <button class="zoom-btn" (click)="openZoom($index)" [disabled]="item.completed">🔍</button>
-        </div>
-
-        <div class="problem-question" [innerHTML]="item.problem.question"></div>
-
-        @if (!item.completed) {
-          <div class="problem-input">
+          <div class="zoom-input">
             <input
               type="text"
               placeholder="Answer"
-              [ngModel]="item.userInput"
-              (ngModelChange)="updateUserInput($index, $event)"
-              (keypress)="onKeypress($event, $index)"
+              [ngModel]="zoomInput()"
+              (ngModelChange)="zoomInput.set($event)"
+              (keypress)="onKeypress($event, zoomIndex()!)"
+              autofocus
             />
-            <button class="btn btn-primary btn-sm" (click)="checkAnswer($index)">Go</button>
+            <button class="btn btn-primary" (click)="checkAnswer(zoomIndex()!)">Go</button>
           </div>
-        } @else {
-          <div class="completed-badge">🏆 Complete</div>
-        }
+        </div>
       </div>
     }
   </div>
-
-  <!-- Zoom Modal -->
-  @if (zoomIndex() !== null) {
-    <div class="zoom-overlay" (click)="closeZoom()">
-      <div class="zoom-modal" (click)="$event.stopPropagation()">
-        <button class="close-btn" (click)="closeZoom()">&times;</button>
-        <div class="zoom-question" [innerHTML]="problems()[zoomIndex()!].problem.question"></div>
-        <div class="zoom-streak">
-          @for (s of problems()[zoomIndex()!].streak; track $index) {
-            <span [class]="s ? 'streak-dot filled' : 'streak-dot'"></span>
-          }
-        </div>
-        <div class="zoom-input">
-          <input
-            type="text"
-            placeholder="Answer"
-            [ngModel]="zoomInput()"
-            (ngModelChange)="zoomInput.set($event)"
-            (keypress)="onKeypress($event, zoomIndex()!)"
-            autofocus
-          />
-          <button class="btn btn-primary" (click)="checkAnswer(zoomIndex()!)">Go</button>
-        </div>
-      </div>
-    </div>
-  }
 </div>

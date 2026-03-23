@@ -21,8 +21,8 @@
         @for (marker of markers(); track $index) {
           <div
             [class]="'marker marker-' + marker.type"
-            [style.left.px]="getMarkerLeft(marker.x)"
-            [style.top.px]="getMarkerTop(marker.y)"
+            [style.left.%]="getMarkerPercent(marker.x)"
+            [style.top.%]="getMarkerTopPercent(marker.y)"
           >
             @if (marker.type === 'incorrect') {
               X
@@ -53,7 +53,7 @@
           <p>Incorrect Problems: <strong>{{ incorrectCount() }}</strong></p>
 
           @if (feedback()) {
-            <div class="feedback" [style.color]="feedbackColor()">{{ feedback() }}</div>
+            <div class="feedback" [class.feedback-correct]="feedbackColor() === 'green'" [class.feedback-incorrect]="feedbackColor() === 'red'">{{ feedback() }}</div>
           }
         </div>
       </div>

@@ -1,9 +1,12 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MathResultsService } from '../shared/math-results.service';
+import { QUIZ3_INDEX_TYPES, getTaxonomy } from '../shared/problem-taxonomy';
 
 interface Problem {
   question: SafeHtml;
+  questionText: string;
   answer: string;
   validate: (input: string) => boolean;
 }
@@ -15,21 +18,12 @@ interface Problem {
   styleUrl: './quiz3.component.scss',
 })
 export default class Quiz3Component {
+  private readonly results = inject(MathResultsService);
+
   readonly problemCount = 10;
   readonly problems = signal<Array<{ problem: Problem; streak: boolean[]; completed: boolean; userInput: string }>>([]);
   readonly zoomIndex = signal<number | null>(null);
   readonly zoomInput = signal('');
-  readonly colorTheme = signal('#f0f8ff');
-
-  readonly colorOptions = [
-    { label: 'Light Blue', value: '#f0f8ff' },
-    { label: 'Beige', value: '#f5f5dc' },
-    { label: 'Mint Green', value: '#98ff98' },
-    { label: 'Lavender', value: '#e6e6fa' },
-    { label: 'Coral', value: '#ff7f50' },
-    { label: 'Sky Blue', value: '#87ceeb' },
-    { label: 'White', value: '#FFFFFF' },
-  ];
 
   readonly correctCount = computed(() =>
     this.problems().reduce((sum, p) => sum + p.streak.filter(Boolean).length, 0)
@@ -42,6 +36,8 @@ export default class Quiz3Component {
   }
 
   generateAllProblems(): void {
+    this.results.startNewSession();
+
     const generators = [
       () => this.genSolveProduct(),
       () => this.genSolveDivision(),
@@ -73,6 +69,16 @@ export default class Quiz3Component {
 
     const input = this.zoomIndex() === index ? this.zoomInput() : item.userInput;
     const isCorrect = item.problem.validate(input.trim());
+
+    const taxonomy = getTaxonomy(QUIZ3_INDEX_TYPES[index]);
+    this.results.recordAttempt({
+      problemType: taxonomy.problemType,
+      problemCategory: taxonomy.category,
+      question: item.problem.questionText,
+      correctAnswer: item.problem.answer,
+      studentAnswer: input.trim(),
+      isCorrect,
+    });
 
     const updated = [...items];
     if (isCorrect) {
@@ -133,10 +139,6 @@ export default class Quiz3Component {
     }
   }
 
-  setColor(color: string): void {
-    this.colorTheme.set(color);
-  }
-
   // --- Problem Generators ---
 
   private gcd(a: number, b: number): number {
@@ -180,6 +182,7 @@ export default class Quiz3Component {
     const product = a * n;
     return {
       question: this.safe(`${product} = ${a} &times; n`),
+      questionText: `${product} = ${a} × n`,
       answer: String(n),
       validate: (input) => parseInt(input, 10) === n,
     };
@@ -191,6 +194,7 @@ export default class Quiz3Component {
     const n = h * i;
     return {
       question: this.safe(`n &divide; ${h} = ${i}`),
+      questionText: `n ÷ ${h} = ${i}`,
       answer: String(n),
       validate: (input) => parseInt(input, 10) === n,
     };
@@ -202,6 +206,7 @@ export default class Quiz3Component {
     const n = b - a;
     return {
       question: this.safe(`n + ${a} = ${b}`),
+      questionText: `n + ${a} = ${b}`,
       answer: String(n),
       validate: (input) => parseInt(input, 10) === n,
     };
@@ -213,6 +218,7 @@ export default class Quiz3Component {
     const n = s + t;
     return {
       question: this.safe(`n - ${s} = ${t}`),
+      questionText: `n - ${s} = ${t}`,
       answer: String(n),
       validate: (input) => parseInt(input, 10) === n,
     };
@@ -228,6 +234,7 @@ export default class Quiz3Component {
     if (rn % rd === 0) {
       return {
         question: this.safe(`${this.fracHtml(a, b)} &times; n = ${c}`),
+        questionText: `(${a}/${b}) × n = ${c}`,
         answer: String(rn / rd),
         validate: (input) => parseFloat(input) === rn / rd,
       };
@@ -235,6 +242,7 @@ export default class Quiz3Component {
 
     return {
       question: this.safe(`${this.fracHtml(a, b)} &times; n = ${c}`),
+      questionText: `(${a}/${b}) × n = ${c}`,
       answer: `${rn}/${rd}`,
       validate: (input) => {
         const parts = input.split('/');
@@ -257,6 +265,7 @@ export default class Quiz3Component {
 
     return {
       question: this.safe(`${this.fracHtml(a, b)} &times; n = ${this.fracHtml(c, d)}`),
+      questionText: `(${a}/${b}) × n = (${c}/${d})`,
       answer: rd === 1 ? String(rn) : `${rn}/${rd}`,
       validate: (input) => {
         if (rd === 1) return parseInt(input, 10) === rn;
@@ -276,6 +285,7 @@ export default class Quiz3Component {
     const n = denominator * result;
     return {
       question: this.safe(`${this.fracHtml('n' as any, denominator)} = ${result}`),
+      questionText: `n/${denominator} = ${result}`,
       answer: String(n),
       validate: (input) => parseInt(input, 10) === n,
     };
@@ -287,6 +297,7 @@ export default class Quiz3Component {
     const n = parseFloat((denominator * result).toFixed(1));
     return {
       question: this.safe(`${this.fracHtml('n' as any, denominator)} = ${result}`),
+      questionText: `n/${denominator} = ${result}`,
       answer: String(n),
       validate: (input) => Math.abs(parseFloat(input) - n) < 0.01,
     };
@@ -302,6 +313,7 @@ export default class Quiz3Component {
 
     return {
       question: this.safe(`Simplify: ${a}x + ${c} + ${b}x + ${d}`),
+      questionText: `Simplify: ${a}x + ${c} + ${b}x + ${d}`,
       answer: `${coeffSum}x + ${constSum}`,
       validate: (input) => {
         const cleaned = input.replace(/\s/g, '');
@@ -319,6 +331,7 @@ export default class Quiz3Component {
 
     return {
       question: this.safe(`Distribute: ${a}(${b}x + ${c})`),
+      questionText: `Distribute: ${a}(${b}x + ${c})`,
       answer: `${ab}x + ${ac}`,
       validate: (input) => {
         const cleaned = input.replace(/\s/g, '');

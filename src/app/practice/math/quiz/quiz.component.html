@@ -1,117 +1,111 @@
-<div class="quiz-page" [style.background-color]="colorTheme()">
-  <!-- Top Navbar -->
-  <nav class="quiz-navbar">
-    @for (cat of categories; track cat.label) {
-      <button
-        class="nav-btn"
-        [class.active]="activeCategory() === cat.label"
-        (click)="setCategory(cat.label)"
-      >
-        {{ cat.label }}
-      </button>
-    }
-
-    <div class="nav-right">
-      <span class="counter correct-counter">Correct: <strong>{{ correctCount() }}</strong></span>
-      <span class="counter incorrect-counter">Incorrect: <strong>{{ incorrectCount() }}</strong></span>
-
-      <select (change)="setColor($any($event.target).value)">
-        @for (color of colorOptions; track color.value) {
-          <option [value]="color.value" [selected]="colorTheme() === color.value">{{ color.label }}</option>
-        }
-      </select>
-    </div>
-  </nav>
-
-  <!-- Body: sidebar + main -->
-  <div class="quiz-body">
-    <!-- Left Sidebar -->
-    <aside class="sidebar">
-      @for (item of activeItems(); track item.type) {
-        <button
-          class="sidebar-btn"
-          [class.active]="activeProblemType() === item.type"
-          (click)="selectProblemType(item.type)"
-        >
-          {{ item.label }}
-        </button>
-      }
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Font Sizer -->
-      <div class="font-sizer">
-        @for (fs of fontSizes; track fs.cssClass) {
-          <button
-            class="size-btn"
-            [class.active]="fontSize() === fs.cssClass"
-            (click)="setFontSize(fs.cssClass)"
-          >
-            {{ fs.label }}
-          </button>
-        }
-      </div>
-
-      <!-- Problem Display -->
-      <div class="problem-area">
-        <div class="problem-question" [class]="fontSize()" [innerHTML]="questionHtml()"></div>
-
-        <!-- Compare Buttons -->
-        @if (currentProblem()?.needsCompareButtons) {
-          <div class="compare-buttons">
-            <button class="compare-btn" (click)="insertSymbol('<')">&lt;</button>
-            <button class="compare-btn" (click)="insertSymbol('=')">=</button>
-            <button class="compare-btn" (click)="insertSymbol('>')">&gt;</button>
-          </div>
-        }
-
-        <!-- Input Area -->
-        @if (!currentProblem()?.needsCompareButtons) {
-          <div class="input-area">
-            <input
-              type="text"
-              placeholder="Enter your answer"
-              [ngModel]="userInput()"
-              (ngModelChange)="userInput.set($event)"
-              (keypress)="onKeypress($event)"
-            />
-            @if (currentProblem()?.needsExtraInput) {
-              <input
-                type="text"
-                placeholder="Second answer"
-                [ngModel]="extraInput()"
-                (ngModelChange)="extraInput.set($event)"
-                (keypress)="onKeypress($event)"
-              />
-            }
-            <button class="btn btn-primary" (click)="checkAnswer()">Go</button>
-          </div>
-        }
-
-        <button class="btn btn-sm next-btn" (click)="generateProblem()">Next Problem</button>
-      </div>
-
-      <!-- Hint -->
-      @if (showHint()) {
-        <div class="hint-area" [innerHTML]="hintHtml()"></div>
-      }
-
-      <!-- Answer History -->
-      @if (answerLog().length > 0) {
-        <div class="answer-history">
-          <h3>Previous Answers</h3>
-          <div class="history-list">
-            @for (entry of answerLog(); track $index) {
-              <div [class]="entry.correct ? 'log-correct' : 'log-incorrect'">
-                <span class="log-question" [innerHTML]="entry.question"></span>
-                Your answer: {{ entry.userAnswer }} -
-                {{ entry.correct ? 'Correct!' : 'Incorrect' }}
+<div class="section">
+  <div class="container">
+    <div class="quiz-layout">
+      <!-- Sidebar -->
+      <aside class="quiz-sidebar card-flat">
+        @for (cat of categories; track cat.label) {
+          <div class="category-group">
+            <button
+              class="category-header"
+              [class.expanded]="activeCategory() === cat.label"
+              (click)="setCategory(cat.label)"
+            >
+              {{ cat.label }}
+            </button>
+            @if (activeCategory() === cat.label) {
+              <div class="category-items">
+                @for (item of cat.items; track item.type) {
+                  <button
+                    class="type-btn"
+                    [class.active]="activeProblemType() === item.type"
+                    (click)="selectProblemType(item.type)"
+                  >
+                    {{ item.label }}
+                  </button>
+                }
               </div>
             }
           </div>
+        }
+      </aside>
+
+      <!-- Main -->
+      <main class="quiz-main">
+        <!-- Stats + Font sizer bar -->
+        <div class="stats-bar card-flat">
+          <span>Correct: <strong>{{ correctCount() }}</strong></span>
+          <span>Incorrect: <strong>{{ incorrectCount() }}</strong></span>
+          <div class="font-sizer">
+            @for (fs of fontSizes; track fs.cssClass) {
+              <button
+                class="size-btn"
+                [class.active]="fontSize() === fs.cssClass"
+                (click)="setFontSize(fs.cssClass)"
+              >
+                {{ fs.label }}
+              </button>
+            }
+          </div>
         </div>
-      }
-    </main>
+
+        <!-- Problem Card -->
+        <div class="problem-card card">
+          <div class="problem-question" [class]="fontSize()" [innerHTML]="questionHtml()"></div>
+
+          @if (currentProblem()?.needsCompareButtons) {
+            <div class="compare-buttons">
+              <button class="compare-btn" (click)="insertSymbol('<')">&lt;</button>
+              <button class="compare-btn" (click)="insertSymbol('=')">=</button>
+              <button class="compare-btn" (click)="insertSymbol('>')">&gt;</button>
+            </div>
+          }
+
+          @if (!currentProblem()?.needsCompareButtons) {
+            <div class="input-area">
+              <input
+                type="text"
+                placeholder="Enter your answer"
+                [ngModel]="userInput()"
+                (ngModelChange)="userInput.set($event)"
+                (keypress)="onKeypress($event)"
+              />
+              @if (currentProblem()?.needsExtraInput) {
+                <input
+                  type="text"
+                  placeholder="Second answer"
+                  [ngModel]="extraInput()"
+                  (ngModelChange)="extraInput.set($event)"
+                  (keypress)="onKeypress($event)"
+                />
+              }
+              <button class="btn btn-primary" (click)="checkAnswer()">Go</button>
+            </div>
+          }
+
+          <button class="btn btn-sm btn-light" (click)="generateProblem()">Next Problem</button>
+        </div>
+
+        <!-- Hint -->
+        @if (showHint()) {
+          <div class="hint-area" [innerHTML]="hintHtml()"></div>
+        }
+
+        <!-- Answer History -->
+        @if (answerLog().length > 0) {
+          <div class="answer-history card-flat">
+            <h3>Previous Answers</h3>
+            <div class="history-list">
+              @for (entry of answerLog(); track $index) {
+                <div [class]="entry.correct ? 'log-correct' : 'log-incorrect'">
+                  <span class="log-question" [innerHTML]="entry.question"></span>
+                  Your answer: {{ entry.userAnswer }} -
+                  {{ entry.correct ? 'Correct!' : 'Incorrect' }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </main>
+    </div>
   </div>
 </div>

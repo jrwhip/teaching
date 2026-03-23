@@ -1,5 +1,6 @@
-import { Component, signal, computed, ElementRef, viewChild } from '@angular/core';
+import { Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MathResultsService } from '../shared/math-results.service';
 
 @Component({
   standalone: true,
@@ -9,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 })
 export default class NumberLineComponent {
   private readonly containerRef = viewChild<ElementRef<HTMLDivElement>>('numberLineContainer');
+  private readonly results = inject(MathResultsService);
 
   readonly start = -10;
   readonly end = 10;
@@ -47,6 +49,7 @@ export default class NumberLineComponent {
   });
 
   constructor() {
+    this.results.startNewSession();
     this.generateProblem();
   }
 
@@ -75,7 +78,6 @@ export default class NumberLineComponent {
     const width = rect.width;
     const value = Math.round(((clickPosition / width) * (this.end - this.start)) + this.start);
 
-    // Click on existing marker removes it
     if (this.userPlacedA() === value) {
       this.userPlacedA.set(null);
       return;
@@ -85,7 +87,6 @@ export default class NumberLineComponent {
       return;
     }
 
-    // Place new markers
     if (this.userPlacedA() === null) {
       this.userPlacedA.set(value);
     } else if (this.userPlacedB() === null) {
@@ -105,6 +106,7 @@ export default class NumberLineComponent {
 
   checkAnswer(): void {
     const correctDistance = Math.abs(this.pointA() - this.pointB());
+    const question = `Distance between ${this.pointA()} and ${this.pointB()}`;
 
     if (this.userPlacedA() === null || this.userPlacedB() === null) {
       this.feedback.set('Please place both markers on the number line.');
@@ -119,10 +121,29 @@ export default class NumberLineComponent {
       this.feedback.set(`Incorrect marker placement. Place markers at ${this.pointA()} and ${this.pointB()}.`);
       this.feedbackColor.set('red');
       this.incorrectCount.update(c => c + 1);
+      this.results.recordAttempt({
+        problemType: 'number-line',
+        problemCategory: 'Geometry',
+        question,
+        correctAnswer: `Markers at ${this.pointA()}, ${this.pointB()}; distance ${correctDistance}`,
+        studentAnswer: `Markers at ${this.userPlacedA()}, ${this.userPlacedB()}`,
+        isCorrect: false,
+      });
       return;
     }
 
-    if (parseInt(this.distanceInput(), 10) === correctDistance) {
+    const isCorrect = parseInt(this.distanceInput(), 10) === correctDistance;
+
+    this.results.recordAttempt({
+      problemType: 'number-line',
+      problemCategory: 'Geometry',
+      question,
+      correctAnswer: String(correctDistance),
+      studentAnswer: this.distanceInput(),
+      isCorrect,
+    });
+
+    if (isCorrect) {
       this.feedback.set('Correct!');
       this.feedbackColor.set('green');
       this.correctCount.update(c => c + 1);

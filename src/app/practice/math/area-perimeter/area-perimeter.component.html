@@ -40,7 +40,7 @@
     }
 
     @if (message()) {
-      <div class="message" [style.color]="messageColor()">{{ message() }}</div>
+      <div class="message" [class.message-correct]="messageColor() === 'green'" [class.message-incorrect]="messageColor() === 'red'">{{ message() }}</div>
     }
 
     @if (solution()) {

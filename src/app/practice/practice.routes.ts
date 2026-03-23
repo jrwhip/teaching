@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AppShellComponent } from '../shared/layout/app-shell.component';
+import { roleGuard } from '../core/auth/auth.guard';
 
 const routes: Routes = [
   {
@@ -45,6 +46,16 @@ const routes: Routes = [
       {
         path: 'math/quiz',
         loadComponent: () => import('./math/quiz/quiz.component'),
+      },
+      {
+        path: 'math/results/teacher',
+        canActivate: [roleGuard('TEACHER')],
+        loadComponent: () => import('./math/results/teacher-results.component'),
+      },
+      {
+        path: 'math/results/parent',
+        canActivate: [roleGuard('PARENT')],
+        loadComponent: () => import('./math/results/parent-results.component'),
       },
       {
         path: 'word-study',

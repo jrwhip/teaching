@@ -1,0 +1,117 @@
+.activity-card {
+  padding: 1.5rem;
+  text-align: center;
+
+  .icon-badge {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    margin: 0 auto;
+  }
+
+  h4 { margin-bottom: 0.5rem; }
+
+  .text-muted { font-size: var(--text-sm); }
+}
+
+.icon-badge-purple {
+  background-color: rgba(var(--color-purple-rgb), 0.1);
+  color: var(--color-purple);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-badge-orange {
+  background-color: rgba(var(--color-orange-rgb), 0.1);
+  color: var(--color-orange);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+/* Stats Row */
+.stats-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 120px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.stat-label {
+  font-size: var(--text-sm);
+  color: var(--text-body);
+}
+
+/* Recent Activity */
+.recent-activity {
+  padding: 1rem;
+
+  h3 {
+    margin: 0 0 0.75rem;
+    font-size: var(--text-lg);
+    color: var(--text-heading);
+  }
+}
+
+.activity-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: var(--text-sm);
+
+  &:last-child { border-bottom: none; }
+
+  &.correct .activity-icon { color: var(--color-success); }
+  &.incorrect .activity-icon { color: var(--color-danger); }
+}
+
+.activity-icon {
+  font-weight: bold;
+  font-size: var(--text-base);
+  width: 1.5em;
+  text-align: center;
+}
+
+.activity-type {
+  color: var(--text-heading);
+  font-weight: 500;
+  flex: 1;
+}
+
+.activity-answer {
+  color: var(--text-body);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-date {
+  white-space: nowrap;
+}

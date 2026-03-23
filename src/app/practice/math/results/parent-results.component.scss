@@ -1,0 +1,65 @@
+.student-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.student-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+
+  &:hover { box-shadow: var(--shadow-md); }
+
+  h4 { margin: 0 0 0.75rem; color: var(--text-heading); }
+}
+
+.student-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.stat-label {
+  font-size: var(--text-xs);
+  color: var(--text-body);
+}
+
+.detail-stats {
+  display: flex;
+  gap: 1.5rem;
+  color: var(--text-body);
+
+  strong { color: var(--text-heading); }
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: var(--text-sm);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--text-heading);
+    background: var(--bg-muted);
+  }
+
+  td { color: var(--text-body); }
+}
+
+.row-correct td:last-child { color: var(--color-success); font-weight: 600; }
+.row-incorrect td:last-child { color: var(--color-danger); font-weight: 600; }
