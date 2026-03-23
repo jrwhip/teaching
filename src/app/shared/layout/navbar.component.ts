@@ -1,4 +1,4 @@
-import { Component, inject, HostListener } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
@@ -6,6 +6,7 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
 @Component({
     selector: 'app-navbar',
     imports: [RouterLink, RouterLinkActive],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <nav class="navbar" [class.scrolled]="scrolled">
       <div class="container navbar-inner">
@@ -102,6 +103,10 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
       </div>
     </nav>
   `,
+    host: {
+      '(window:scroll)': 'onScroll()',
+      '(document:click)': 'onDocumentClick($event)',
+    },
     styles: [`
     .accent-picker .accent-menu {
       padding: .5rem;
@@ -148,12 +153,10 @@ export class NavbarComponent {
   profileOpen = false;
   accentOpen = false;
 
-  @HostListener('window:scroll')
   onScroll(): void {
     this.scrolled = window.scrollY > 10;
   }
 
-  @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (!target.closest('.dropdown')) {
@@ -162,8 +165,8 @@ export class NavbarComponent {
     }
   }
 
-  async onSignOut(): Promise<void> {
+  onSignOut(): void {
     this.profileOpen = false;
-    await this.auth.signOut();
+    this.auth.signOut().subscribe();
   }
 }

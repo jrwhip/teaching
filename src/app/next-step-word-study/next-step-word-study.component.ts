@@ -1,40 +1,36 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { AsyncPipe, KeyValuePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { mergeMap, map, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
-import { WordService } from '../word.service';
+import { WordService, WordSection } from '../word.service';
 
 import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
 import { WordListComponent } from './word-list/word-list.component';
-import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 @Component({
     selector: 'app-next-step-word-study',
-    imports: [CommonModule, WordStudyMenuComponent, WordListComponent],
+    imports: [AsyncPipe, KeyValuePipe, WordStudyMenuComponent, WordListComponent],
     templateUrl: './next-step-word-study.component.html',
-    styleUrls: ['./next-step-word-study.component.scss']
+    styleUrls: ['./next-step-word-study.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NextStepWordStudyComponent implements OnInit {
-  wordGroups$!: Observable<any>;
-  words!: string[];
+  private readonly route = inject(ActivatedRoute);
+  private readonly wordService = inject(WordService);
 
-  constructor(private route: ActivatedRoute, private wordService: WordService) { }
+  wordGroups$!: Observable<WordSection | undefined>;
+  words!: string[];
 
   ngOnInit(): void {
     this.wordGroups$ = this.route.params.pipe(
-      tap(_ => this.words = []),
-      mergeMap(({ sectionName }) => {
-        console.log('sectionName: ', sectionName);
-        return this.wordService.getAllWords().pipe(
-          map(value => (value[sectionName]))
-        );
-      })
+      tap(() => this.words = []),
+      map(({ sectionName }) => this.wordService.getSection(sectionName)),
     );
   }
 
-  suffleWords(newWordsArr: string[] | any) {
+  suffleWords(newWordsArr: string[]) {
     const wordsArr = this.words.concat(newWordsArr);
     wordsArr.forEach((_, i) => {
       const j = Math.floor(Math.random() * i);
@@ -59,5 +55,4 @@ export class NextStepWordStudyComponent implements OnInit {
     });
     this.words = wordsArr;
   }
-
 }

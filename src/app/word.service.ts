@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+/** A group of words keyed by phonetic pattern (e.g. 'a_', 'ai', 'ar') */
+export type WordSection = Record<string, string[]>;
+
+/** All word sections keyed by category (e.g. 'core-a', 'mixed-short') */
+export type WordData = Record<string, WordSection>;
+
+@Injectable({ providedIn: 'root' })
 export class WordService {
-
-  private _allWords: any = {
+  private readonly _allWords: WordData = {
     'mixed-short': {
       a: ['hat', 'black', 'cat', 'clap', 'had', 'has', 'glad', 'mad', 'map', 'ran', 'snack', 'that'],
       i: ['pig', 'hit', 'his', 'kid', 'lip', 'sick', 'ship', 'this', 'win', 'with'],
@@ -80,10 +82,11 @@ export class WordService {
     }
   }
 
+  getSection(sectionName: string): WordSection | undefined {
+    return this._allWords[sectionName];
+  }
 
-  constructor() { }
-
-  public getAllWords(): Observable<any> {
-    return of(this._allWords);
+  getAllSections(): WordData {
+    return this._allWords;
   }
 }

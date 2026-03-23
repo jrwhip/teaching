@@ -31,8 +31,8 @@
         type="text"
         id="distanceInput"
         placeholder="Enter distance"
-        [ngModel]="distanceInput()"
-        (ngModelChange)="distanceInput.set($event)"
+        [value]="distanceInput()"
+        (input)="distanceInput.set(inputValue($event))"
         (keypress)="onKeypress($event)"
       />
       <button class="btn btn-primary" (click)="checkAnswer()">Check Answer</button>

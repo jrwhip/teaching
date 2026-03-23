@@ -29,8 +29,8 @@
               <input
                 type="text"
                 placeholder="n = ?"
-                [ngModel]="item.userInput"
-                (ngModelChange)="updateUserInput($index, $event)"
+                [value]="item.userInput"
+                (input)="updateUserInput($index, inputValue($event))"
                 (keypress)="onKeypress($event, $index)"
               />
               <button class="btn btn-primary btn-sm" (click)="checkAnswer($index)">Go</button>
@@ -57,8 +57,8 @@
             <input
               type="text"
               placeholder="n = ?"
-              [ngModel]="zoomInput()"
-              (ngModelChange)="zoomInput.set($event)"
+              [value]="zoomInput()"
+              (input)="zoomInput.set(inputValue($event))"
               (keypress)="onZoomKeypress($event, zoomIndex()!)"
               autofocus
             />

@@ -554,10 +554,7 @@ export function generateExponentProblem(): Problem {
     exponent = Math.floor(Math.random() * 4) + 2;
   }
 
-  let multiplicationSequence = `${num1}`;
-  for (let i = 1; i < exponent; i++) {
-    multiplicationSequence += ` \u00D7 ${num1}`;
-  }
+  const multiplicationSequence = Array.from({ length: exponent }, () => `${num1}`).join(' \u00D7 ');
 
   const question = `Calculate ${num1}<sup>${exponent}</sup>`;
   const numericAnswer = Math.pow(num1, exponent);
@@ -673,10 +670,7 @@ export function generateExponent2Problem(): Problem {
 
     const decimalCount = countDecimals(baseNum);
 
-    let result = 1;
-    for (let i = 0; i < exponent; i++) {
-      result *= baseNum;
-    }
+    const result = Array.from({ length: exponent }).reduce<number>(acc => acc * baseNum, 1);
     answer = result.toFixed(decimalCount * exponent);
 
     hint = `

@@ -1,5 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal, computed, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Problem, ProblemType, MENU_CATEGORIES, MenuCategory } from './problem.model';
 import { GENERATORS } from './generators';
@@ -14,11 +13,12 @@ interface AnswerLogEntry {
 
 @Component({
     selector: 'app-quiz',
-    imports: [FormsModule],
     templateUrl: './quiz.component.html',
-    styleUrl: './quiz.component.scss'
+    styleUrl: './quiz.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class QuizComponent {
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly results = inject(MathResultsService);
 
   readonly categories: MenuCategory[] = MENU_CATEGORIES;
@@ -58,7 +58,7 @@ export default class QuizComponent {
     return cat?.items ?? [];
   });
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor() {
     this.results.startNewSession();
     this.generateProblem('addition');
   }
@@ -123,7 +123,7 @@ export default class QuizComponent {
         : this.userInput(),
       isCorrect: correct,
       hint: problem.hint,
-    });
+    }).subscribe();
 
     // Log the answer
     const entry: AnswerLogEntry = {
@@ -148,5 +148,9 @@ export default class QuizComponent {
       event.preventDefault();
       this.checkAnswer();
     }
+  }
+
+  inputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value;
   }
 }

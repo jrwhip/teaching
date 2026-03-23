@@ -1,10 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
-    imports: [FormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <div class="section">
       <div class="container" style="max-width: 460px;">
@@ -14,7 +16,7 @@ import { AuthService } from '../../core/auth/auth.service';
             @if (!codeSent) {
               Enter your email and we'll send a reset code
             } @else {
-              Enter the code sent to <strong>{{ email }}</strong>
+              Enter the code sent to <strong>{{ emailForm.getRawValue().email }}</strong>
             }
           </p>
         </div>
@@ -29,18 +31,15 @@ import { AuthService } from '../../core/auth/auth.service';
         <div class="card">
           <div class="card-body">
             @if (!codeSent) {
-              <form (ngSubmit)="requestCode()" #emailForm="ngForm">
+              <form [formGroup]="emailForm" (ngSubmit)="requestCode()">
                 <div class="form-group">
                   <label class="form-label" for="email">Email address</label>
                   <input
                     id="email"
                     type="email"
                     class="form-input"
-                    [(ngModel)]="email"
-                    name="email"
+                    formControlName="email"
                     placeholder="name@example.com"
-                    required
-                    email
                     autocomplete="email"
                   />
                 </div>
@@ -48,9 +47,9 @@ import { AuthService } from '../../core/auth/auth.service';
                 <button
                   type="submit"
                   class="btn btn-primary w-full btn-lg"
-                  [disabled]="loading || !emailForm.valid"
+                  [disabled]="loading() || emailForm.invalid"
                 >
-                  @if (loading) {
+                  @if (loading()) {
                     <span class="spinner"></span>
                   } @else {
                     Send Reset Code
@@ -58,17 +57,15 @@ import { AuthService } from '../../core/auth/auth.service';
                 </button>
               </form>
             } @else {
-              <form (ngSubmit)="resetPassword()" #resetForm="ngForm">
+              <form [formGroup]="resetForm" (ngSubmit)="resetPassword()">
                 <div class="form-group">
                   <label class="form-label" for="code">Reset code</label>
                   <input
                     id="code"
                     type="text"
                     class="form-input"
-                    [(ngModel)]="code"
-                    name="code"
+                    formControlName="code"
                     placeholder="123456"
-                    required
                     autocomplete="one-time-code"
                   />
                 </div>
@@ -79,11 +76,8 @@ import { AuthService } from '../../core/auth/auth.service';
                     id="newPassword"
                     type="password"
                     class="form-input"
-                    [(ngModel)]="newPassword"
-                    name="newPassword"
+                    formControlName="newPassword"
                     placeholder="At least 8 characters"
-                    required
-                    minlength="8"
                     autocomplete="new-password"
                   />
                 </div>
@@ -91,9 +85,9 @@ import { AuthService } from '../../core/auth/auth.service';
                 <button
                   type="submit"
                   class="btn btn-primary w-full btn-lg"
-                  [disabled]="loading || !resetForm.valid"
+                  [disabled]="loading() || resetForm.invalid"
                 >
-                  @if (loading) {
+                  @if (loading()) {
                     <span class="spinner"></span>
                   } @else {
                     Reset Password
@@ -113,33 +107,36 @@ import { AuthService } from '../../core/auth/auth.service';
 })
 export default class ForgotPasswordComponent {
   readonly auth = inject(AuthService);
+  private readonly fb = inject(NonNullableFormBuilder);
 
-  email = '';
-  code = '';
-  newPassword = '';
+  readonly emailForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+  });
+
+  readonly resetForm = this.fb.group({
+    code: ['', Validators.required],
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+  });
+
   codeSent = false;
-  loading = false;
+  readonly loading = signal(false);
 
-  async requestCode(): Promise<void> {
-    this.loading = true;
-    try {
-      await this.auth.resetPassword(this.email);
-      this.codeSent = true;
-    } catch {
-      // Error on auth.authError signal
-    } finally {
-      this.loading = false;
-    }
+  requestCode(): void {
+    this.loading.set(true);
+    const { email } = this.emailForm.getRawValue();
+    this.auth.resetPassword(email).pipe(
+      finalize(() => this.loading.set(false)),
+    ).subscribe({
+      complete: () => { this.codeSent = true; },
+    });
   }
 
-  async resetPassword(): Promise<void> {
-    this.loading = true;
-    try {
-      await this.auth.confirmResetPassword(this.email, this.code, this.newPassword);
-    } catch {
-      // Error on auth.authError signal
-    } finally {
-      this.loading = false;
-    }
+  resetPassword(): void {
+    this.loading.set(true);
+    const { email } = this.emailForm.getRawValue();
+    const { code, newPassword } = this.resetForm.getRawValue();
+    this.auth.confirmResetPassword(email, code, newPassword).pipe(
+      finalize(() => this.loading.set(false)),
+    ).subscribe();
   }
 }

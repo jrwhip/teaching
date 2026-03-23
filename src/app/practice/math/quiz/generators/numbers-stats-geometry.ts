@@ -360,12 +360,9 @@ export function generateModeProblem(): Problem {
     }
   });
 
-  let mode: number[] = [];
-  for (const num in frequency) {
-    if (frequency[num as unknown as number] === maxFreq) {
-      mode.push(Number(num));
-    }
-  }
+  let mode: number[] = Object.entries(frequency)
+    .filter(([, freq]) => freq === maxFreq)
+    .map(([num]) => Number(num));
 
   // If every number appears the same number of times, there is no mode
   const allSameFrequency = Object.values(frequency).every((f) => f === maxFreq);

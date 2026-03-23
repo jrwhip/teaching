@@ -23,8 +23,8 @@
           <input
             type="text"
             placeholder="Your Answer"
-            [ngModel]="userInput()"
-            (ngModelChange)="userInput.set($event)"
+            [value]="userInput()"
+            (input)="userInput.set(inputValue($event))"
             (keypress)="onKeypress($event)"
           />
           <button class="btn btn-light btn-sm" (click)="insertUnit('u')">u</button>

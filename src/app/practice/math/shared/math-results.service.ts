@@ -1,4 +1,6 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { catchError, defer, EMPTY, map, Observable, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { DataService } from '../../../core/data/data.service';
 
@@ -47,6 +49,8 @@ export class MathResultsService {
   private readonly auth = inject(AuthService);
   private readonly data = inject(DataService);
 
+  // --- Session state (local, synchronous) ---
+
   readonly sessionId = signal<string>(crypto.randomUUID());
   readonly sessionCorrect = signal(0);
   readonly sessionIncorrect = signal(0);
@@ -55,24 +59,86 @@ export class MathResultsService {
     return total === 0 ? 0 : Math.round((this.sessionCorrect() / total) * 100);
   });
 
-  // Loaded stats
-  readonly performanceCounters = signal<PerformanceCounterRecord[]>([]);
-  readonly recentAttempts = signal<RecentAttemptRecord[]>([]);
-  readonly statsLoading = signal(false);
+  // --- Read operations via rxResource ---
+
+  private readonly performanceCountersResource = rxResource({
+    params: () => this.auth.userProfile()?.id,
+    stream: ({ params: studentId }) => {
+      if (!studentId) return of([]);
+      return defer(() =>
+        this.data.models.PerformanceCounter
+          .listPerformanceCounterByStudentId({ studentId }),
+      ).pipe(
+        map(({ data }) =>
+          (data ?? []).map(c => ({
+            id: c.id,
+            studentId: c.studentId,
+            problemType: c.problemType,
+            correct: c.correct ?? 0,
+            incorrect: c.incorrect ?? 0,
+            currentStreak: c.currentStreak ?? 0,
+            highStreak: c.highStreak ?? 0,
+            lastAttemptedAt: c.lastAttemptedAt ?? '',
+          } satisfies PerformanceCounterRecord)),
+        ),
+        catchError(() => of([])),
+      );
+    },
+    defaultValue: [] as PerformanceCounterRecord[],
+  });
+
+  private readonly recentAttemptsResource = rxResource({
+    params: () => this.auth.userProfile()?.id,
+    stream: ({ params: studentId }) => {
+      if (!studentId) return of([]);
+      return defer(() =>
+        this.data.models.ProblemAttempt
+          .listProblemAttemptByStudentIdAndAttemptedAt(
+            { studentId },
+            { sortDirection: 'DESC', limit: 10 },
+          ),
+      ).pipe(
+        map(({ data }) =>
+          (data ?? []).map(a => ({
+            id: a.id,
+            problemType: a.problemType,
+            problemCategory: a.problemCategory ?? '',
+            question: a.question,
+            correctAnswer: a.correctAnswer,
+            studentAnswer: a.studentAnswer,
+            isCorrect: a.isCorrect,
+            attemptedAt: a.attemptedAt ?? '',
+          } satisfies RecentAttemptRecord)),
+        ),
+        catchError(() => of([])),
+      );
+    },
+    defaultValue: [] as RecentAttemptRecord[],
+  });
+
+  // --- Public read signals ---
+
+  readonly performanceCounters = this.performanceCountersResource.value;
+  readonly recentAttempts = this.recentAttemptsResource.value;
+  readonly statsLoading = computed(
+    () => this.performanceCountersResource.isLoading() || this.recentAttemptsResource.isLoading(),
+  );
 
   readonly totalCorrect = computed(() =>
-    this.performanceCounters().reduce((sum, c) => sum + c.correct, 0)
+    this.performanceCounters().reduce((sum, c) => sum + c.correct, 0),
   );
   readonly totalIncorrect = computed(() =>
-    this.performanceCounters().reduce((sum, c) => sum + c.incorrect, 0)
+    this.performanceCounters().reduce((sum, c) => sum + c.incorrect, 0),
   );
   readonly totalAccuracy = computed(() => {
     const total = this.totalCorrect() + this.totalIncorrect();
     return total === 0 ? 0 : Math.round((this.totalCorrect() / total) * 100);
   });
   readonly bestStreak = computed(() =>
-    this.performanceCounters().reduce((max, c) => Math.max(max, c.highStreak), 0)
+    this.performanceCounters().reduce((max, c) => Math.max(max, c.highStreak), 0),
   );
+
+  // --- Session management ---
 
   startNewSession(): void {
     this.sessionId.set(crypto.randomUUID());
@@ -80,7 +146,10 @@ export class MathResultsService {
     this.sessionIncorrect.set(0);
   }
 
-  async recordAttempt(params: AttemptParams): Promise<void> {
+  // --- Mutation operations returning Observable ---
+
+  recordAttempt(params: AttemptParams): Observable<void> {
+    // Update local session state synchronously
     if (params.isCorrect) {
       this.sessionCorrect.update(c => c + 1);
     } else {
@@ -90,13 +159,13 @@ export class MathResultsService {
     const profile = this.auth.userProfile();
     if (!profile) {
       this.storeLocally(params);
-      return;
+      return EMPTY;
     }
 
     const attemptedAt = new Date().toISOString();
 
-    try {
-      await this.data.models.ProblemAttempt.create({
+    return defer(() =>
+      this.data.models.ProblemAttempt.create({
         studentId: profile.id,
         problemType: params.problemType,
         problemCategory: params.problemCategory,
@@ -109,116 +178,66 @@ export class MathResultsService {
         attemptDurationMs: params.attemptDurationMs ?? null,
         readAccess: profile.readAccess,
         attemptedAt,
-      });
-
-      await this.upsertPerformanceCounter(profile.id, params, profile.readAccess);
-    } catch {
-      // DynamoDB write failed — fall back to localStorage
-      this.storeLocally(params);
-    }
+      }),
+    ).pipe(
+      switchMap(() => this.upsertPerformanceCounter(profile.id, params, profile.readAccess)),
+      map(() => {
+        this.performanceCountersResource.reload();
+        this.recentAttemptsResource.reload();
+      }),
+      catchError(err => {
+        console.error('Failed to record attempt:', err);
+        this.storeLocally(params);
+        return EMPTY;
+      }),
+    );
   }
 
-  async loadStudentStats(studentId?: string): Promise<void> {
-    const profile = this.auth.userProfile();
-    const id = studentId ?? profile?.id;
-    if (!id) return;
-
-    this.statsLoading.set(true);
-    try {
-      await Promise.all([
-        this.loadPerformanceCounters(id),
-        this.loadRecentAttempts(id),
-      ]);
-    } finally {
-      this.statsLoading.set(false);
-    }
-  }
-
-  async loadPerformanceCounters(studentId: string): Promise<void> {
-    try {
-      const { data } = await this.data.models.PerformanceCounter
-        .listPerformanceCounterByStudentId({ studentId });
-      if (data) {
-        this.performanceCounters.set(data.map(c => ({
-          id: c.id,
-          studentId: c.studentId,
-          problemType: c.problemType,
-          correct: c.correct ?? 0,
-          incorrect: c.incorrect ?? 0,
-          currentStreak: c.currentStreak ?? 0,
-          highStreak: c.highStreak ?? 0,
-          lastAttemptedAt: c.lastAttemptedAt ?? '',
-        })));
-      }
-    } catch {
-      this.performanceCounters.set([]);
-    }
-  }
-
-  async loadRecentAttempts(studentId: string, limit = 10): Promise<void> {
-    try {
-      const { data } = await this.data.models.ProblemAttempt
-        .listProblemAttemptByStudentIdAndAttemptedAt(
-          { studentId },
-          { sortDirection: 'DESC', limit },
-        );
-      if (data) {
-        this.recentAttempts.set(data.map(a => ({
-          id: a.id,
-          problemType: a.problemType,
-          problemCategory: a.problemCategory ?? '',
-          question: a.question,
-          correctAnswer: a.correctAnswer,
-          studentAnswer: a.studentAnswer,
-          isCorrect: a.isCorrect,
-          attemptedAt: a.attemptedAt ?? '',
-        })));
-      }
-    } catch {
-      this.recentAttempts.set([]);
-    }
-  }
-
-  private async upsertPerformanceCounter(
+  private upsertPerformanceCounter(
     studentId: string,
     params: AttemptParams,
     readAccess: string[],
-  ): Promise<void> {
-    try {
-      const { data: counters } = await this.data.models.PerformanceCounter
-        .listPerformanceCounterByStudentId({ studentId });
+  ): Observable<void> {
+    return defer(() =>
+      this.data.models.PerformanceCounter
+        .listPerformanceCounterByStudentId({ studentId }),
+    ).pipe(
+      switchMap(({ data: counters }) => {
+        const existing = counters?.find(c => c.problemType === params.problemType);
 
-      const existing = counters?.find(c => c.problemType === params.problemType);
+        if (existing) {
+          const correct = (existing.correct ?? 0) + (params.isCorrect ? 1 : 0);
+          const incorrect = (existing.incorrect ?? 0) + (params.isCorrect ? 0 : 1);
+          const currentStreak = params.isCorrect ? (existing.currentStreak ?? 0) + 1 : 0;
+          const highStreak = Math.max(existing.highStreak ?? 0, currentStreak);
 
-      if (existing) {
-        const correct = (existing.correct ?? 0) + (params.isCorrect ? 1 : 0);
-        const incorrect = (existing.incorrect ?? 0) + (params.isCorrect ? 0 : 1);
-        const currentStreak = params.isCorrect ? (existing.currentStreak ?? 0) + 1 : 0;
-        const highStreak = Math.max(existing.highStreak ?? 0, currentStreak);
+          return defer(() =>
+            this.data.models.PerformanceCounter.update({
+              id: existing.id,
+              correct,
+              incorrect,
+              currentStreak,
+              highStreak,
+              lastAttemptedAt: new Date().toISOString(),
+            }),
+          ).pipe(map(() => undefined as void));
+        }
 
-        await this.data.models.PerformanceCounter.update({
-          id: existing.id,
-          correct,
-          incorrect,
-          currentStreak,
-          highStreak,
-          lastAttemptedAt: new Date().toISOString(),
-        });
-      } else {
-        await this.data.models.PerformanceCounter.create({
-          studentId,
-          problemType: params.problemType,
-          correct: params.isCorrect ? 1 : 0,
-          incorrect: params.isCorrect ? 0 : 1,
-          currentStreak: params.isCorrect ? 1 : 0,
-          highStreak: params.isCorrect ? 1 : 0,
-          readAccess,
-          lastAttemptedAt: new Date().toISOString(),
-        });
-      }
-    } catch {
-      // Counter upsert is best-effort; the ProblemAttempt is the source of truth
-    }
+        return defer(() =>
+          this.data.models.PerformanceCounter.create({
+            studentId,
+            problemType: params.problemType,
+            correct: params.isCorrect ? 1 : 0,
+            incorrect: params.isCorrect ? 0 : 1,
+            currentStreak: params.isCorrect ? 1 : 0,
+            highStreak: params.isCorrect ? 1 : 0,
+            readAccess,
+            lastAttemptedAt: new Date().toISOString(),
+          }),
+        ).pipe(map(() => undefined as void));
+      }),
+      catchError(() => EMPTY),
+    );
   }
 
   private storeLocally(params: AttemptParams): void {

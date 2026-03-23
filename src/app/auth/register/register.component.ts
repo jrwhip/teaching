@@ -1,11 +1,13 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { UserRole } from '../../core/auth/auth.types';
 
 @Component({
-    imports: [FormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <div class="section">
       <div class="container" style="max-width: 460px;">
@@ -23,17 +25,15 @@ import { UserRole } from '../../core/auth/auth.types';
 
         <div class="card">
           <div class="card-body">
-            <form (ngSubmit)="onSubmit()" #regForm="ngForm">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
               <div class="form-group">
                 <label class="form-label" for="displayName">Display name</label>
                 <input
                   id="displayName"
                   type="text"
                   class="form-input"
-                  [(ngModel)]="displayName"
-                  name="displayName"
+                  formControlName="displayName"
                   placeholder="Your name"
-                  required
                   autocomplete="name"
                 />
               </div>
@@ -44,11 +44,8 @@ import { UserRole } from '../../core/auth/auth.types';
                   id="email"
                   type="email"
                   class="form-input"
-                  [(ngModel)]="email"
-                  name="email"
+                  formControlName="email"
                   placeholder="name@example.com"
-                  required
-                  email
                   autocomplete="email"
                 />
               </div>
@@ -59,11 +56,8 @@ import { UserRole } from '../../core/auth/auth.types';
                   id="password"
                   type="password"
                   class="form-input"
-                  [(ngModel)]="password"
-                  name="password"
+                  formControlName="password"
                   placeholder="At least 8 characters"
-                  required
-                  minlength="8"
                   autocomplete="new-password"
                 />
               </div>
@@ -93,9 +87,9 @@ import { UserRole } from '../../core/auth/auth.types';
               <button
                 type="submit"
                 class="btn btn-primary w-full btn-lg mt-2"
-                [disabled]="loading || !regForm.valid || !role"
+                [disabled]="loading() || form.invalid || !role"
               >
-                @if (loading) {
+                @if (loading()) {
                   <span class="spinner"></span>
                 } @else {
                   Create Account
@@ -115,22 +109,23 @@ import { UserRole } from '../../core/auth/auth.types';
 })
 export default class RegisterComponent {
   readonly auth = inject(AuthService);
+  private readonly fb = inject(NonNullableFormBuilder);
 
-  displayName = '';
-  email = '';
-  password = '';
+  readonly form = this.fb.group({
+    displayName: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+  });
+
   role: UserRole | null = null;
-  loading = false;
+  readonly loading = signal(false);
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (!this.role) return;
-    this.loading = true;
-    try {
-      await this.auth.signUp(this.email, this.password, this.displayName, this.role);
-    } catch {
-      // Error is set on auth.authError signal
-    } finally {
-      this.loading = false;
-    }
+    this.loading.set(true);
+    const { email, password, displayName } = this.form.getRawValue();
+    this.auth.signUp(email, password, displayName, this.role).pipe(
+      finalize(() => this.loading.set(false)),
+    ).subscribe();
   }
 }

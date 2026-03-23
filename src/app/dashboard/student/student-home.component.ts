@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { StatCardComponent } from '../../shared/components/stat-card.component';
@@ -6,6 +6,7 @@ import { StreakDisplayComponent } from '../../shared/components/streak-display.c
 
 @Component({
     imports: [RouterLink, StatCardComponent, StreakDisplayComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <div class="section">
       <div class="container">

@@ -1,5 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal, computed, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MathResultsService } from '../shared/math-results.service';
 import { QUIZ3_INDEX_TYPES, getTaxonomy } from '../shared/problem-taxonomy';
@@ -12,11 +11,12 @@ interface Problem {
 }
 
 @Component({
-    imports: [FormsModule],
     templateUrl: './quiz3.component.html',
-    styleUrl: './quiz3.component.scss'
+    styleUrl: './quiz3.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Quiz3Component {
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly results = inject(MathResultsService);
 
   readonly problemCount = 10;
@@ -30,7 +30,7 @@ export default class Quiz3Component {
 
   readonly incorrectCount = signal(0);
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor() {
     this.generateAllProblems();
   }
 
@@ -77,7 +77,7 @@ export default class Quiz3Component {
       correctAnswer: item.problem.answer,
       studentAnswer: input.trim(),
       isCorrect,
-    });
+    }).subscribe();
 
     const updated = [...items];
     if (isCorrect) {
@@ -138,6 +138,10 @@ export default class Quiz3Component {
     }
   }
 
+  inputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value;
+  }
+
   // --- Problem Generators ---
 
   private gcd(a: number, b: number): number {
@@ -151,7 +155,7 @@ export default class Quiz3Component {
     return [num / g, den / g];
   }
 
-  private fracHtml(num: number, den: number): string {
+  private fracHtml(num: number | string, den: number): string {
     return `<span class="frac"><sup>${num}</sup><span>/</span><sub>${den}</sub></span>`;
   }
 
@@ -283,7 +287,7 @@ export default class Quiz3Component {
     const result = Math.floor(Math.random() * 10) + 1;
     const n = denominator * result;
     return {
-      question: this.safe(`${this.fracHtml('n' as any, denominator)} = ${result}`),
+      question: this.safe(`${this.fracHtml('n', denominator)} = ${result}`),
       questionText: `n/${denominator} = ${result}`,
       answer: String(n),
       validate: (input) => parseInt(input, 10) === n,
@@ -295,7 +299,7 @@ export default class Quiz3Component {
     const result = parseFloat((Math.random() * 9 + 1).toFixed(1));
     const n = parseFloat((denominator * result).toFixed(1));
     return {
-      question: this.safe(`${this.fracHtml('n' as any, denominator)} = ${result}`),
+      question: this.safe(`${this.fracHtml('n', denominator)} = ${result}`),
       questionText: `n/${denominator} = ${result}`,
       answer: String(n),
       validate: (input) => Math.abs(parseFloat(input) - n) < 0.01,

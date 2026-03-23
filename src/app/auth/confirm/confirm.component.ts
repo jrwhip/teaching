@@ -1,10 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
-    imports: [FormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <div class="section">
       <div class="container" style="max-width: 460px;">
@@ -22,19 +24,15 @@ import { AuthService } from '../../core/auth/auth.service';
 
         <div class="card">
           <div class="card-body">
-            <form (ngSubmit)="onSubmit()" #confirmForm="ngForm">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
               <div class="form-group">
                 <label class="form-label" for="code">Confirmation code</label>
                 <input
                   id="code"
                   type="text"
                   class="form-input"
-                  [(ngModel)]="code"
-                  name="code"
+                  formControlName="code"
                   placeholder="123456"
-                  required
-                  minlength="6"
-                  maxlength="6"
                   autocomplete="one-time-code"
                 />
               </div>
@@ -42,9 +40,9 @@ import { AuthService } from '../../core/auth/auth.service';
               <button
                 type="submit"
                 class="btn btn-primary w-full btn-lg"
-                [disabled]="loading || !confirmForm.valid"
+                [disabled]="loading() || form.invalid"
               >
-                @if (loading) {
+                @if (loading()) {
                   <span class="spinner"></span>
                 } @else {
                   Verify Email
@@ -63,24 +61,25 @@ import { AuthService } from '../../core/auth/auth.service';
 })
 export default class ConfirmComponent {
   readonly auth = inject(AuthService);
-  private route = inject(ActivatedRoute);
+  private readonly fb = inject(NonNullableFormBuilder);
+  private readonly route = inject(ActivatedRoute);
 
-  email = '';
-  code = '';
-  loading = false;
+  readonly form = this.fb.group({
+    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+  });
+
+  readonly email: string;
+  readonly loading = signal(false);
 
   constructor() {
     this.email = this.route.snapshot.queryParams['email'] ?? '';
   }
 
-  async onSubmit(): Promise<void> {
-    this.loading = true;
-    try {
-      await this.auth.confirmSignUp(this.email, this.code);
-    } catch {
-      // Error on auth.authError signal
-    } finally {
-      this.loading = false;
-    }
+  onSubmit(): void {
+    this.loading.set(true);
+    const { code } = this.form.getRawValue();
+    this.auth.confirmSignUp(this.email, code).pipe(
+      finalize(() => this.loading.set(false)),
+    ).subscribe();
   }
 }

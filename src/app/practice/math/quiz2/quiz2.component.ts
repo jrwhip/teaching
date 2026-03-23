@@ -1,5 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal, computed, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MathResultsService } from '../shared/math-results.service';
 import { QUIZ2_INDEX_TYPES, getTaxonomy } from '../shared/problem-taxonomy';
@@ -21,11 +20,12 @@ interface ProblemState {
 }
 
 @Component({
-    imports: [FormsModule],
     templateUrl: './quiz2.component.html',
-    styleUrl: './quiz2.component.scss'
+    styleUrl: './quiz2.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class Quiz2Component {
+  private readonly sanitizer = inject(DomSanitizer);
   private readonly results = inject(MathResultsService);
 
   readonly problemCount = 20;
@@ -52,7 +52,7 @@ export default class Quiz2Component {
 
   readonly incorrectCount = signal(0);
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor() {
     this.generateAllProblems();
   }
 
@@ -114,7 +114,7 @@ export default class Quiz2Component {
       correctAnswer: item.problem.answer,
       studentAnswer: input.trim(),
       isCorrect,
-    });
+    }).subscribe();
 
     const updated = [...items];
     if (isCorrect) {
@@ -161,6 +161,10 @@ export default class Quiz2Component {
 
   onKeypress(event: KeyboardEvent, index: number): void {
     if (event.key === 'Enter') this.checkAnswer(index);
+  }
+
+  inputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value;
   }
 
   private regenerateProblemAt(index: number): Quiz2Problem {

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
     imports: [RouterLink],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <div class="section">
       <div class="container">

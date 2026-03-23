@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ThemeService } from '../core/theme.service';
 
 @Component({
     imports: [RouterLink],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <div class="hero">
       <div class="container">

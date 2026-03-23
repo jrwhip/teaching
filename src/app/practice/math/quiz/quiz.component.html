@@ -65,16 +65,16 @@
               <input
                 type="text"
                 placeholder="Enter your answer"
-                [ngModel]="userInput()"
-                (ngModelChange)="userInput.set($event)"
+                [value]="userInput()"
+                (input)="userInput.set(inputValue($event))"
                 (keypress)="onKeypress($event)"
               />
               @if (currentProblem()?.needsExtraInput) {
                 <input
                   type="text"
                   placeholder="Second answer"
-                  [ngModel]="extraInput()"
-                  (ngModelChange)="extraInput.set($event)"
+                  [value]="extraInput()"
+                  (input)="extraInput.set(inputValue($event))"
                   (keypress)="onKeypress($event)"
                 />
               }

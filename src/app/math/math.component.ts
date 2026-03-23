@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AgGridModule } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
 import { NthPlainTextPipe } from '../nth-plain-text.pipe';
@@ -16,8 +16,9 @@ interface RoundedNumberEntry {
 }
 
 @Component({
-    imports: [AgGridModule, CommonModule, NthPlainTextPipe, FormsModule, StreakDisplayComponent],
-    templateUrl: './math.component.html'
+    imports: [AgGridModule, DecimalPipe, NthPlainTextPipe, ReactiveFormsModule, StreakDisplayComponent],
+    templateUrl: './math.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MathComponent implements OnInit {
   roundedNumbers: RoundedNumberEntry[] = [];
@@ -25,7 +26,7 @@ export class MathComponent implements OnInit {
   highestStreak = 0;
   roundingFactor = 10;
   randomNumber = '';
-  userAnswer: number | null = null;
+  readonly answerControl = new FormControl<number | null>(null);
   result = '';
   resultColor = '';
 
@@ -67,7 +68,8 @@ export class MathComponent implements OnInit {
     }
   }
 
-  checkAnswer(userAnswer: number | null): void {
+  checkAnswer(): void {
+    const userAnswer = this.answerControl.value;
     const parsedRandomNumber = parseFloat(this.randomNumber);
 
     if (userAnswer !== null && !isNaN(userAnswer)) {
@@ -111,7 +113,7 @@ export class MathComponent implements OnInit {
       this.roundedNumbers = newRowData;
       localStorage.setItem('roundedNumbers', JSON.stringify(newRowData));
 
-      this.userAnswer = null;
+      this.answerControl.reset();
       this.randomizeRoundingFactor();
     }
   }

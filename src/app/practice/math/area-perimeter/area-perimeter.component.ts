@@ -1,5 +1,4 @@
-import { Component, signal, ElementRef, viewChild, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal, ElementRef, viewChild, inject } from '@angular/core';
 import { getCanvasTheme } from '../shared/canvas-theme.util';
 import { MathResultsService } from '../shared/math-results.service';
 
@@ -12,9 +11,9 @@ interface ShapeProblem {
 }
 
 @Component({
-    imports: [FormsModule],
     templateUrl: './area-perimeter.component.html',
-    styleUrl: './area-perimeter.component.scss'
+    styleUrl: './area-perimeter.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class AreaPerimeterComponent {
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('shapeCanvas');
@@ -87,7 +86,7 @@ export default class AreaPerimeterComponent {
       studentAnswer: userAnswer,
       isCorrect,
       hint: this.showHint() ? this.hintText() : undefined,
-    });
+    }).subscribe();
 
     if (isCorrect) {
       this.message.set('Correct!');
@@ -105,6 +104,10 @@ export default class AreaPerimeterComponent {
     if (event.key === 'Enter') {
       this.checkAnswer();
     }
+  }
+
+  inputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value;
   }
 
   showHintMessage(): void {

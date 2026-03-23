@@ -1,13 +1,13 @@
-import { Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
 import { MathResultsService } from '../shared/math-results.service';
 
 type Mode = 'plotCoordinate' | 'reflection';
 interface Point { x: number; y: number; }
 
 @Component({
-  standalone: true,
   templateUrl: './coordinate-grid.component.html',
   styleUrl: './coordinate-grid.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class CoordinateGridComponent {
   private readonly gridRef = viewChild<ElementRef<HTMLDivElement>>('gridContainer');
@@ -28,16 +28,12 @@ export default class CoordinateGridComponent {
 
   readonly markers = signal<Array<{ x: number; y: number; type: 'user' | 'correct' | 'incorrect' }>>([]);
 
-  readonly gridLines = computed(() => {
-    const lines: Array<{ offset: number; value: number }> = [];
-    for (let i = -this.axisRange; i <= this.axisRange; i++) {
-      lines.push({
-        offset: ((i + this.axisRange) / (2 * this.axisRange)) * 100,
-        value: i,
-      });
-    }
-    return lines;
-  });
+  readonly gridLines = computed(() =>
+    Array.from({ length: 2 * this.axisRange + 1 }, (_, i) => {
+      const value = i - this.axisRange;
+      return { offset: ((value + this.axisRange) / (2 * this.axisRange)) * 100, value };
+    })
+  );
 
   constructor() {
     this.results.startNewSession();
@@ -119,7 +115,7 @@ export default class CoordinateGridComponent {
       correctAnswer: `(${target.x}, ${target.y})`,
       studentAnswer: `(${user.x}, ${user.y})`,
       isCorrect,
-    });
+    }).subscribe();
 
     if (isCorrect) {
       this.feedback.set('Correct!');
@@ -162,7 +158,7 @@ export default class CoordinateGridComponent {
       correctAnswer: `(${target.x}, ${target.y}) + (${expectedReflection.x}, ${expectedReflection.y})`,
       studentAnswer: `(${user.x}, ${user.y}) + (${userRef.x}, ${userRef.y})`,
       isCorrect,
-    });
+    }).subscribe();
 
     let timeout: number;
 

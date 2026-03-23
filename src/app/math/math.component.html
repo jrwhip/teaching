@@ -17,15 +17,15 @@
             pattern="[0-9]*"
             inputmode="numeric"
             class="form-input"
-            [(ngModel)]="userAnswer"
+            [formControl]="answerControl"
             placeholder="Enter your answer"
             aria-label="Enter your answer"
-            (keydown.enter)="checkAnswer(userAnswer)"
+            (keydown.enter)="checkAnswer()"
           />
           <button
             class="btn btn-outline"
             type="button"
-            (click)="checkAnswer(userAnswer)"
+            (click)="checkAnswer()"
           >
             Check Answer
           </button>

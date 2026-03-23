@@ -1,4 +1,7 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { catchError, defer, forkJoin, map, of, switchMap } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { DataService } from '../../../core/data/data.service';
 import { getTaxonomy } from '../shared/problem-taxonomy';
@@ -24,130 +27,71 @@ interface AttemptDetail {
 }
 
 @Component({
-  standalone: true,
   templateUrl: './teacher-results.component.html',
   styleUrl: './teacher-results.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class TeacherResultsComponent implements OnInit {
+export default class TeacherResultsComponent {
   private readonly auth = inject(AuthService);
   private readonly data = inject(DataService);
 
-  readonly loading = signal(true);
-  readonly students = signal<StudentSummary[]>([]);
+  // --- Student roster resource ---
+
+  private readonly studentsResource = rxResource({
+    params: () => this.auth.userProfile(),
+    stream: ({ params: profile }) => {
+      if (!profile || profile.role !== 'TEACHER') return of([]);
+      return this.loadStudentSummaries(profile.id);
+    },
+    defaultValue: [] as StudentSummary[],
+  });
+
+  readonly loading = this.studentsResource.isLoading;
+  readonly students = computed(() => this.studentsResource.value() ?? []);
+
+  // --- Student detail selection ---
+
   readonly selectedStudent = signal<StudentSummary | null>(null);
-  readonly selectedAttempts = signal<AttemptDetail[]>([]);
-  readonly detailLoading = signal(false);
 
-  async ngOnInit(): Promise<void> {
-    const profile = this.auth.userProfile();
-    if (!profile || profile.role !== 'TEACHER') return;
+  private readonly attemptsResource = rxResource({
+    params: () => this.selectedStudent()?.studentId ?? null,
+    stream: ({ params: studentId }) => {
+      if (!studentId) return of([]);
+      return defer(() =>
+        this.data.models.ProblemAttempt
+          .listProblemAttemptByStudentIdAndAttemptedAt(
+            { studentId },
+            { sortDirection: 'DESC', limit: 20 },
+          ),
+      ).pipe(
+        map(({ data }) =>
+          (data ?? []).map(a => ({
+            id: a.id,
+            problemType: a.problemType,
+            question: a.question,
+            studentAnswer: a.studentAnswer,
+            correctAnswer: a.correctAnswer,
+            isCorrect: a.isCorrect,
+            attemptedAt: a.attemptedAt ?? '',
+          } satisfies AttemptDetail)),
+        ),
+        catchError(() => of([])),
+      );
+    },
+    defaultValue: [] as AttemptDetail[],
+  });
 
-    try {
-      // Get teacher's classrooms
-      const { data: classrooms } = await this.data.models.Classroom
-        .listClassroomByTeacherId({ teacherId: profile.id });
+  readonly selectedAttempts = computed(() => this.attemptsResource.value() ?? []);
+  readonly detailLoading = this.attemptsResource.isLoading;
 
-      if (!classrooms?.length) {
-        this.loading.set(false);
-        return;
-      }
+  // --- Actions ---
 
-      // Get enrollments for all classrooms
-      const studentIds = new Set<string>();
-      const studentNames = new Map<string, string>();
-
-      for (const classroom of classrooms) {
-        const { data: enrollments } = await this.data.models.ClassroomEnrollment
-          .listClassroomEnrollmentByClassroomId({ classroomId: classroom.id });
-
-        if (enrollments) {
-          for (const enrollment of enrollments) {
-            if (enrollment.isActive) {
-              studentIds.add(enrollment.studentId);
-            }
-          }
-        }
-      }
-
-      // Get student names and performance counters
-      const summaries: StudentSummary[] = [];
-
-      for (const studentId of studentIds) {
-        const { data: counters } = await this.data.models.PerformanceCounter
-          .listPerformanceCounterByStudentId({ studentId });
-
-        // Try to get student display name from UserProfile
-        let displayName = studentId;
-        try {
-          const { data: studentProfile } = await this.data.models.UserProfile.get({ id: studentId });
-          if (studentProfile) {
-            displayName = studentProfile.displayName;
-            studentNames.set(studentId, displayName);
-          }
-        } catch {
-          // Fallback to ID if profile not accessible
-        }
-
-        const totalCorrect = counters?.reduce((sum, c) => sum + (c.correct ?? 0), 0) ?? 0;
-        const totalIncorrect = counters?.reduce((sum, c) => sum + (c.incorrect ?? 0), 0) ?? 0;
-        const total = totalCorrect + totalIncorrect;
-        const bestStreak = counters?.reduce((max, c) => Math.max(max, c.highStreak ?? 0), 0) ?? 0;
-        const lastActive = counters?.reduce((latest, c) => {
-          const t = c.lastAttemptedAt ?? '';
-          return t > latest ? t : latest;
-        }, '') ?? '';
-
-        summaries.push({
-          studentId,
-          displayName,
-          totalCorrect,
-          totalIncorrect,
-          accuracy: total === 0 ? 0 : Math.round((totalCorrect / total) * 100),
-          bestStreak,
-          lastActive,
-        });
-      }
-
-      // Sort by last active (most recent first)
-      summaries.sort((a, b) => b.lastActive.localeCompare(a.lastActive));
-      this.students.set(summaries);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  async selectStudent(student: StudentSummary): Promise<void> {
+  selectStudent(student: StudentSummary): void {
     this.selectedStudent.set(student);
-    this.detailLoading.set(true);
-
-    try {
-      const { data } = await this.data.models.ProblemAttempt
-        .listProblemAttemptByStudentIdAndAttemptedAt(
-          { studentId: student.studentId },
-          { sortDirection: 'DESC', limit: 20 },
-        );
-
-      if (data) {
-        this.selectedAttempts.set(data.map(a => ({
-          id: a.id,
-          problemType: a.problemType,
-          question: a.question,
-          studentAnswer: a.studentAnswer,
-          correctAnswer: a.correctAnswer,
-          isCorrect: a.isCorrect,
-          attemptedAt: a.attemptedAt ?? '',
-        })));
-      }
-    } catch {
-      this.selectedAttempts.set([]);
-    } finally {
-      this.detailLoading.set(false);
-    }
   }
 
   clearSelection(): void {
     this.selectedStudent.set(null);
-    this.selectedAttempts.set([]);
   }
 
   formatType(type: string): string {
@@ -158,5 +102,85 @@ export default class TeacherResultsComponent implements OnInit {
     if (!iso) return 'Never';
     const d = new Date(iso);
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  }
+
+  // --- Private helpers ---
+
+  /**
+   * Loads classrooms -> enrollments -> student summaries.
+   * All Amplify calls wrapped in defer() for cold Observable semantics.
+   * Parallel fetches via forkJoin.
+   */
+  private loadStudentSummaries(teacherId: string): Observable<StudentSummary[]> {
+    return defer(() =>
+      this.data.models.Classroom.listClassroomByTeacherId({ teacherId }),
+    ).pipe(
+      switchMap(({ data: classrooms }) => {
+        if (!classrooms?.length) return of([]);
+        return forkJoin(
+          classrooms.map(c =>
+            defer(() =>
+              this.data.models.ClassroomEnrollment
+                .listClassroomEnrollmentByClassroomId({ classroomId: c.id }),
+            ),
+          ),
+        ).pipe(
+          map(results =>
+            results.flatMap(r => r.data ?? []).filter(e => e.isActive),
+          ),
+          switchMap(enrollments => {
+            const studentIds = [...new Set(enrollments.map(e => e.studentId))];
+            if (!studentIds.length) return of([]);
+            return forkJoin(
+              studentIds.map(id => this.loadSingleStudentSummary(id)),
+            );
+          }),
+          map(summaries =>
+            [...summaries].sort((a, b) => b.lastActive.localeCompare(a.lastActive)),
+          ),
+        );
+      }),
+      catchError(() => of([])),
+    );
+  }
+
+  private loadSingleStudentSummary(studentId: string): Observable<StudentSummary> {
+    const profile$ = defer(() =>
+      this.data.models.UserProfile.get({ id: studentId }),
+    ).pipe(
+      map(({ data }) => data?.displayName ?? studentId),
+      catchError(() => of(studentId)),
+    );
+
+    const counters$ = defer(() =>
+      this.data.models.PerformanceCounter
+        .listPerformanceCounterByStudentId({ studentId }),
+    ).pipe(
+      map(({ data }) => data ?? []),
+      catchError(() => of([])),
+    );
+
+    return forkJoin([profile$, counters$]).pipe(
+      map(([displayName, counters]) => {
+        const totalCorrect = counters.reduce((sum, c) => sum + (c.correct ?? 0), 0);
+        const totalIncorrect = counters.reduce((sum, c) => sum + (c.incorrect ?? 0), 0);
+        const total = totalCorrect + totalIncorrect;
+        const bestStreak = counters.reduce((max, c) => Math.max(max, c.highStreak ?? 0), 0);
+        const lastActive = counters.reduce((latest, c) => {
+          const t = c.lastAttemptedAt ?? '';
+          return t > latest ? t : latest;
+        }, '');
+
+        return {
+          studentId,
+          displayName,
+          totalCorrect,
+          totalIncorrect,
+          accuracy: total === 0 ? 0 : Math.round((totalCorrect / total) * 100),
+          bestStreak,
+          lastActive,
+        } satisfies StudentSummary;
+      }),
+    );
   }
 }

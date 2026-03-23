@@ -4,7 +4,7 @@ import type { Schema } from '../../../../amplify/data/resource';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
-  private client = generateClient<Schema>();
+  private readonly client = generateClient<Schema>();
 
   get models() {
     return this.client.models;

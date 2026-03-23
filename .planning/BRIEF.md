@@ -1,94 +1,82 @@
-# Teaching App — Math Restyle & Results Tracking
+# Teaching App — Code Quality Audit & Remediation
 
 ## Current State (Updated: 2026-03-22)
 
-**Shipped:** v1.0 Math Restyle (2026-03-22, commit f7f2df9)
+**Shipped:** v1.1 Angular 21 Upgrade (2026-03-22, commit 560c724)
 **Status:** Development / Internal testing
 **Users:** Jerry + family (K-6 students)
-**Feedback:** Math components worked but looked foreign — hardcoded colors, own navbars, no dark mode, per-component color pickers, localStorage-only scoring
 **Codebase:**
-- Angular 17.2.4 standalone components with signals
-- Nx 18.0.7, TypeScript 5.3.3
+- Angular 21.1.6, Nx 22.6.1, TypeScript 5.9.3
+- Zoneless change detection enabled (provideZonelessChangeDetection)
+- Vitest 3.2.4, ESLint flat config
 - AWS Amplify Gen 2 (Cognito + AppSync + DynamoDB)
 - Custom CSS design system with light/dark tokens
-- ag-Grid 30, Jest 29, ESLint 8
-- pnpm, zone.js still in dependency tree
+- ag-Grid 35, RxJS 7.8
 
-**Known Issues:**
-- Results tracking needs integration testing with live DynamoDB
-- Teacher/parent dashboards need real classroom/enrollment seed data
-- Canvas components need visual verification on actual mobile devices
-- Angular 17 is 4 major versions behind current (21.2.5)
-- Jest deprecated in Angular 21, Vitest is now recommended
-- zone.js still present despite app being signal-based
+**Problem:**
+The codebase has accumulated patterns that violate ANGULAR-GUIDE.md and RXJS-SIGNALS-GUIDE.md. The upgrade to Angular 21 was mechanical — dependencies updated, build works — but the code itself wasn't modernized to match the guides. Legacy patterns from Angular 17, pre-signal idioms, and sloppy typing persist throughout.
 
-## v1.1 Goals
+## v1.2 Goals
 
-**Vision:** Upgrade to Angular 21 + Nx 22.3, go zoneless, modernize tooling
+**Vision:** Bring every file in the project into full compliance with ANGULAR-GUIDE.md and RXJS-SIGNALS-GUIDE.md. These documents are the absolute final word.
 
 **Motivation:**
-- Angular 17 is end-of-life, missing 4 major versions of improvements
-- Zoneless change detection is stable since Angular 20.2 — app already uses signals
-- Jest deprecated in Angular 21, Vitest is the future
-- ESLint 8 → 9 flat config needed for modern tooling
+- Code quality doesn't mean "it works" — it means maintainable, extensible, properly patterned
+- The guides define the standard. Anything that deviates is wrong.
+- Fix it now before building more features on a bad foundation
 
-**Scope (v1.1):**
-- Angular 17 → 21 upgrade via Nx migrate
-- Nx 18 → 22.3 (required for Angular 21 support)
-- TypeScript 5.3 → 5.8+
-- Zoneless change detection (remove zone.js)
-- Jest → Vitest migration
-- ESLint 8 → 9 flat config
-- ag-Grid 30 → 35
+**Scope (v1.2):**
+- Remove all explicit `standalone: true` (Angular 20+ default)
+- Replace all constructor injection with `inject()`
+- Replace `@HostListener` with `host` object
+- Add `ChangeDetectionStrategy.OnPush` to all components
+- Replace all `for` loops with functional methods (hard rule, no exceptions)
+- Eliminate all `any` types
+- Remove `CommonModule` imports, use native control flow
+- Convert template-driven forms to reactive forms
+- Rewrite services: `defer()` to wrap Amplify Promises, `rxResource` for reads, signals for state
+- Remove all `ngOnInit` data loading patterns
+- Fix Word Study component (worst offender: `any` types, `tap()` mutation, `mergeMap` instead of `switchMap`, duplicate shuffle, misspelled methods, unused imports)
+- Rewrite legacy MathComponent to signals
+
+**Authority:**
+- `ANGULAR-GUIDE.md` — The standard for Angular patterns
+- `RXJS-SIGNALS-GUIDE.md` — The standard for reactive patterns
+- If these guides say to do something, do it. No exceptions. No "but it works."
+
+**Amplify Boundary Decision:**
+Amplify SDK returns Promises. Wrap in `defer()` for cold Observable semantics — lazy execution, work doesn't fire until subscription. NOT `from()` (eagerly evaluates). Services use `defer()` internally, expose clean Observables or use `rxResource` for reads.
 
 **Success Criteria:**
-- [ ] pnpm build passes on Angular 21 + Nx 22.3
-- [ ] All components render correctly (no regressions)
-- [ ] zone.js fully removed, app runs zoneless
-- [ ] Vitest runs all existing tests
-- [ ] ESLint 9 flat config with no lint errors
-- [ ] ag-Grid 35 renders data grid correctly
+- [ ] Zero explicit `standalone: true` in any decorator
+- [ ] Zero constructor injection — all `inject()`
+- [ ] Zero `@HostListener` or `@HostBinding`
+- [ ] All components have `ChangeDetectionStrategy.OnPush`
+- [ ] Zero `for` loops — all functional methods
+- [ ] Zero `any` types
+- [ ] Zero `CommonModule` imports
+- [ ] All forms are reactive (no `FormsModule` with `ngModel` for form inputs)
+- [ ] All services use `defer()` for Amplify calls, `rxResource` for reads
+- [ ] Zero `ngOnInit` for data loading
+- [ ] `pnpm build` passes
+- [ ] `pnpm test` passes
+- [ ] App runs correctly (visual verification)
 
 **Out of Scope:**
-- Signal Forms (experimental in Angular 21 — wait for stable)
-- Angular Aria adoption
-- Additional subjects beyond math
-- Messaging system (deferred to v1.2)
-- Mobile native app
+- New features
+- Additional subjects
+- Signal Forms (experimental — wait for stable)
+- Test coverage expansion (fix existing tests, don't add new ones unless needed)
 
 ---
 
 <details>
-<summary>Original Vision (v1.0 - Archived for reference)</summary>
+<summary>Previous Milestones (Archived)</summary>
 
-**One-liner**: Restyle 7 math practice components to use the app's design system, wire results tracking to DynamoDB, and build role-based dashboards.
+### v1.0 Math Restyle (shipped 2026-03-22, commit f7f2df9)
+Restyled 7 math practice components, wired results tracking to DynamoDB, built role-based dashboards.
 
-## Problem
-
-Seven math practice components translated from standalone HTML/JS pages looked foreign in the Angular app — hardcoded colors, own navbars, no dark mode, per-component color pickers, localStorage-only scoring. The Amplify backend had ProblemAttempt and PerformanceCounter models defined but unwired.
-
-## Success Criteria
-
-- [x] All 7 math components use CSS custom properties instead of hardcoded colors
-- [x] Dark mode works across all components including canvas rendering
-- [x] Per-component color pickers removed, accent color managed globally via ThemeService
-- [x] MathResultsService records attempts to DynamoDB when authenticated
-- [x] Student math-menu shows personal stats and recent activity
-- [x] Teacher and parent dashboards show student results
-- [x] All components responsive at mobile widths
-
-## Constraints
-
-- Angular 17 with signals (no RxJS for new code) — upgrading to 21 in v1.1
-- pnpm only
-- Must preserve all existing math problem generation logic
-- CSS custom properties from _tokens.scss / _tokens-dark.scss
-
-## Out of Scope
-
-- New math problem types
-- Real-time collaboration
-- Offline-first / PWA
-- Subjects beyond math
+### v1.1 Angular 21 Upgrade (shipped 2026-03-22, commit 560c724)
+Angular 17→21, Nx 18→22.6, TypeScript 5.3→5.9, zoneless, Vitest, ESLint 9, ag-Grid 35.
 
 </details>

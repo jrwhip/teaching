@@ -1,13 +1,13 @@
-import { Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
 import { MathResultsService } from '../shared/math-results.service';
 
 type CircleType = 'open' | 'closed';
 type Direction = 'left' | 'right';
 
 @Component({
-  standalone: true,
   templateUrl: './inequality.component.html',
   styleUrl: './inequality.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InequalityComponent {
   private readonly containerRef = viewChild<ElementRef<HTMLDivElement>>('numberLineContainer');
@@ -28,13 +28,9 @@ export default class InequalityComponent {
   readonly resultMessage = signal('');
   readonly resultStyle = signal('');
 
-  readonly ticks = computed(() => {
-    const items: Array<{ index: number; value: number }> = [];
-    for (let i = 0; i < this.tickCount; i++) {
-      items.push({ index: i, value: i - 10 });
-    }
-    return items;
-  });
+  readonly ticks = computed(() =>
+    Array.from({ length: this.tickCount }, (_, i) => ({ index: i, value: i - 10 }))
+  );
 
   private step = 0;
 
@@ -170,7 +166,7 @@ export default class InequalityComponent {
       correctAnswer,
       studentAnswer,
       isCorrect,
-    });
+    }).subscribe();
 
     if (isCorrect) {
       this.errorMessage.set('');

@@ -1,10 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
-    imports: [FormsModule, RouterLink],
+    imports: [ReactiveFormsModule, RouterLink],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
     <div class="section">
       <div class="container" style="max-width: 460px;">
@@ -36,18 +38,15 @@ import { AuthService } from '../../core/auth/auth.service';
 
         <div class="card">
           <div class="card-body">
-            <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
               <div class="form-group">
                 <label class="form-label" for="email">Email address</label>
                 <input
                   id="email"
                   type="email"
                   class="form-input"
-                  [(ngModel)]="email"
-                  name="email"
+                  formControlName="email"
                   placeholder="name@example.com"
-                  required
-                  email
                   autocomplete="email"
                 />
               </div>
@@ -58,11 +57,8 @@ import { AuthService } from '../../core/auth/auth.service';
                   id="password"
                   type="password"
                   class="form-input"
-                  [(ngModel)]="password"
-                  name="password"
+                  formControlName="password"
                   placeholder="Enter your password"
-                  required
-                  minlength="8"
                   autocomplete="current-password"
                 />
               </div>
@@ -74,9 +70,9 @@ import { AuthService } from '../../core/auth/auth.service';
               <button
                 type="submit"
                 class="btn btn-primary w-full btn-lg"
-                [disabled]="loading || !loginForm.valid"
+                [disabled]="loading() || form.invalid"
               >
-                @if (loading) {
+                @if (loading()) {
                   <span class="spinner"></span>
                 } @else {
                   Sign In
@@ -96,11 +92,15 @@ import { AuthService } from '../../core/auth/auth.service';
 })
 export default class LoginComponent {
   readonly auth = inject(AuthService);
-  private route = inject(ActivatedRoute);
+  private readonly fb = inject(NonNullableFormBuilder);
+  private readonly route = inject(ActivatedRoute);
 
-  email = '';
-  password = '';
-  loading = false;
+  readonly form = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+  });
+
+  readonly loading = signal(false);
   confirmed = false;
   resetSuccess = false;
 
@@ -110,14 +110,11 @@ export default class LoginComponent {
     this.resetSuccess = params['reset'] === 'true';
   }
 
-  async onSubmit(): Promise<void> {
-    this.loading = true;
-    try {
-      await this.auth.signIn(this.email, this.password);
-    } catch {
-      // Error is set on auth.authError signal
-    } finally {
-      this.loading = false;
-    }
+  onSubmit(): void {
+    this.loading.set(true);
+    const { email, password } = this.form.getRawValue();
+    this.auth.signIn(email, password).pipe(
+      finalize(() => this.loading.set(false)),
+    ).subscribe();
   }
 }

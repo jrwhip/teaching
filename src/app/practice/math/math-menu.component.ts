@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { MathResultsService } from './shared/math-results.service';
@@ -7,18 +7,12 @@ import { getTaxonomy } from './shared/problem-taxonomy';
 @Component({
     imports: [RouterLink],
     templateUrl: './math-menu.component.html',
-    styleUrl: './math-menu.component.scss'
+    styleUrl: './math-menu.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class MathMenuComponent implements OnInit {
+export default class MathMenuComponent {
   readonly auth = inject(AuthService);
   readonly results = inject(MathResultsService);
-
-  ngOnInit(): void {
-    const profile = this.auth.userProfile();
-    if (profile) {
-      this.results.loadStudentStats(profile.id);
-    }
-  }
 
   formatType(type: string): string {
     return getTaxonomy(type).displayLabel;

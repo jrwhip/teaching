@@ -60,11 +60,10 @@ export function fracHtml(num: number | string, den: number | string): string {
 
 /** Compute integer power of a fraction, returning simplified numerator/denominator */
 export function fractionPower(num: number, den: number, exp: number): { numerator: number; denominator: number } {
-  let rn = 1, rd = 1;
-  for (let i = 0; i < exp; i++) {
-    rn *= num;
-    rd *= den;
-  }
+  const { rn, rd } = Array.from({ length: exp }).reduce<{ rn: number; rd: number }>(
+    (acc) => ({ rn: acc.rn * num, rd: acc.rd * den }),
+    { rn: 1, rd: 1 },
+  );
   const d = gcd(Math.abs(rn), Math.abs(rd));
   return { numerator: rn / d, denominator: rd / d };
 }

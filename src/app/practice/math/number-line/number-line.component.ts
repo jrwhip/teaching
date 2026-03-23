@@ -1,11 +1,10 @@
-import { Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
 import { MathResultsService } from '../shared/math-results.service';
 
 @Component({
-    imports: [FormsModule],
     templateUrl: './number-line.component.html',
-    styleUrl: './number-line.component.scss'
+    styleUrl: './number-line.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class NumberLineComponent {
   private readonly containerRef = viewChild<ElementRef<HTMLDivElement>>('numberLineContainer');
@@ -24,16 +23,12 @@ export default class NumberLineComponent {
   readonly correctCount = signal(0);
   readonly incorrectCount = signal(0);
 
-  readonly markers = computed(() => {
-    const items: Array<{ value: number; leftPercent: number }> = [];
-    for (let i = this.start; i <= this.end; i++) {
-      items.push({
-        value: i,
-        leftPercent: ((i - this.start) / (this.end - this.start)) * 100,
-      });
-    }
-    return items;
-  });
+  readonly markers = computed(() =>
+    Array.from({ length: this.end - this.start + 1 }, (_, i) => {
+      const value = this.start + i;
+      return { value, leftPercent: ((value - this.start) / (this.end - this.start)) * 100 };
+    })
+  );
 
   readonly userMarkerA = computed(() => {
     const val = this.userPlacedA();
@@ -127,7 +122,7 @@ export default class NumberLineComponent {
         correctAnswer: `Markers at ${this.pointA()}, ${this.pointB()}; distance ${correctDistance}`,
         studentAnswer: `Markers at ${this.userPlacedA()}, ${this.userPlacedB()}`,
         isCorrect: false,
-      });
+      }).subscribe();
       return;
     }
 
@@ -140,7 +135,7 @@ export default class NumberLineComponent {
       correctAnswer: String(correctDistance),
       studentAnswer: this.distanceInput(),
       isCorrect,
-    });
+    }).subscribe();
 
     if (isCorrect) {
       this.feedback.set('Correct!');
@@ -158,5 +153,9 @@ export default class NumberLineComponent {
     if (event.key === 'Enter') {
       this.checkAnswer();
     }
+  }
+
+  inputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value;
   }
 }

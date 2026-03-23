@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { AppShellComponent } from '../shared/layout/app-shell.component';
-import { roleGuard } from '../core/auth/auth.guard';
+import { dashboardRedirectGuard, roleGuard } from '../core/auth/auth.guard';
 
 const routes: Routes = [
   {
@@ -9,7 +9,8 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./dashboard-redirect.component'),
+        canActivate: [dashboardRedirectGuard],
+        children: [],
       },
       {
         path: 'teacher',
