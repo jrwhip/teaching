@@ -1,58 +1,61 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { AsyncPipe, KeyValuePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs';
 
-import { WordService, WordSection } from '../word.service';
+import { WordService } from '../word.service';
 
 import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
 import { WordListComponent } from './word-list/word-list.component';
 
 @Component({
     selector: 'app-next-step-word-study',
-    imports: [AsyncPipe, KeyValuePipe, WordStudyMenuComponent, WordListComponent],
+    imports: [WordStudyMenuComponent, WordListComponent],
     templateUrl: './next-step-word-study.component.html',
     styleUrls: ['./next-step-word-study.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NextStepWordStudyComponent implements OnInit {
+export default class NextStepWordStudyComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly wordService = inject(WordService);
 
-  wordGroups$!: Observable<WordSection | undefined>;
-  words!: string[];
+  private readonly sectionName = toSignal(
+    this.route.params.pipe(map(p => p['sectionName'] as string | undefined)),
+  );
 
-  ngOnInit(): void {
-    this.wordGroups$ = this.route.params.pipe(
-      tap(() => this.words = []),
-      map(({ sectionName }) => this.wordService.getSection(sectionName)),
-    );
+  readonly wordGroupEntries = computed(() => {
+    const name = this.sectionName();
+    const groups = name ? this.wordService.getSection(name) : undefined;
+    if (!groups) return [];
+    return Object.entries(groups).map(([key, words]) => ({ key, words }));
+  });
+
+  readonly words = linkedSignal({
+    source: this.sectionName,
+    computation: () => [] as string[],
+  });
+
+  shuffleWords(newWords: string[]): void {
+    const combined = [...this.words(), ...newWords];
+    this.fisherYatesShuffle(combined);
+    this.words.set(combined);
   }
 
-  suffleWords(newWordsArr: string[]) {
-    const wordsArr = this.words.concat(newWordsArr);
-    wordsArr.forEach((_, i) => {
-      const j = Math.floor(Math.random() * i);
-      const temp = wordsArr[i];
-      wordsArr[i] = wordsArr[j];
-      wordsArr[j] = temp;
+  clearWords(): void {
+    this.words.set([]);
+  }
+
+  randomize(): void {
+    const shuffled = [...this.words()];
+    this.fisherYatesShuffle(shuffled);
+    this.words.set(shuffled);
+  }
+
+  private fisherYatesShuffle(arr: string[]): void {
+    [...arr.keys()].reverse().forEach(i => {
+      if (i === 0) return;
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     });
-    this.words = wordsArr;
-  }
-
-  clearWordsArr() {
-    this.words = [];
-  }
-
-  randomize() {
-    const wordsArr = [...this.words];
-    wordsArr.forEach((_, i) => {
-      const j = Math.floor(Math.random() * i);
-      const temp = wordsArr[i];
-      wordsArr[i] = wordsArr[j];
-      wordsArr[j] = temp;
-    });
-    this.words = wordsArr;
   }
 }

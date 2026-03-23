@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink, ActivatedRoute } from '@angular/router';
-import { finalize } from 'rxjs';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Subject, concat, of, exhaustMap, map, catchError, filter, share } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
@@ -29,10 +30,10 @@ import { AuthService } from '../../core/auth/auth.service';
           </div>
         }
 
-        @if (auth.authError()) {
+        @if (error()) {
           <div class="alert alert-danger mb-3">
             <i class="fas fa-exclamation-circle"></i>
-            <span>{{ auth.authError() }}</span>
+            <span>{{ error() }}</span>
           </div>
         }
 
@@ -91,30 +92,58 @@ import { AuthService } from '../../core/auth/auth.service';
   `
 })
 export default class LoginComponent {
-  readonly auth = inject(AuthService);
+  private readonly auth = inject(AuthService);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
-  readonly loading = signal(false);
-  confirmed = false;
-  resetSuccess = false;
+  readonly confirmed = this.route.snapshot.queryParams['confirmed'] === 'true';
+  readonly resetSuccess = this.route.snapshot.queryParams['reset'] === 'true';
+
+  private readonly submit$ = new Subject<void>();
+
+  private readonly result$ = this.submit$.pipe(
+    exhaustMap(() => {
+      const { email, password } = this.form.getRawValue();
+      return concat(
+        of({ status: 'loading' as const }),
+        this.auth.signIn(email, password).pipe(
+          map(() => ({ status: 'success' as const })),
+          catchError(err => of({
+            status: 'error' as const,
+            message: err instanceof Error ? err.message : 'Sign in failed',
+          })),
+        ),
+      );
+    }),
+    share(),
+  );
+
+  private readonly result = toSignal(this.result$);
+
+  readonly loading = computed(() => this.result()?.status === 'loading');
+  readonly error = computed(() => {
+    const r = this.result();
+    if (!r || r.status !== 'error') return null;
+    return r.message;
+  });
 
   constructor() {
-    const params = this.route.snapshot.queryParams;
-    this.confirmed = params['confirmed'] === 'true';
-    this.resetSuccess = params['reset'] === 'true';
+    this.result$.pipe(
+      filter(r => r.status === 'success'),
+      takeUntilDestroyed(),
+    ).subscribe(() => {
+      this.auth.reloadProfile();
+      this.router.navigate(['/dashboard']);
+    });
   }
 
   onSubmit(): void {
-    this.loading.set(true);
-    const { email, password } = this.form.getRawValue();
-    this.auth.signIn(email, password).pipe(
-      finalize(() => this.loading.set(false)),
-    ).subscribe();
+    this.submit$.next();
   }
 }

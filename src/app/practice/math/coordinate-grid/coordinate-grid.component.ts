@@ -115,7 +115,7 @@ export default class CoordinateGridComponent {
       correctAnswer: `(${target.x}, ${target.y})`,
       studentAnswer: `(${user.x}, ${user.y})`,
       isCorrect,
-    }).subscribe();
+    });
 
     if (isCorrect) {
       this.feedback.set('Correct!');
@@ -158,7 +158,7 @@ export default class CoordinateGridComponent {
       correctAnswer: `(${target.x}, ${target.y}) + (${expectedReflection.x}, ${expectedReflection.y})`,
       studentAnswer: `(${user.x}, ${user.y}) + (${userRef.x}, ${userRef.y})`,
       isCorrect,
-    }).subscribe();
+    });
 
     let timeout: number;
 

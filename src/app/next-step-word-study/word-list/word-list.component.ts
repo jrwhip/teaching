@@ -1,13 +1,12 @@
-
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
-    imports: [],
     selector: 'app-word-list',
+    imports: [],
     templateUrl: './word-list.component.html',
     styleUrls: ['./word-list.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WordListComponent {
-  @Input() words: string[] = [];
+  readonly words = input<string[]>([]);
 }

@@ -61,7 +61,7 @@ Plans:
 
 Plans:
 - [x] 04-01: Dashboard & results components (remove ngOnInit, use rxResource/signals for data loading)
-- [ ] 04-02: Legacy MathComponent rewrite (full signals + OnPush + modern patterns)
+- [x] 04-02: Legacy MathComponent rewrite (full signals + OnPush + modern patterns)
 - [ ] 04-03: Word Study overhaul (fix everything: switchMap, typing, dedup shuffle, remove tap mutation)
 
 ## Progress
@@ -71,4 +71,4 @@ Plans:
 | 1. Angular 21 Upgrade | v1.1 | 3/3 | Complete | 2026-03-22 |
 | 2. Mechanical Code Standards | v1.2 | 4/4 | Complete | 2026-03-23 |
 | 3. Service Layer Modernization | v1.2 | 3/3 | Complete | 2026-03-23 |
-| 4. Component Modernization | v1.2 | 1/3 | In progress | - |
+| 4. Component Modernization | v1.2 | 2/3 | In progress | - |

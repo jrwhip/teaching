@@ -123,7 +123,7 @@ export default class QuizComponent {
         : this.userInput(),
       isCorrect: correct,
       hint: problem.hint,
-    }).subscribe();
+    });
 
     // Log the answer
     const entry: AnswerLogEntry = {

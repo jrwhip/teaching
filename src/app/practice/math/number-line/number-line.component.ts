@@ -122,7 +122,7 @@ export default class NumberLineComponent {
         correctAnswer: `Markers at ${this.pointA()}, ${this.pointB()}; distance ${correctDistance}`,
         studentAnswer: `Markers at ${this.userPlacedA()}, ${this.userPlacedB()}`,
         isCorrect: false,
-      }).subscribe();
+      });
       return;
     }
 
@@ -135,7 +135,7 @@ export default class NumberLineComponent {
       correctAnswer: String(correctDistance),
       studentAnswer: this.distanceInput(),
       isCorrect,
-    }).subscribe();
+    });
 
     if (isCorrect) {
       this.feedback.set('Correct!');

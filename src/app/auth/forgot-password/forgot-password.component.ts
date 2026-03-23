@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
+import { Subject, concat, of, exhaustMap, map, catchError, filter, share } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
@@ -13,7 +14,7 @@ import { AuthService } from '../../core/auth/auth.service';
         <div class="text-center mb-4">
           <h2>Reset Password</h2>
           <p class="text-muted">
-            @if (!codeSent) {
+            @if (!codeSent()) {
               Enter your email and we'll send a reset code
             } @else {
               Enter the code sent to <strong>{{ emailForm.getRawValue().email }}</strong>
@@ -21,16 +22,16 @@ import { AuthService } from '../../core/auth/auth.service';
           </p>
         </div>
 
-        @if (auth.authError()) {
+        @if (error()) {
           <div class="alert alert-danger mb-3">
             <i class="fas fa-exclamation-circle"></i>
-            <span>{{ auth.authError() }}</span>
+            <span>{{ error() }}</span>
           </div>
         }
 
         <div class="card">
           <div class="card-body">
-            @if (!codeSent) {
+            @if (!codeSent()) {
               <form [formGroup]="emailForm" (ngSubmit)="requestCode()">
                 <div class="form-group">
                   <label class="form-label" for="email">Email address</label>
@@ -106,8 +107,9 @@ import { AuthService } from '../../core/auth/auth.service';
   `
 })
 export default class ForgotPasswordComponent {
-  readonly auth = inject(AuthService);
+  private readonly auth = inject(AuthService);
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly router = inject(Router);
 
   readonly emailForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -118,25 +120,75 @@ export default class ForgotPasswordComponent {
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
   });
 
-  codeSent = false;
-  readonly loading = signal(false);
+  private readonly requestCode$ = new Subject<void>();
+  private readonly resetPw$ = new Subject<void>();
 
-  requestCode(): void {
-    this.loading.set(true);
-    const { email } = this.emailForm.getRawValue();
-    this.auth.resetPassword(email).pipe(
-      finalize(() => this.loading.set(false)),
-    ).subscribe({
-      complete: () => { this.codeSent = true; },
+  private readonly requestCodeResult = toSignal(
+    this.requestCode$.pipe(
+      exhaustMap(() => {
+        const { email } = this.emailForm.getRawValue();
+        return concat(
+          of({ status: 'loading' as const }),
+          this.auth.resetPassword(email).pipe(
+            map(() => ({ status: 'sent' as const })),
+            catchError(err => of({
+              status: 'error' as const,
+              message: err instanceof Error ? err.message : 'Reset request failed',
+            })),
+          ),
+        );
+      }),
+    ),
+  );
+
+  private readonly resetResult$ = this.resetPw$.pipe(
+    exhaustMap(() => {
+      const { email } = this.emailForm.getRawValue();
+      const { code, newPassword } = this.resetForm.getRawValue();
+      return concat(
+        of({ status: 'loading' as const }),
+        this.auth.confirmResetPassword(email, code, newPassword).pipe(
+          map(() => ({ status: 'success' as const })),
+          catchError(err => of({
+            status: 'error' as const,
+            message: err instanceof Error ? err.message : 'Password reset failed',
+          })),
+        ),
+      );
+    }),
+    share(),
+  );
+
+  private readonly resetResult = toSignal(this.resetResult$);
+
+  readonly codeSent = computed(() => this.requestCodeResult()?.status === 'sent');
+
+  readonly loading = computed(() =>
+    this.requestCodeResult()?.status === 'loading' || this.resetResult()?.status === 'loading',
+  );
+
+  readonly error = computed(() => {
+    const rc = this.requestCodeResult();
+    if (rc?.status === 'error') return rc.message;
+    const rr = this.resetResult();
+    if (rr?.status === 'error') return rr.message;
+    return null;
+  });
+
+  constructor() {
+    this.resetResult$.pipe(
+      filter(r => r.status === 'success'),
+      takeUntilDestroyed(),
+    ).subscribe(() => {
+      this.router.navigate(['/login'], { queryParams: { reset: true } });
     });
   }
 
+  requestCode(): void {
+    this.requestCode$.next();
+  }
+
   resetPassword(): void {
-    this.loading.set(true);
-    const { email } = this.emailForm.getRawValue();
-    const { code, newPassword } = this.resetForm.getRawValue();
-    this.auth.confirmResetPassword(email, code, newPassword).pipe(
-      finalize(() => this.loading.set(false)),
-    ).subscribe();
+    this.resetPw$.next();
   }
 }

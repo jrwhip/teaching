@@ -17,7 +17,7 @@ const routes: Routes = [
       },
       {
         path: 'math/rounding',
-        loadComponent: () => import('../math/math.component').then(c => c.MathComponent),
+        loadComponent: () => import('../math/math.component'),
       },
       {
         path: 'math/number-line',
@@ -59,11 +59,11 @@ const routes: Routes = [
       },
       {
         path: 'word-study',
-        loadComponent: () => import('../next-step-word-study/next-step-word-study.component').then(c => c.NextStepWordStudyComponent),
+        loadComponent: () => import('../next-step-word-study/next-step-word-study.component'),
       },
       {
         path: 'word-study/:sectionName',
-        loadComponent: () => import('../next-step-word-study/next-step-word-study.component').then(c => c.NextStepWordStudyComponent),
+        loadComponent: () => import('../next-step-word-study/next-step-word-study.component'),
       },
     ],
   },

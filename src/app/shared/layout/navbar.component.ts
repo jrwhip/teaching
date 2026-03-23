@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Subject, EMPTY, exhaustMap, catchError } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
 
@@ -8,18 +10,18 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
     imports: [RouterLink, RouterLinkActive],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-    <nav class="navbar" [class.scrolled]="scrolled">
+    <nav class="navbar" [class.scrolled]="scrolled()">
       <div class="container navbar-inner">
         <a routerLink="/dashboard" class="navbar-brand">
           <i class="fas fa-graduation-cap"></i>
           Teaching App
         </a>
 
-        <button class="nav-toggle" (click)="menuOpen = !menuOpen" aria-label="Toggle navigation">
-          <i class="fas" [class.fa-bars]="!menuOpen" [class.fa-times]="menuOpen"></i>
+        <button class="nav-toggle" (click)="menuOpen.set(!menuOpen())" aria-label="Toggle navigation">
+          <i class="fas" [class.fa-bars]="!menuOpen()" [class.fa-times]="menuOpen()"></i>
         </button>
 
-        <ul class="nav-links" [class.open]="menuOpen" (click)="menuOpen = false">
+        <ul class="nav-links" [class.open]="menuOpen()" (click)="menuOpen.set(false)">
           @switch (auth.userRole()) {
             @case ('TEACHER') {
               <li><a routerLink="/dashboard/teacher" routerLinkActive="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
@@ -39,10 +41,10 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
         <div class="nav-actions">
           <!-- Accent color picker (light mode only) -->
           @if (theme.theme() === 'light') {
-            <div class="dropdown accent-picker" [class.open]="accentOpen">
+            <div class="dropdown accent-picker" [class.open]="accentOpen()">
               <button
                 class="icon-btn"
-                (click)="accentOpen = !accentOpen"
+                (click)="accentOpen.set(!accentOpen())"
                 aria-label="Background color"
                 [style.background]="theme.effectiveAccent() || null"
               >
@@ -56,7 +58,7 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
                       [class.active]="theme.accentBg() === color.value"
                       [style.background]="color.value || 'var(--bg-surface)'"
                       [title]="color.label"
-                      (click)="theme.setAccent(color.value); accentOpen = false"
+                      (click)="theme.setAccent(color.value); accentOpen.set(false)"
                     >
                       @if (!color.value) {
                         <i class="fas fa-ban" style="color: var(--gray-400);"></i>
@@ -83,8 +85,8 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
             </button>
           </div>
 
-          <div class="dropdown" [class.open]="profileOpen">
-            <button class="icon-btn" (click)="profileOpen = !profileOpen" aria-label="Profile menu">
+          <div class="dropdown" [class.open]="profileOpen()">
+            <button class="icon-btn" (click)="profileOpen.set(!profileOpen())" aria-label="Profile menu">
               <i class="fas fa-user"></i>
             </button>
             <div class="dropdown-menu">
@@ -146,27 +148,40 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
 export class NavbarComponent {
   readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
+  private readonly router = inject(Router);
   readonly accentColors = ACCENT_COLORS;
 
-  scrolled = false;
-  menuOpen = false;
-  profileOpen = false;
-  accentOpen = false;
+  readonly scrolled = signal(false);
+  readonly menuOpen = signal(false);
+  readonly profileOpen = signal(false);
+  readonly accentOpen = signal(false);
+
+  private readonly signOut$ = new Subject<void>();
+
+  constructor() {
+    this.signOut$.pipe(
+      exhaustMap(() => this.auth.signOut().pipe(catchError(() => EMPTY))),
+      takeUntilDestroyed(),
+    ).subscribe(() => {
+      this.auth.clearProfile();
+      this.router.navigate(['/login']);
+    });
+  }
 
   onScroll(): void {
-    this.scrolled = window.scrollY > 10;
+    this.scrolled.set(window.scrollY > 10);
   }
 
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (!target.closest('.dropdown')) {
-      this.profileOpen = false;
-      this.accentOpen = false;
+      this.profileOpen.set(false);
+      this.accentOpen.set(false);
     }
   }
 
   onSignOut(): void {
-    this.profileOpen = false;
-    this.auth.signOut().subscribe();
+    this.profileOpen.set(false);
+    this.signOut$.next();
   }
 }

@@ -1,5 +1,4 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Router } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
 import {
   signUp,
@@ -21,10 +20,6 @@ const client = generateClient<Schema>();
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly router = inject(Router);
-
-  readonly authError = signal<string | null>(null);
-
   /**
    * Trigger signal for profile loading. Incrementing this causes rxResource to re-fetch.
    * Starts at 0 so the resource fires on construction.
@@ -77,8 +72,11 @@ export class AuthService {
     this.profileTrigger.update(v => v + 1);
   }
 
+  clearProfile(): void {
+    this.profileResource.set(null);
+  }
+
   signUp(email: string, password: string, displayName: string, role: UserRole): Observable<void> {
-    this.authError.set(null);
     return defer(() =>
       signUp({
         username: email,
@@ -91,88 +89,42 @@ export class AuthService {
           },
         },
       }),
-    ).pipe(
-      switchMap(() => {
-        this.router.navigate(['/confirm'], { queryParams: { email } });
-        return EMPTY;
-      }),
-      catchError(err => {
-        this.authError.set(err instanceof Error ? err.message : 'Sign up failed');
-        throw err;
-      }),
-    );
+    ).pipe(map(() => undefined));
   }
 
   confirmSignUp(email: string, code: string): Observable<void> {
-    this.authError.set(null);
     return defer(() => confirmSignUp({ username: email, confirmationCode: code })).pipe(
-      switchMap(() => {
-        this.router.navigate(['/login'], { queryParams: { confirmed: true } });
-        return EMPTY;
-      }),
-      catchError(err => {
-        this.authError.set(err instanceof Error ? err.message : 'Confirmation failed');
-        throw err;
-      }),
+      map(() => undefined),
     );
   }
 
   signIn(email: string, password: string): Observable<void> {
-    this.authError.set(null);
     return defer(() => signIn({ username: email, password })).pipe(
       switchMap(result => {
-        if (!result.isSignedIn) return EMPTY;
+        if (!result.isSignedIn) {
+          throw new Error('Sign-in requires additional steps (e.g. MFA or new password).');
+        }
         return defer(() => getCurrentUser()).pipe(
           switchMap(user => this.ensureProfileExists(user.userId)),
-          switchMap(() => {
-            this.reloadProfile();
-            this.router.navigate(['/dashboard']);
-            return EMPTY;
-          }),
         );
-      }),
-      catchError(err => {
-        this.authError.set(err instanceof Error ? err.message : 'Sign in failed');
-        throw err;
       }),
     );
   }
 
   signOut(): Observable<void> {
-    return defer(() => signOut()).pipe(
-      switchMap(() => {
-        this.profileResource.set(null);
-        this.router.navigate(['/login']);
-        return EMPTY;
-      }),
-    );
+    return defer(() => signOut());
   }
 
   resetPassword(email: string): Observable<void> {
-    this.authError.set(null);
     return defer(() => resetPassword({ username: email })).pipe(
       map(() => undefined),
-      catchError(err => {
-        this.authError.set(err instanceof Error ? err.message : 'Reset request failed');
-        throw err;
-      }),
     );
   }
 
   confirmResetPassword(email: string, code: string, newPassword: string): Observable<void> {
-    this.authError.set(null);
     return defer(() =>
       confirmResetPassword({ username: email, confirmationCode: code, newPassword }),
-    ).pipe(
-      switchMap(() => {
-        this.router.navigate(['/login'], { queryParams: { reset: true } });
-        return EMPTY;
-      }),
-      catchError(err => {
-        this.authError.set(err instanceof Error ? err.message : 'Password reset failed');
-        throw err;
-      }),
-    );
+    ).pipe(map(() => undefined));
   }
 
   /**

@@ -28,7 +28,7 @@ export default class AreaPerimeterComponent {
   readonly hintText = signal('');
   readonly showHint = signal(false);
 
-  private currentProblem: ShapeProblem | null = null;
+  private readonly currentProblem = signal<ShapeProblem | null>(null);
 
   readonly shapes: Array<{ type: ShapeType; label: string }> = [
     { type: 'rectangle', label: 'Rectangle' },
@@ -58,9 +58,10 @@ export default class AreaPerimeterComponent {
     this.showHint.set(false);
 
     const isArea = shape === 'triangle' || shape === 'trapezoid' || Math.random() < 0.5;
-    this.currentProblem = this.createShapeProblem(shape, isArea);
+    const problem = this.createShapeProblem(shape, isArea);
+    this.currentProblem.set(problem);
     this.problemText.set(`Calculate the ${isArea ? 'area' : 'perimeter'} of the ${shape.replace(/-/g, ' ')}`);
-    this.drawShape(shape, this.currentProblem.dimensions);
+    this.drawShape(shape, problem.dimensions);
   }
 
   insertUnit(unit: string): void {
@@ -71,11 +72,12 @@ export default class AreaPerimeterComponent {
   }
 
   checkAnswer(): void {
-    if (!this.currentProblem) return;
+    const problem = this.currentProblem();
+    if (!problem) return;
 
     const userAnswer = this.userInput().trim();
-    const expectedUnit = this.currentProblem.isArea ? 'u\u00B2' : 'u';
-    const correctAnswer = `${this.currentProblem.answer} ${expectedUnit}`;
+    const expectedUnit = problem.isArea ? 'u\u00B2' : 'u';
+    const correctAnswer = `${problem.answer} ${expectedUnit}`;
     const isCorrect = userAnswer === correctAnswer;
 
     this.results.recordAttempt({
@@ -86,7 +88,7 @@ export default class AreaPerimeterComponent {
       studentAnswer: userAnswer,
       isCorrect,
       hint: this.showHint() ? this.hintText() : undefined,
-    }).subscribe();
+    });
 
     if (isCorrect) {
       this.message.set('Correct!');
@@ -111,9 +113,10 @@ export default class AreaPerimeterComponent {
   }
 
   showHintMessage(): void {
-    if (!this.selectedShape() || !this.currentProblem) return;
+    const problem = this.currentProblem();
+    if (!this.selectedShape() || !problem) return;
     this.showHint.set(true);
-    this.hintText.set(this.getHintForShape(this.selectedShape()!, this.currentProblem.isArea));
+    this.hintText.set(this.getHintForShape(this.selectedShape()!, problem.isArea));
   }
 
   private randomInt(min: number, max: number): number {
@@ -344,11 +347,12 @@ export default class AreaPerimeterComponent {
   }
 
   private showSolution(): void {
-    if (!this.currentProblem || !this.selectedShape()) return;
+    const problem = this.currentProblem();
+    if (!problem || !this.selectedShape()) return;
 
-    const d = this.currentProblem.dimensions;
-    const answer = this.currentProblem.answer;
-    const isArea = this.currentProblem.isArea;
+    const d = problem.dimensions;
+    const answer = problem.answer;
+    const isArea = problem.isArea;
     const unit = isArea ? 'u\u00B2' : 'u';
     const shape = this.selectedShape()!;
 

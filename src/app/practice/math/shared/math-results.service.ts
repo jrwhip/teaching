@@ -146,9 +146,9 @@ export class MathResultsService {
     this.sessionIncorrect.set(0);
   }
 
-  // --- Mutation operations returning Observable ---
+  // --- Mutation operations ---
 
-  recordAttempt(params: AttemptParams): Observable<void> {
+  recordAttempt(params: AttemptParams): void {
     // Update local session state synchronously
     if (params.isCorrect) {
       this.sessionCorrect.update(c => c + 1);
@@ -159,12 +159,12 @@ export class MathResultsService {
     const profile = this.auth.userProfile();
     if (!profile) {
       this.storeLocally(params);
-      return EMPTY;
+      return;
     }
 
     const attemptedAt = new Date().toISOString();
 
-    return defer(() =>
+    defer(() =>
       this.data.models.ProblemAttempt.create({
         studentId: profile.id,
         problemType: params.problemType,
@@ -181,16 +181,12 @@ export class MathResultsService {
       }),
     ).pipe(
       switchMap(() => this.upsertPerformanceCounter(profile.id, params, profile.readAccess)),
-      map(() => {
-        this.performanceCountersResource.reload();
-        this.recentAttemptsResource.reload();
-      }),
       catchError(err => {
         console.error('Failed to record attempt:', err);
         this.storeLocally(params);
         return EMPTY;
       }),
-    );
+    ).subscribe();
   }
 
   private upsertPerformanceCounter(

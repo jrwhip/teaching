@@ -45,6 +45,6 @@ export const appRoutes: Route[] = [
   // 404
   {
     path: '**',
-    loadComponent: () => import('./page-not-found/page-not-found.component').then(c => c.PageNotFoundComponent),
+    loadComponent: () => import('./page-not-found/page-not-found.component'),
   },
 ];

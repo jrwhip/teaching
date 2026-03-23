@@ -1,15 +1,13 @@
 <app-word-study-menu></app-word-study-menu>
 
-@if (wordGroups$ | async; as wordGroups) {
+@if (wordGroupEntries().length) {
   <div class="link-list">
-    @for (wordGroup of wordGroups | keyvalue; track wordGroup) {
-      <a role="button" (click)="suffleWords(wordGroup.value)">{{
-        wordGroup.key
-      }}</a>
+    @for (group of wordGroupEntries(); track group.key) {
+      <a role="button" (click)="shuffleWords(group.words)">{{ group.key }}</a>
     }
-    <a role="button" (click)="clearWordsArr()">Clear</a>
+    <a role="button" (click)="clearWords()">Clear</a>
     <a role="button" (click)="randomize()">Randomize</a>
   </div>
 }
 
-<app-word-list [words]="words"></app-word-list>
+<app-word-list [words]="words()"></app-word-list>

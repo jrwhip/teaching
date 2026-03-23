@@ -32,8 +32,6 @@ export default class InequalityComponent {
     Array.from({ length: this.tickCount }, (_, i) => ({ index: i, value: i - 10 }))
   );
 
-  private step = 0;
-
   constructor() {
     this.results.startNewSession();
     this.generateProblem();
@@ -91,8 +89,8 @@ export default class InequalityComponent {
 
     const rect = container.getBoundingClientRect();
     const x = event.clientX - rect.left;
-    this.step = container.offsetWidth / (this.tickCount - 1);
-    const closestIndex = Math.round(x / this.step);
+    const step = container.offsetWidth / (this.tickCount - 1);
+    const closestIndex = Math.round(x / step);
     this.markerPosition.set(closestIndex - 10);
   }
 
@@ -101,8 +99,8 @@ export default class InequalityComponent {
     if (pos === null) return 0;
     const container = this.containerRef()?.nativeElement;
     if (!container) return 0;
-    this.step = container.offsetWidth / (this.tickCount - 1);
-    return (pos + 10) * this.step;
+    const step = container.offsetWidth / (this.tickCount - 1);
+    return (pos + 10) * step;
   }
 
   getLineStyle(): { left: string; width: string } | null {
@@ -110,18 +108,18 @@ export default class InequalityComponent {
     const container = this.containerRef()?.nativeElement;
     if (!container) return null;
 
-    this.step = container.offsetWidth / (this.tickCount - 1);
+    const step = container.offsetWidth / (this.tickCount - 1);
     const startIndex = this.markerPosition()! + 10;
 
     if (this.selectedDirection() === 'right') {
       return {
-        left: `${startIndex * this.step}px`,
-        width: `${container.offsetWidth - startIndex * this.step}px`,
+        left: `${startIndex * step}px`,
+        width: `${container.offsetWidth - startIndex * step}px`,
       };
     } else {
       return {
         left: '0px',
-        width: `${startIndex * this.step}px`,
+        width: `${startIndex * step}px`,
       };
     }
   }
@@ -166,7 +164,7 @@ export default class InequalityComponent {
       correctAnswer,
       studentAnswer,
       isCorrect,
-    }).subscribe();
+    });
 
     if (isCorrect) {
       this.errorMessage.set('');

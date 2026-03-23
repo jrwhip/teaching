@@ -77,7 +77,7 @@ export default class Quiz3Component {
       correctAnswer: item.problem.answer,
       studentAnswer: input.trim(),
       isCorrect,
-    }).subscribe();
+    });
 
     const updated = [...items];
     if (isCorrect) {
