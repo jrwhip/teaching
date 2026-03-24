@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
 import { MathResultsService } from '../shared/math-results.service';
+import { getTaxonomy } from '../shared/problem-taxonomy';
 
 @Component({
     templateUrl: './number-line.component.html',
@@ -115,6 +116,7 @@ export default class NumberLineComponent {
       this.feedback.set(`Incorrect marker placement. Place markers at ${this.pointA()} and ${this.pointB()}.`);
       this.feedbackColor.set('red');
       this.incorrectCount.update(c => c + 1);
+      const taxonomy = getTaxonomy('number-line');
       this.results.recordAttempt({
         problemType: 'number-line',
         problemCategory: 'Geometry',
@@ -122,12 +124,15 @@ export default class NumberLineComponent {
         correctAnswer: `Markers at ${this.pointA()}, ${this.pointB()}; distance ${correctDistance}`,
         studentAnswer: `Markers at ${this.userPlacedA()}, ${this.userPlacedB()}`,
         isCorrect: false,
+        difficulty: taxonomy.difficulty,
+        gradeLevel: taxonomy.gradeLevel,
       });
       return;
     }
 
     const isCorrect = parseInt(this.distanceInput(), 10) === correctDistance;
 
+    const taxonomy = getTaxonomy('number-line');
     this.results.recordAttempt({
       problemType: 'number-line',
       problemCategory: 'Geometry',
@@ -135,6 +140,8 @@ export default class NumberLineComponent {
       correctAnswer: String(correctDistance),
       studentAnswer: this.distanceInput(),
       isCorrect,
+      difficulty: taxonomy.difficulty,
+      gradeLevel: taxonomy.gradeLevel,
     });
 
     if (isCorrect) {

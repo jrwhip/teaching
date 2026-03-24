@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal, computed, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Problem, ProblemType, MENU_CATEGORIES, MenuCategory } from './problem.model';
-import { GENERATORS } from './generators';
+import { Problem, ProblemType } from '../quiz/problem.model';
+import { GENERATORS } from '../quiz/generators';
 import { MathResultsService } from '../shared/math-results.service';
 import { getTaxonomy } from '../shared/problem-taxonomy';
+import { calculateWeights, weightedRandomPick, WeaknessWeight } from '../shared/weakness-analyzer';
 
 interface AnswerLogEntry {
   question: string;
@@ -12,35 +13,52 @@ interface AnswerLogEntry {
 }
 
 @Component({
-    selector: 'app-quiz',
-    templateUrl: './quiz.component.html',
-    styleUrl: './quiz.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './smart-quiz.component.html',
+  styleUrl: './smart-quiz.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class QuizComponent {
+export default class SmartQuizComponent {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly results = inject(MathResultsService);
 
-  readonly categories: MenuCategory[] = MENU_CATEGORIES;
-  readonly fontSizes = [
-    { label: 'S', cssClass: 'small-font' },
-    { label: 'M', cssClass: 'medium-font' },
-    { label: 'L', cssClass: 'large-font' },
-  ];
+  private readonly generatorTypes = Object.keys(GENERATORS) as ProblemType[];
 
-  // State
-  readonly activeCategory = signal<string>('Basics');
-  readonly activeProblemType = signal<ProblemType>('addition');
   readonly currentProblem = signal<Problem | null>(null);
+  readonly activeProblemType = signal<ProblemType>('addition');
   readonly userInput = signal('');
   readonly extraInput = signal('');
-  readonly fontSize = signal('medium-font');
+  readonly showHint = signal(false);
   readonly correctCount = signal(0);
   readonly incorrectCount = signal(0);
-  readonly showHint = signal(false);
   readonly answerLog = signal<AnswerLogEntry[]>([]);
 
-  // Computed
+  readonly weights = computed<WeaknessWeight[]>(() => {
+    const counters = this.results.performanceCounters();
+    return calculateWeights(counters, this.generatorTypes);
+  });
+
+  readonly focusLabel = computed(() => {
+    const w = this.weights();
+    if (w.length === 0) return '';
+    const weakest = [...w].sort((a, b) => b.weight - a.weight)[0];
+    if (!weakest || weakest.totalAttempts === 0) return 'Exploring new problem types';
+    const taxonomy = getTaxonomy(weakest.problemType);
+    return `Focusing on: ${taxonomy.displayLabel} — ${weakest.accuracy}% accuracy`;
+  });
+
+  readonly topWeaknesses = computed(() => {
+    const w = this.weights();
+    return [...w]
+      .filter(x => x.weight > 1)
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, 5)
+      .map(x => ({
+        label: getTaxonomy(x.problemType).displayLabel,
+        accuracy: x.accuracy,
+        attempts: x.totalAttempts,
+      }));
+  });
+
   readonly questionHtml = computed<SafeHtml>(() => {
     const p = this.currentProblem();
     if (!p) return '';
@@ -53,39 +71,27 @@ export default class QuizComponent {
     return this.sanitizer.bypassSecurityTrustHtml(p.hint);
   });
 
-  readonly activeItems = computed(() => {
-    const cat = this.categories.find(c => c.label === this.activeCategory());
-    return cat?.items ?? [];
-  });
+  readonly currentTypeLabel = computed(() =>
+    getTaxonomy(this.activeProblemType()).displayLabel,
+  );
 
   constructor() {
     this.results.startNewSession();
-    this.generateProblem('addition');
+    this.pickNextProblem();
   }
 
-  setCategory(label: string): void {
-    this.activeCategory.set(label);
-  }
-
-  selectProblemType(type: ProblemType): void {
+  pickNextProblem(): void {
+    const w = this.weights();
+    const type = (w.length > 0 ? weightedRandomPick(w) : 'addition') as ProblemType;
     this.activeProblemType.set(type);
-    this.generateProblem(type);
-  }
 
-  generateProblem(type?: ProblemType): void {
-    const t = type ?? this.activeProblemType();
-    this.activeProblemType.set(t);
-    const generator = GENERATORS[t];
+    const generator = GENERATORS[type];
     if (generator) {
       this.currentProblem.set(generator.generate());
       this.userInput.set('');
       this.extraInput.set('');
       this.showHint.set(false);
     }
-  }
-
-  setFontSize(cssClass: string): void {
-    this.fontSize.set(cssClass);
   }
 
   insertSymbol(symbol: string): void {
@@ -127,7 +133,6 @@ export default class QuizComponent {
       gradeLevel: problem.gradeLevel ?? taxonomy.gradeLevel,
     });
 
-    // Log the answer
     const entry: AnswerLogEntry = {
       question: problem.question,
       userAnswer: problem.needsExtraInput
@@ -139,7 +144,7 @@ export default class QuizComponent {
 
     if (correct) {
       this.showHint.set(false);
-      this.generateProblem();
+      this.pickNextProblem();
     } else {
       this.showHint.set(true);
     }

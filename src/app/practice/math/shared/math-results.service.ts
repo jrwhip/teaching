@@ -3,6 +3,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { catchError, defer, EMPTY, map, Observable, of, switchMap } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { DataService } from '../../../core/data/data.service';
+import { analyzeError } from './error-analyzer';
 
 export interface AttemptParams {
   problemType: string;
@@ -13,6 +14,9 @@ export interface AttemptParams {
   isCorrect: boolean;
   hint?: string;
   attemptDurationMs?: number;
+  errorType?: string;
+  difficulty?: number;
+  gradeLevel?: number;
 }
 
 interface LocalAttempt extends AttemptParams {
@@ -156,6 +160,19 @@ export class MathResultsService {
       this.sessionIncorrect.update(c => c + 1);
     }
 
+    // Run error analysis on incorrect answers
+    if (!params.isCorrect && !params.errorType) {
+      const analysis = analyzeError(
+        params.problemType,
+        params.question,
+        params.correctAnswer,
+        params.studentAnswer,
+      );
+      if (analysis) {
+        params = { ...params, errorType: analysis.errorType };
+      }
+    }
+
     const profile = this.auth.userProfile();
     if (!profile) {
       this.storeLocally(params);
@@ -174,6 +191,9 @@ export class MathResultsService {
         studentAnswer: params.studentAnswer,
         isCorrect: params.isCorrect,
         hint: params.hint ?? null,
+        errorType: params.errorType ?? null,
+        difficulty: params.difficulty ?? null,
+        gradeLevel: params.gradeLevel ?? null,
         sessionId: this.sessionId(),
         attemptDurationMs: params.attemptDurationMs ?? null,
         readAccess: profile.readAccess,

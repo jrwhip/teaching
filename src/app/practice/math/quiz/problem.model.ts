@@ -5,6 +5,8 @@ export interface Problem {
   hint: string;
   needsExtraInput: boolean;
   needsCompareButtons?: boolean;
+  difficulty?: number;
+  gradeLevel?: number;
 }
 
 export interface ProblemGenerator {

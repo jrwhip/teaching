@@ -48,6 +48,10 @@ const routes: Routes = [
         loadComponent: () => import('./math/quiz/quiz.component'),
       },
       {
+        path: 'math/smart-quiz',
+        loadComponent: () => import('./math/smart-quiz/smart-quiz.component'),
+      },
+      {
         path: 'math/results/teacher',
         canActivate: [roleGuard('TEACHER')],
         loadComponent: () => import('./math/results/teacher-results.component'),

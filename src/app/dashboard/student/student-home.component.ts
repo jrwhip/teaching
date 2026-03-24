@@ -42,6 +42,21 @@ import { StreakDisplayComponent } from '../../shared/components/streak-display.c
           />
         </div>
 
+        <h4 class="mb-2">Recommended</h4>
+        <div class="grid grid-1 mb-3">
+          <a routerLink="/practice/math/smart-quiz" class="card">
+            <div class="card-body flex items-center gap-3">
+              <div class="icon-badge icon-badge-primary">
+                <i class="fas fa-brain"></i>
+              </div>
+              <div>
+                <h5 class="mb-0">Smart Quiz</h5>
+                <p class="text-sm text-muted mb-0">Adaptive practice targeting your weak areas</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
         <h4 class="mb-2">Start Practicing</h4>
         <div class="grid grid-2">
           <a routerLink="/practice/math" class="card">

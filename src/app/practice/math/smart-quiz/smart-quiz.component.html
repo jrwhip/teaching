@@ -1,0 +1,86 @@
+<div class="section">
+  <div class="container">
+    <div class="smart-quiz-header mb-3">
+      <h2 class="mb-1">Smart Quiz</h2>
+      <p class="text-muted focus-label">{{ focusLabel() }}</p>
+    </div>
+
+    <!-- Weakness Summary -->
+    @if (topWeaknesses().length > 0) {
+      <div class="weakness-bar card-flat mb-3">
+        <span class="weakness-title">Areas to improve:</span>
+        @for (w of topWeaknesses(); track w.label) {
+          <span class="weakness-tag">
+            {{ w.label }}
+            <span class="weakness-acc">{{ w.attempts === 0 ? 'New' : w.accuracy + '%' }}</span>
+          </span>
+        }
+      </div>
+    }
+
+    <!-- Stats Bar -->
+    <div class="stats-bar card-flat">
+      <span>Correct: <strong>{{ correctCount() }}</strong></span>
+      <span>Incorrect: <strong>{{ incorrectCount() }}</strong></span>
+      <span class="current-type">{{ currentTypeLabel() }}</span>
+    </div>
+
+    <!-- Problem Card -->
+    <div class="problem-card card">
+      <div class="problem-question medium-font" [innerHTML]="questionHtml()"></div>
+
+      @if (currentProblem()?.needsCompareButtons) {
+        <div class="compare-buttons">
+          <button class="compare-btn" (click)="insertSymbol('<')">&lt;</button>
+          <button class="compare-btn" (click)="insertSymbol('=')">=</button>
+          <button class="compare-btn" (click)="insertSymbol('>')">&gt;</button>
+        </div>
+      }
+
+      @if (!currentProblem()?.needsCompareButtons) {
+        <div class="input-area">
+          <input
+            type="text"
+            placeholder="Enter your answer"
+            [value]="userInput()"
+            (input)="userInput.set(inputValue($event))"
+            (keypress)="onKeypress($event)"
+          />
+          @if (currentProblem()?.needsExtraInput) {
+            <input
+              type="text"
+              placeholder="Second answer"
+              [value]="extraInput()"
+              (input)="extraInput.set(inputValue($event))"
+              (keypress)="onKeypress($event)"
+            />
+          }
+          <button class="btn btn-primary" (click)="checkAnswer()">Go</button>
+        </div>
+      }
+
+      <button class="btn btn-sm btn-light" (click)="pickNextProblem()">Skip</button>
+    </div>
+
+    <!-- Hint -->
+    @if (showHint()) {
+      <div class="hint-area" [innerHTML]="hintHtml()"></div>
+    }
+
+    <!-- Answer History -->
+    @if (answerLog().length > 0) {
+      <div class="answer-history card-flat">
+        <h3>Previous Answers</h3>
+        <div class="history-list">
+          @for (entry of answerLog(); track $index) {
+            <div [class]="entry.correct ? 'log-correct' : 'log-incorrect'">
+              <span class="log-question" [innerHTML]="entry.question"></span>
+              Your answer: {{ entry.userAnswer }} -
+              {{ entry.correct ? 'Correct!' : 'Incorrect' }}
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

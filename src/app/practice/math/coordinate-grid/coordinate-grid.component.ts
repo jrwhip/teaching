@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
 import { MathResultsService } from '../shared/math-results.service';
+import { getTaxonomy } from '../shared/problem-taxonomy';
 
 type Mode = 'plotCoordinate' | 'reflection';
 interface Point { x: number; y: number; }
@@ -108,6 +109,7 @@ export default class CoordinateGridComponent {
     const isCorrect = user.x === target.x && user.y === target.y;
     let timeout: number;
 
+    const taxonomy = getTaxonomy('coordinate-grid');
     this.results.recordAttempt({
       problemType: 'coordinate-grid',
       problemCategory: 'Geometry',
@@ -115,6 +117,8 @@ export default class CoordinateGridComponent {
       correctAnswer: `(${target.x}, ${target.y})`,
       studentAnswer: `(${user.x}, ${user.y})`,
       isCorrect,
+      difficulty: taxonomy.difficulty,
+      gradeLevel: taxonomy.gradeLevel,
     });
 
     if (isCorrect) {
@@ -151,6 +155,7 @@ export default class CoordinateGridComponent {
 
     const question = `Plot (${target.x}, ${target.y}) and its ${this.reflectionType()} reflection`;
 
+    const taxonomy = getTaxonomy('coordinate-grid');
     this.results.recordAttempt({
       problemType: 'coordinate-grid',
       problemCategory: 'Geometry',
@@ -158,6 +163,8 @@ export default class CoordinateGridComponent {
       correctAnswer: `(${target.x}, ${target.y}) + (${expectedReflection.x}, ${expectedReflection.y})`,
       studentAnswer: `(${user.x}, ${user.y}) + (${userRef.x}, ${userRef.y})`,
       isCorrect,
+      difficulty: taxonomy.difficulty,
+      gradeLevel: taxonomy.gradeLevel,
     });
 
     let timeout: number;

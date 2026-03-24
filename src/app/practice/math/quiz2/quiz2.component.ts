@@ -114,6 +114,8 @@ export default class Quiz2Component {
       correctAnswer: item.problem.answer,
       studentAnswer: input.trim(),
       isCorrect,
+      difficulty: taxonomy.difficulty,
+      gradeLevel: taxonomy.gradeLevel,
     });
 
     const updated = [...items];

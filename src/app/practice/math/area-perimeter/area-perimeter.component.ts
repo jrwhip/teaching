@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal, ElementRef, viewChild, inject } from '@angular/core';
 import { getCanvasTheme } from '../shared/canvas-theme.util';
 import { MathResultsService } from '../shared/math-results.service';
+import { getTaxonomy } from '../shared/problem-taxonomy';
 
 type ShapeType = 'rectangle' | 'square' | 'triangle' | 'trapezoid' | 'two-rectangles-side' | 'irregular-l';
 
@@ -80,6 +81,7 @@ export default class AreaPerimeterComponent {
     const correctAnswer = `${problem.answer} ${expectedUnit}`;
     const isCorrect = userAnswer === correctAnswer;
 
+    const taxonomy = getTaxonomy('area-perimeter');
     this.results.recordAttempt({
       problemType: 'area-perimeter',
       problemCategory: 'Geometry',
@@ -88,6 +90,8 @@ export default class AreaPerimeterComponent {
       studentAnswer: userAnswer,
       isCorrect,
       hint: this.showHint() ? this.hintText() : undefined,
+      difficulty: taxonomy.difficulty,
+      gradeLevel: taxonomy.gradeLevel,
     });
 
     if (isCorrect) {

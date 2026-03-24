@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal, computed, ElementRef, viewChild, inject } from '@angular/core';
 import { MathResultsService } from '../shared/math-results.service';
+import { getTaxonomy } from '../shared/problem-taxonomy';
 
 type CircleType = 'open' | 'closed';
 type Direction = 'left' | 'right';
@@ -157,6 +158,7 @@ export default class InequalityComponent {
     const studentAnswer = `pos=${this.markerPosition()}, circle=${circle}, dir=${dir}`;
     const correctAnswer = `pos=${this.targetValue()}, circle=${ineq.includes('=') ? 'closed' : 'open'}, dir=${this.correctDirection()}`;
 
+    const taxonomy = getTaxonomy('inequality');
     this.results.recordAttempt({
       problemType: 'inequality',
       problemCategory: 'Geometry',
@@ -164,6 +166,8 @@ export default class InequalityComponent {
       correctAnswer,
       studentAnswer,
       isCorrect,
+      difficulty: taxonomy.difficulty,
+      gradeLevel: taxonomy.gradeLevel,
     });
 
     if (isCorrect) {
