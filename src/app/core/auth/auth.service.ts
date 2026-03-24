@@ -4,6 +4,7 @@ import {
   signUp,
   confirmSignUp,
   signIn,
+  confirmSignIn,
   signOut,
   getCurrentUser,
   fetchUserAttributes,
@@ -101,13 +102,26 @@ export class AuthService {
   signIn(email: string, password: string): Observable<void> {
     return defer(() => signIn({ username: email, password })).pipe(
       switchMap(result => {
-        if (!result.isSignedIn) {
-          throw new Error('Sign-in requires additional steps (e.g. MFA or new password).');
+        if (result.isSignedIn) {
+          return defer(() => getCurrentUser()).pipe(
+            switchMap(user => this.ensureProfileExists(user.userId)),
+          );
         }
-        return defer(() => getCurrentUser()).pipe(
-          switchMap(user => this.ensureProfileExists(user.userId)),
-        );
+
+        if (result.nextStep?.signInStep === 'CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED') {
+          throw new Error(
+            'This account requires a password reset. Please contact your teacher or parent.',
+          );
+        }
+
+        throw new Error('Sign-in requires additional steps (e.g. MFA).');
       }),
+    );
+  }
+
+  confirmNewPassword(newPassword: string): Observable<void> {
+    return defer(() => confirmSignIn({ challengeResponse: newPassword })).pipe(
+      map(() => undefined),
     );
   }
 

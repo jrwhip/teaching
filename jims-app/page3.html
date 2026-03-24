@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Practice Page</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  /* Container for all problems */
+  .problem {
+    background: white; /* White background for contrast */
+    border: 2px solid #ccc; /* Box border */
+    border-radius: 10px; /* Rounded corners */
+    padding: 15px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    text-align: center;
+}
+
+ 
+  .problems-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns per row */
+    gap: 20px; /* Spacing between problems */
+    max-width: 900px;
+    margin: auto;
+  }
+
+  /* Individual problem styling */
+  /* Adjust the problem header to include checkboxes */
+.problem-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+/* Correct streak checkboxes aligned in a row */
+.correct-streak {
+    display: flex;
+    gap: 5px;
+}
+
+/* Styling for checkboxes */
+.correct-streak span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid black;
+    text-align: center;
+    line-height: 20px;
+    font-weight: bold;
+}
+
+  .disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  .hint {
+    color: red;
+    font-size: 0.9em;
+    display: none;
+  }
+  canvas {
+    border: 1px solid black;
+    margin-top: 10px;
+  }
+  .menu {
+    display: flex;
+    justify-content: flex-start;
+    padding-bottom: 10px;
+  }
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .dropbtn:hover {
+    background-color: #45a049;
+  }
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    min-width: 160px;
+    z-index: 1;
+  }
+  .dropdown-content button {
+    width: 100%;
+    padding: 8px 10px;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .dropdown-content button:hover {
+    background-color: #ddd;
+  }
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+  .frac {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    margin: 0 4px;
+  }
+  .frac sup {
+    display: block;
+    font-size: 0.9em;
+    border-bottom: 1px solid;
+    line-height: 1.2;
+  }
+  .frac sub {
+    display: block;
+    font-size: 0.9em;
+    line-height: 1.2;
+  }
+  .frac span {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  @media (max-width: 768px) {
+    .problems-container {
+      grid-template-columns: repeat(2, 1fr); /* 2 columns per row */
+    }
+  }
+
+  @media (max-width: 500px) {
+    .problems-container {
+      grid-template-columns: repeat(1, 1fr); /* 1 column per row */
+    }
+  }
+  .zoom-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zoom-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 80%;
+    width: 90%;
+    height: 80vh;
+    box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+    font-size: 10em; /* Makes text 4 times larger */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 30px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+}
+
+ 
+</style>
+</head>
+<body>
+  <div class="menu">
+    <div class="dropdown">
+      <button class="dropbtn">Background Color</button>
+      <div class="dropdown-content">
+        <button onclick="changeBackgroundColor('#f5f5dc')">Beige</button>
+        <button onclick="changeBackgroundColor('#d3d3d3')">Light Gray</button>
+        <button onclick="changeBackgroundColor('#b6d0e2')">Powder Blue</button>
+        <button onclick="changeBackgroundColor('#98ff98')">Mint Green</button>
+        <button onclick="changeBackgroundColor('#36454f')">Charcoal</button>
+        <button onclick="changeBackgroundColor('#ff7f50')">Coral</button>
+        <button onclick="changeBackgroundColor('#008080')">Teal</button>
+        <button onclick="changeBackgroundColor('#e2725b')">Terracotta</button>
+        <button onclick="changeBackgroundColor('#e6e6fa')">Lavender</button>
+        <button onclick="changeBackgroundColor('#87ceeb')">Sky Blue</button>
+        <button onclick="changeBackgroundColor('#F8AD1E')">Golden Glow</button>
+        <button onclick="changeBackgroundColor('#BA74EE')">Violet</button>
+        <button onclick="changeBackgroundColor('#FF67B3')">Pink</button>
+        <button onclick="changeBackgroundColor('#FFFFFF')">White</button>
+        <button onclick="changeBackgroundColor('#0253B3')">Ocean Blue</button>
+        <button onclick="changeBackgroundColor('#FFCB59')">Golden Yellow</button>
+      </div>
+    </div>
+  </div>
+
+  <h1>Quiz 3: Solve for N</h1>
+   <div class="problems-container" id="problems"></div>
+   
+   <div id="zoomModal" class="zoom-modal">
+    <div class="zoom-content">
+        <span class="close-btn" onclick="closeZoom()">×</span>
+        <div id="zoomedProblemContent"></div>
+        <input type="text" id="zoomedAnswer" placeholder="Enter answer..." onkeydown="handleZoomedEnter(event)">
+        <button onclick="checkZoomedAnswer()">Check</button>
+        <div id="zoomedHint" class="hint"></div>
+    </div>
+</div>
+
+ 
+
+  <script>
+    function changeBackgroundColor(color) {
+      document.body.style.backgroundColor = color;
+
+      // Get the button element
+      let themeButton = document.querySelector(".dropbtn");
+
+      // Function to darken the color slightly
+      function darkenColor(hex, percent) {
+          let r = parseInt(hex.substring(1, 3), 16);
+          let g = parseInt(hex.substring(3, 5), 16);
+          let b = parseInt(hex.substring(5, 7), 16);
+
+          r = Math.max(0, Math.min(255, r - (r * percent / 100)));
+          g = Math.max(0, Math.min(255, g - (g * percent / 100)));
+          b = Math.max(0, Math.min(255, b - (b * percent / 100)));
+
+          let darkenedHex = `#${((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1)}`;
+          return darkenedHex;
+      }
+
+      let darkerColor = darkenColor(color, 20);
+      themeButton.style.backgroundColor = darkerColor;
+      themeButton.style.color = "#ffffff";
+    }
+
+    function generateSolveForNProblem() {
+      let a = Math.floor(Math.random() * 9) + 2;
+      let b = Math.floor(Math.random() * 9) + 2;
+      let product = a * b;
+
+      let question = `${product} = ${a}n<br>`;
+      let answer = b.toString();
+      let hint = `Divide both sides of the equation by ${a} to find n.`;
+
+      const validate = (userInput) => {
+          return userInput.trim() === answer;
+      };
+
+      return {
+          text: question,
+          answer: answer,
+          hint: hint,
+          validate: validate
+      };
+    }
+
+    function generateEquationNOverAProblem() {
+      // 1) Pick random a in [2..10]
+      let a = Math.floor(Math.random() * 9) + 2;
+      // 2) Pick random b in [2..10]
+      let b = Math.floor(Math.random() * 9) + 2;
+      // 3) Compute the product a*b
+      let productAB = a * b;
+
+      // 4) Display fraction n/a = productAB
+      let questionText = `
+   
+    <span class="frac">
+      <sup>n</sup>
+      <sub>${a}</sub>
+    </span>
+    = ${productAB}
+    <br>
+   .
+  `;
+
+      // 5) correctAnswer = a × productAB
+      let correctAnswer = a * productAB;
+      // 6) hint
+      let hintText = `
+        Hint: Multiply both sides by ${a}.
+        <br>
+        n = ${productAB} × ${a} = ${correctAnswer}.
+      `;
+      // 7) Validation
+      function validateFn(userInput) {
+          return parseInt(userInput.trim()) === correctAnswer;
+      }
+
+      return {
+          text: questionText,
+          answer: correctAnswer.toString(),
+          hint: hintText,
+          validate: validateFn
+      };
+    }
+   
+    function generateNDIVHequalsIProblem() {
+  // 1) Pick random integers H and I between 2..10
+  let H = Math.floor(Math.random() * 9) + 2; // returns [2..10]
+  let I = Math.floor(Math.random() * 9) + 2; // returns [2..10]
+
+  // 2) Build the question text
+  let questionText = `
+   
+    n ÷ ${H} = ${I}
+    <br>
+   
+  `;
+
+  // 3) Correct answer = H × I
+  let correctAnswer = H * I;
+
+  // 4) Provide a hint
+  let hintText = `
+    Hint: Multiply both sides by ${H}.
+    <br>
+    n = ${I} × ${H} = ${correctAnswer}.
+  `;
+
+  // 5) Validation function
+  function validateFn(userInput) {
+    // parseInt handles number input; or use parseFloat if you expect decimals
+    return parseInt(userInput.trim()) === correctAnswer;
+  }
+
+  // 6) Return the object in the same format as your other generators
+  return {
+    text: questionText,
+    answer: correctAnswer.toString(),
+    hint: hintText,
+    validate: validateFn
+  };
+}
+
+function generateNMinusSequalsTProblem() {
+  // 1) S in [2..10]
+  let S = Math.floor(Math.random() * 9) + 2;
+  // 2) T in [S..20]
+  let range = 20 - S + 1;                 // e.g., if S=10, range=11 => T in [10..20]
+  let T = S + Math.floor(Math.random() * range);
+
+  // Build the question text
+  let questionText = `
+   
+    n - ${S} = ${T}
+    <br>
+   
+  `;
+
+  // Correct answer = S + T
+  let correctAnswer = T + S;
+ 
+  // Hint: add S to both sides
+  let hintText = `
+    Hint: Add ${S} to both sides.
+    <br>
+    n = ${T} + ${S} = ${correctAnswer}.
+  `;
+
+  // Validation function
+  function validateFn(userInput) {
+    return parseInt(userInput.trim()) === correctAnswer;
+  }
+
+  // Return the problem object
+  return {
+    text: questionText,
+    answer: correctAnswer.toString(),
+    hint: hintText,
+    validate: validateFn
+  };
+}
+
+function generateFractionTimesNProblemSimplified() {
+  // Example constraints:
+  // B in [4..9]
+  const B = Math.floor(Math.random() * 6) + 4;  // random 4..9
+  // C in [2..8]
+  const C = Math.floor(Math.random() * 7) + 2;  // random 2..8
+
+  // A is chosen so it's never equal to B:
+  //  - 50% of the time we pick A in [2..(B-1)]
+  //  - otherwise, pick A in [(B+1)..10].
+  let A;
+  const coinToss = Math.random() < 0.5;
+  if (coinToss && B > 2) {
+    // A in [2..(B-1)]
+    const lower = 2;
+    const upper = B - 1;
+    const rangeSize = upper - lower + 1;
+    A = lower + Math.floor(Math.random() * rangeSize);
+  } else {
+    // A in [(B+1)..10]
+    const lower = B + 1;
+    const upper = 10;
+    const rangeSize = upper - lower + 1;
+    A = lower + Math.floor(Math.random() * rangeSize);
+  }
+
+  // Build question text with fraction A/B
+  // For example: "(A/B) * n = C. Solve for n."
+  const questionText = `
+   
+    <span class="frac">
+      <sup>${A}</sup>
+      <sub>${B}</sub>
+    </span>
+    n = ${C}.
+    <br>
+    Enter <em>n</em> as a simplified fraction.
+  `;
+
+  // Correct fraction (unreduced):
+  //   numerator = C * B
+  //   denominator = A
+  const rawNum = C * B;
+  const rawDen = A;
+
+  // Reduce fraction to simplest form:
+  //   n = (rawNum / gcd) / (rawDen / gcd)
+  const gcdVal = gcd(rawNum, rawDen);
+  const correctNum = rawNum / gcdVal;
+  const correctDen = rawDen / gcdVal;
+
+  // We'll store the fraction as a string, e.g. "3/4"
+  const correctAnswerString = `${correctNum}/${correctDen}`;
+
+  // Provide a hint
+  const hintText = `
+    Hint: Multiply both sides by
+    <span class="frac">
+      <sup>${B}</sup>
+      <sub>${A}</sub>
+    </span>
+    to isolate <em>n</em>.
+    <br>
+    Then simplify the fraction.
+  `;
+
+  // Validation: require user to enter a simplified fraction "p/q" that matches correctNum/correctDen
+  function validateFn(userInput) {
+    // parse the user’s fraction
+    let parsed = parseFractionToSimplest(userInput);
+    if (!parsed) return false; // parse failed or invalid
+
+    let { num: userNum, den: userDen } = parsed;
+
+    // Must exactly match correctNum/correctDen
+    return userNum === correctNum && userDen === correctDen;
+  }
+
+  return {
+    text: questionText,
+    answer: correctAnswerString, // e.g. "3/4"
+    hint: hintText,
+    validate: validateFn
+  };
+}
+
+function parseFractionToSimplest(str) {
+  let input = str.trim();
+  if (!input) return null;
+
+  // If there's no slash, treat it like an integer fraction e.g. "3" => 3/1
+  if (!input.includes('/')) {
+    let integerVal = parseInt(input, 10);
+    if (isNaN(integerVal)) return null; // not a valid integer
+    // reduce(3, 1) => { num: 3, den: 1 }
+    return reduceFraction(integerVal, 1);
+  }
+
+  // Otherwise, must match "p/q"
+  let parts = input.split('/');
+  if (parts.length !== 2) return null;
+
+  let p = parseInt(parts[0], 10);
+  let q = parseInt(parts[1], 10);
+  if (isNaN(p) || isNaN(q) || q === 0) {
+    return null;
+  }
+
+  return reduceFraction(p, q);
+}
+function gcd(a, b) {
+  a = Math.abs(a);
+  b = Math.abs(b);
+  while (b !== 0) {
+    let tmp = a % b;
+    a = b;
+    b = tmp;
+  }
+  return a;
+}
+function reduceFraction(num, den) {
+  let g = gcd(num, den);
+  return {
+    num: num / g,
+    den: den / g
+  };
+}
+
+
+
+   
+
+  function generateFractionTimesNProblem() {
+  // Random fraction coefficients
+  let numerator1 = Math.floor(Math.random() * 8) + 2; // 2 to 9
+  let denominator1 = Math.floor(Math.random() * 6) + 3; // 3 to 8
+  let numerator2 = Math.floor(Math.random() * 8) + 2; // 2 to 9
+  let denominator2 = Math.floor(Math.random() * 6) + 3; // 3 to 8
+
+  // Question text
+  let questionText = `
+    Solve for <em>n</em>:
+    <span class="frac">
+      <sup>${numerator1}</sup>
+      <sub>${denominator1}</sub>
+    </span>
+    n =
+    <span class="frac">
+      <sup>${numerator2}</sup>
+      <sub>${denominator2}</sub>
+    </span><br>
+  `;
+
+  // Correct answer formula: multiply both sides by reciprocal
+  let correctNumerator = numerator2 * denominator1;
+  let correctDenominator = denominator2 * numerator1;
+
+  // Reduce fraction to simplest form
+  let gcdVal = gcd(correctNumerator, correctDenominator);
+  let simplifiedNum = correctNumerator / gcdVal;
+  let simplifiedDen = correctDenominator / gcdVal;
+
+  let correctAnswer = `${simplifiedNum}/${simplifiedDen}`;
+
+  let hintText = `
+    Hint: Multiply both sides by
+    <span class="frac">
+      <sup>${denominator1}</sup>
+      <sub>${numerator1}</sub>
+    </span>
+    to isolate <em>n</em>, then simplify.
+  `;
+
+  function validateFn(userInput) {
+    let parsed = parseFractionToSimplest(userInput);
+    if (!parsed) return false;
+    return parsed.num === simplifiedNum && parsed.den === simplifiedDen;
+  }
+
+  return {
+    text: questionText,
+    answer: correctAnswer,
+    hint: hintText,
+    validate: validateFn
+  };
+}
+
+function generateNOverEqualsNumberProblem() {
+  let denominator = Math.floor(Math.random() * 10) + 2; // 2 to 11
+  let result = Math.floor(Math.random() * 30) + 10; // 10 to 39
+
+  let questionText = `
+   
+    <span class="frac">
+      <sup>n</sup>
+      <sub>${denominator}</sub>
+    </span>
+    = ${result}<br>
+  `;
+
+  let correctAnswer = denominator * result;
+  let hintText = `Hint: Multiply both sides by ${denominator}.`;
+
+  function validateFn(userInput) {
+    return parseInt(userInput.trim()) === correctAnswer;
+  }
+
+  return {
+    text: questionText,
+    answer: correctAnswer.toString(),
+    hint: hintText,
+    validate: validateFn
+  };
+}
+
+function generateDecimalNOverEqualsNumberProblem() {
+  let denominator = (Math.random() * 10 + 5).toFixed(1); // 5.0 to 15.0
+  let result = Math.floor(Math.random() * 20) + 5; // 5 to 24
+
+  let questionText = `
+   
+    <span class="frac">
+      <sup>n</sup>
+      <sub>${denominator}</sub>
+    </span>
+    = ${result}<br>
+  `;
+
+  let correctAnswer = (denominator * result).toFixed(1);
+  let hintText = `Hint: Multiply both sides by ${denominator}.`;
+
+  function validateFn(userInput) {
+    return parseFloat(userInput.trim()).toFixed(1) === correctAnswer;
+  }
+
+  return {
+    text: questionText,
+    answer: correctAnswer.toString(),
+    hint: hintText,
+    validate: validateFn
+  };
+}
+
+// Add the new problems to your quiz
+function generateSimplifyExpressionProblem() {
+    let variables = ["x", "y", "z"]; // Possible variables
+    let chosenVars = [];
+    let terms = [];
+    let numericSum = 0;
+
+    // Choose 1 or 2 unique variables
+    let numVars = Math.random() < 0.5 ? 1 : 2;
+    let availableVars = [...variables];
+
+    for (let i = 0; i < numVars; i++) {
+        let randomIndex = Math.floor(Math.random() * availableVars.length);
+        let variable = availableVars.splice(randomIndex, 1)[0];
+        chosenVars.push(variable);
+    }
+
+    // Generate exactly 5 terms
+    for (let i = 0; i < 5; i++) {
+        let coef = Math.floor(Math.random() * 10) - 5; // Range -5 to 5
+        if (coef === 0) coef = 1; // Ensure no zero coefficients
+
+        if (i < 4) {
+            // Assign first 4 terms to chosen variables
+            let variable = chosenVars[Math.floor(Math.random() * chosenVars.length)];
+            terms.push({ term: `${coef === 1 ? "" : coef === -1 ? "-" : coef}${variable}`, coef, variable });
+        } else {
+            // Last term is a constant
+            terms.push({ term: `${coef}`, coef, variable: null });
+            numericSum += coef;
+        }
+    }
+
+    // Combine like terms
+    let simplifiedTerms = {};
+    terms.forEach(t => {
+        if (t.variable) {
+            if (!simplifiedTerms[t.variable]) simplifiedTerms[t.variable] = 0;
+            simplifiedTerms[t.variable] += t.coef;
+        }
+    });
+
+    // Build correct simplified expression
+    let correctTerms = [];
+    Object.keys(simplifiedTerms).forEach(variable => {
+        let coef = simplifiedTerms[variable];
+        if (coef !== 0) {
+            correctTerms.push(`${coef === 1 ? "" : coef === -1 ? "-" : coef}${variable}`);
+        }
+    });
+
+    if (numericSum !== 0) {
+        correctTerms.push(numericSum.toString());
+    }
+
+    // Shuffle question display
+    let shuffledTerms = [...terms.map(t => t.term)].sort(() => Math.random() - 0.5);
+
+    // Generate all valid orderings of the correct answer
+    let correctAnswerVariants = generateAnswerPermutations(correctTerms);
+
+    let questionText = `Simplify:<br>${shuffledTerms.join(" + ").replace(/\+\s-/g, "- ")}<br>`;
+
+    let hintText = "Hint: Combine like terms.";
+
+    function validateFn(userInput) {
+        let cleanedInput = normalizeExpression(userInput);
+        return correctAnswerVariants.has(cleanedInput);
+    }
+
+    return {
+        text: questionText,
+        answer: correctTerms.join(" + ").replace(/\+\s-/g, "- "),
+        hint: hintText,
+        validate: validateFn
+    };
+}
+
+// Normalize an expression string to allow order-independent checking
+function normalizeExpression(expression) {
+    return expression
+        .replace(/\s+/g, "") // Remove spaces
+        .replace(/-/g, " -")  // Ensure negatives are separated
+        .replace(/\+/g, " +") // Ensure positives are separated
+        .split(/\s+/)         // Split by space
+        .filter(Boolean)      // Remove empty elements
+        .sort()               // Sort for consistent ordering
+        .join("+")            // Rejoin as a sorted expression
+        .replace(/\+\s-/g, "- ") // Fix signs
+        .replace(/\+\+/g, "+");  // Fix double plus signs
+}
+
+// Generate all possible permutations of correct answers
+function generateAnswerPermutations(terms) {
+    let permutations = new Set();
+   
+    function permute(arr, prefix = []) {
+        if (arr.length === 0) {
+            permutations.add(normalizeExpression(prefix.join("+")));
+        } else {
+            for (let i = 0; i < arr.length; i++) {
+                let newArr = arr.slice(0, i).concat(arr.slice(i + 1));
+                permute(newArr, prefix.concat(arr[i]));
+            }
+        }
+    }
+
+    permute(terms);
+    return permutations;
+}
+
+
+// Normalize an expression string to allow order-independent checking
+function normalizeExpression(expression) {
+    return expression.replace(/\s+/g, "").replace(/-/g, " -").split("+").map(s => s.trim()).sort().join("+");
+}
+
+// Generate all possible permutations of correct answers
+function generateAnswerPermutations(terms) {
+    let permutations = new Set();
+   
+    function permute(arr, prefix = []) {
+        if (arr.length === 0) {
+            permutations.add(normalizeExpression(prefix.join("+")));
+        } else {
+            for (let i = 0; i < arr.length; i++) {
+                let newArr = arr.slice(0, i).concat(arr.slice(i + 1));
+                permute(newArr, prefix.concat(arr[i]));
+            }
+        }
+    }
+
+    permute(terms);
+    return permutations;
+}
+
+
+// Generate all possible permutations of correct answers
+function generateAnswerPermutations(terms) {
+    let permutations = new Set();
+   
+    function permute(arr, prefix = []) {
+        if (arr.length === 0) {
+            permutations.add(prefix.join("+").replace(/\+\s-/g, "- "));
+        } else {
+            for (let i = 0; i < arr.length; i++) {
+                let newArr = arr.slice(0, i).concat(arr.slice(i + 1));
+                permute(newArr, prefix.concat(arr[i]));
+            }
+        }
+    }
+
+    permute(terms);
+    return permutations;
+}
+
+
+
+function generateDistributeExpressionProblem() {
+  // Random coefficient and term inside parentheses
+  let outerCoef = Math.floor(Math.random() * 9) + 2; // 2 to 10
+  let innerCoef = Math.floor(Math.random() * 9) + 2; // 2 to 10
+  let variable = ["x", "y", "z"][Math.floor(Math.random() * 3)]; // Random variable
+
+  // Build question text
+  let questionText = `
+    Simplify:
+    <br>
+    ${outerCoef}(${innerCoef}${variable})<br>
+  `;
+
+  // Correct answer
+  let correctAnswer = `${outerCoef * innerCoef}${variable}`;
+
+  let hintText = "Hint: Distribute by multiplying.";
+
+  function validateFn(userInput) {
+    return userInput.trim() === correctAnswer;
+  }
+
+  return {
+    text: questionText,
+    answer: correctAnswer,
+    hint: hintText,
+    validate: validateFn
+  };
+}
+
+function generateSolveForNAdditionProblem() {
+  // Random values for the equation n + A = B
+  let A = Math.floor(Math.random() * 10) + 1; // Random number 1-10
+  let B = Math.floor(Math.random() * 20) + (A + 1); // Ensure B > A
+
+  // Build question text
+  let questionText = ` n + ${A} = ${B}<br>`;
+
+  // Correct answer: B - A
+  let correctAnswer = B - A;
+
+  let hintText = `Hint: Subtract ${A} from both sides.`;
+
+  function validateFn(userInput) {
+    return parseInt(userInput.trim()) === correctAnswer;
+  }
+
+  return {
+    text: questionText,
+    answer: correctAnswer.toString(),
+    hint: hintText,
+    validate: validateFn
+  };
+}
+
+
+// Add these to the problem generator function
+function generateProblem(index) {
+  switch (index) {
+    case 1:
+      return generateSolveForNProblem();
+    case 2:
+      return generateNDIVHequalsIProblem();
+    case 3:
+      return generateSolveForNAdditionProblem();  
+    case 4:
+      return generateNMinusSequalsTProblem();
+    case 5:
+      return generateFractionTimesNProblemSimplified();
+    case 6:
+      return generateFractionTimesNProblem();
+    case 7:
+      return generateNOverEqualsNumberProblem();
+    case 8:
+      return generateDecimalNOverEqualsNumberProblem();
+    case 9:
+      return generateSimplifyExpressionProblem();
+    case 10:
+      return generateDistributeExpressionProblem();
+    default:
+      return generateEquationNOverAProblem();
+  }
+}
+
+
+
+
+
+    function updateStreak(index, correct) {
+    let streaks = document.querySelectorAll(`#problem${index} .correct-streak span`);
+   
+    if (correct) {
+        let filled = Array.from(streaks).filter(span => span.textContent === "✔").length;
+
+        if (filled < 2) {
+            streaks[filled].textContent = "✔";
+        } else {
+            streaks[filled].textContent = "✔";
+
+            // Disable current problem
+            document.getElementById(`problem${index}`).classList.add("disabled");
+
+            // If in zoom mode, close it after 300ms
+            if (zoomedProblemIndex === index) {
+                setTimeout(() => {
+                    closeZoom();
+                }, 300);
+            }
+
+            // Move cursor to the next available problem
+            setTimeout(() => focusNextProblem(index), 300);
+        }
+    } else {
+        streaks.forEach(span => span.textContent = ""); // Reset on incorrect attempt
+    }
+}
+
+
+function focusNextProblem(index) {
+    let nextIndex = index + 1;
+   
+    while (nextIndex <= 10) { // Assuming 10 problems
+        let nextInput = document.getElementById(`answer${nextIndex}`);
+       
+        if (nextInput && !document.getElementById(`problem${nextIndex}`).classList.contains("disabled")) {
+            nextInput.focus();
+            break; // Stop once the next available input is found
+        }
+       
+        nextIndex++;
+    }
+}
+
+
+
+    function checkAnswer(index) {
+      let inputField = document.getElementById(`answer${index}`);
+      let userInput = inputField.value.trim();
+      let hintDiv = document.getElementById(`hint${index}`);
+
+      if (!problems || !problems[index - 1]) {
+          console.error(`Problem ${index} not found.`);
+          return;
+      }
+
+      let problem = problems[index - 1];
+      let isCorrect = problem.validate(userInput);
+
+      if (isCorrect) {
+        updateStreak(index, true);
+        hintDiv.style.display = "none";
+        inputField.value = "";
+
+        // Generate a new problem
+        let newProblem = generateProblem(index);
+        problems[index - 1] = newProblem;
+
+        // --- IMPORTANT: use .innerHTML, not textContent ---
+        document.querySelector(`#problem${index} .problem-text`).innerHTML = newProblem.text;
+        inputField.setAttribute("data-answer", newProblem.answer);
+        hintDiv.innerHTML = newProblem.hint;
+        hintDiv.style.display = "none";
+
+      } else {
+        updateStreak(index, false);
+        hintDiv.style.display = "block";
+      }
+    }
+
+    function handleEnter(event, index) {
+      if (event.key === "Enter") {
+        checkAnswer(index);
+      }
+    }
+
+    let problems = [];
+
+    function initializeProblems() {
+    let problemsDiv = document.getElementById('problems');
+    problems = [];
+    problemsDiv.innerHTML = "";
+
+    for (let i = 1; i <= 10; i++) {
+        let problem = generateProblem(i);
+        problems.push(problem);
+
+        let problemHTML = `
+        <div class="problem" id="problem${i}">
+            <div class="problem-header">
+                <label>Problem ${i}:</label>
+                <div class="correct-streak">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <br>
+            <span class="problem-text">${problem.text}</span>
+            <br>
+            <input type="text" id="answer${i}" data-answer="${problem.answer}" onkeydown="handleEnter(event, ${i})">
+            <button onclick="checkAnswer(${i})">Check</button>
+            <button onclick="zoomProblem(${i})">🔍 Zoom</button>
+            <div class="hint" id="hint${i}">${problem.hint}</div>
+        </div>
+        `;
+
+        problemsDiv.innerHTML += problemHTML;
+    }
+}
+
+let zoomedProblemIndex = null;
+
+function zoomProblem(index) {
+    let problem = problems[index - 1];
+
+    document.getElementById("zoomedProblemContent").innerHTML = problem.text;
+    document.getElementById("zoomedAnswer").value = "";
+    document.getElementById("zoomedHint").innerHTML = problem.hint;
+    document.getElementById("zoomedHint").style.display = "none";
+
+    zoomedProblemIndex = index;
+
+    document.getElementById("zoomModal").style.display = "flex";
+
+    // Focus the cursor in the input box after a short delay
+    setTimeout(() => {
+        document.getElementById("zoomedAnswer").focus();
+    }, 100);
+}
+
+
+function closeZoom() {
+    document.getElementById("zoomModal").style.display = "none";
+    zoomedProblemIndex = null; // Reset so normal problems work again
+}
+
+
+function checkZoomedAnswer() {
+    if (zoomedProblemIndex === null) return;
+
+    let userInput = document.getElementById("zoomedAnswer").value.trim();
+    let problem = problems[zoomedProblemIndex - 1];
+
+    let isCorrect = problem.validate(userInput);
+    let hintDiv = document.getElementById("zoomedHint");
+
+    if (isCorrect) {
+        updateStreak(zoomedProblemIndex, true);
+        hintDiv.style.display = "none";
+        document.getElementById("zoomedAnswer").value = ""; // Clear input field
+
+        // Generate a new problem and keep zoomed-in mode active
+        let newProblem = generateProblem(zoomedProblemIndex);
+        problems[zoomedProblemIndex - 1] = newProblem;
+
+        // Update zoom modal with new problem
+        document.getElementById("zoomedProblemContent").innerHTML = newProblem.text;
+        document.getElementById("zoomedHint").innerHTML = newProblem.hint;
+        document.getElementById("zoomedHint").style.display = "none";
+
+    } else {
+        updateStreak(zoomedProblemIndex, false);
+        hintDiv.style.display = "block";
+    }
+}
+
+
+function handleZoomedEnter(event) {
+    if (event.key === "Enter") {
+        checkZoomedAnswer();
+    }
+}
+
+
+
+
+   window.onload = function() {
+    initializeProblems();
+    changeBackgroundColor('#d3d3d3'); // Set default to Light Gray
+    closeZoom(); // Ensure zoom is closed on load
+};
+
+
+  </script>
+</body>
+</html>

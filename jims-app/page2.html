@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Math Practice Page</title>
+  <style>
+   body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f4f4f4;
+  transition: background-color 0.5s ease;
+}
+
+#problems {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  max-width: 1200px;
+  margin: auto;
+  gap: 20px;
+}
+
+@media (min-width: 1200px) { #problems { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) { #problems { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { #problems { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { #problems { grid-template-columns: repeat(1, 1fr); } }
+
+.problem-box {
+  border: 2px solid #ccc;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-height: 160px;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+}
+
+/* --- FULLSCREEN ZOOM FIXES --- */
+.fullscreen {
+    position: fixed;
+    top: 5%; /* Higher placement */
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 90vw; /* Wider for better spacing */
+    height: 90vh;
+    background-color: white;
+    z-index: 1000;
+    box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.5);
+    padding: 40px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: 10px;
+}
+
+/* Larger text in zoom */
+.fullscreen p {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+/* Default styling for single answer inputs in zoom */
+.fullscreen input {
+    font-size: 2em;
+    padding: 10px;
+    width: 60%;
+    text-align: center;
+    box-sizing: border-box; /* Prevents padding from breaking width */
+    margin-top: 10px;
+}
+
+/* --- FIX FOR GEOMETRY INPUTS IN ZOOM --- */
+/* Ensure the row of inputs spans the full width available */
+.fullscreen .scaffold-row {
+    width: 100%;
+    max-width: 800px; /* Prevent them from getting too wide on huge screens */
+    margin-top: 20px;
+    gap: 20px; /* Nice spacing between Base/Height boxes */
+}
+
+/* Override the default input width for geometry fields */
+.fullscreen .scaffold-row input {
+    width: 100% !important; /* Fill their specific container */
+    margin-top: 5px !important; /* Reset margin so they align perfectly */
+}
+
+/* Make geometry labels (Base, Height) visible and large */
+.fullscreen .scaffold-row label {
+    font-size: 1.5em;
+    font-weight: bold;
+    display: block;
+}
+
+/* Push the canvas/graph down so it doesn't overlap inputs */
+.fullscreen canvas {
+    margin-top: 50px !important;
+    max-width: 90%;
+    height: auto;
+}
+
+.fullscreen button:not(.close-zoom-btn) {
+    font-size: 1.8em;
+    padding: 15px 30px;
+    margin-top: 30px;
+}
+
+.close-zoom-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 2em;
+}
+
+.close-zoom-btn:hover { background: darkred; }
+
+.zoom-controls { text-align: right; margin-bottom: 5px; }
+.zoom-btn { background: none; border: none; cursor: pointer; font-size: 20px; padding: 5px; }
+.zoom-btn:hover { transform: scale(1.2); }
+
+/* Streak tracking */
+.correct-streak {
+  display: inline-flex;
+  gap: 5px;
+  vertical-align: middle;
+  margin-top: 10px;
+}
+
+.correct-streak span {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 2px solid black;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  font-size: 1.5em;
+  flex-shrink: 0;
+}
+
+.disabled { pointer-events: none; opacity: 0.5; }
+.hint { color: red; font-size: 1.5em; display: none; margin-top: 10px;}
+
+canvas {
+  border: 1px solid black;
+  margin-top: 10px;
+  display: block;
+}
+
+h1 { text-align: center; font-size: 2.5em; margin: 20px 0; }
+
+.menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  width: 100%;
+  position: relative;
+}
+
+.dropdown { position: absolute; right: 10px; }
+.dropbtn { background-color: #4CAF50; color: white; padding: 10px 15px; font-size: 16px; border: none; cursor: pointer; border-radius: 5px; }
+.dropbtn:hover { background-color: #45a049; }
+.dropdown-content { display: none; position: absolute; background-color: white; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); min-width: 160px; z-index: 1; right: 0; }
+.dropdown-content button { width: 100%; padding: 8px 10px; text-align: left; border: none; background: none; cursor: pointer; font-size: 14px; }
+.dropdown-content button:hover { background-color: #ddd; }
+.dropdown:hover .dropdown-content { display: block; }
+
+.scaffold-container{ display:flex; flex-direction:column; gap:8px; align-items:center; width: 100%; }
+.field{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+.field label{ font-size: 0.95em; font-weight: 700; }
+.scaffold-row{ display:flex; gap:10px; justify-content:center; width:100%; }
+.scaffold-row .field{ width:45%; }
+.scaffold-row.trap .field{ width:30%; }
+.field input{ width:100%; font-size: 1.1em; padding: 8px; text-align:center; box-sizing: border-box;}
+   
+    #emojiTracker{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  padding:6px 10px;
+  border:2px solid #ddd;
+  border-radius:12px;
+  background:#fff;
+  box-shadow: 1px 1px 6px rgba(0,0,0,0.08);
+  max-width: 520px;
+}
+
+.emoji-chip{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border:2px solid #000;
+  border-radius:999px;
+  font-size: 18px;
+  background: #f9f9f9;
+}
+
+.emoji-chip .emoji{
+  font-size: 22px;
+  line-height: 1;
+}
+
+.emoji-chip .count{
+  font-weight: 900;
+  font-size: 16px;
+  padding:2px 8px;
+  border-radius:999px;
+  background:#000;
+  color:#fff;
+}
+
+.emoji-note{
+  font-size: 14px;
+  font-weight: 700;
+  color:#333;
+  width:100%;
+  text-align:center;
+}
+   
+    /* Sticky header that stays while scrolling */
+.top-bar{
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+
+  /* ✅ Match the page background color */
+  background: inherit;
+
+  /* ✅ Counteract body padding so it can reach the true top */
+  margin: -20px -20px 12px -20px;   /* cancels body padding */
+  padding: 12px 20px 10px 20px;     /* re-adds nice spacing inside */
+
+  border: none;
+  box-shadow: none;
+}
+    .top-bar{
+  background: inherit;
+}
+
+
+
+
+/* Emoji bar styling */
+.emoji-bar{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.08);
+  text-align: left;
+}
+
+.emoji-title{
+  font-weight: 800;
+  font-size: 1.1em;
+  margin-bottom: 6px;
+}
+
+.emoji-leaders{
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  min-height: 34px;
+}
+
+.emoji-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 2px solid #000;
+  border-radius: 999px;
+  font-size: 1.1em;
+  background: #fff;
+}
+
+.emoji-pill .count{
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 8px;
+  border: 2px solid #000;
+  min-width: 28px;
+  text-align: center;
+}
+
+.emoji-goal{
+  margin-top: 6px;
+  font-size: 0.95em;
+  opacity: 0.85;
+}
+
+/* Hide the sticky bar while zoomed fullscreen */
+body.zooming .top-bar{
+  display: none;
+}
+
+/* Celebration animation */
+@keyframes popPulse {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.05); }
+  70% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+.celebrate {
+  animation: popPulse 0.6s ease-in-out 0s 3;
+  border-color: #2ecc71 !important;
+}
+   
+    /* Small % button next to answer inputs (problems 6–8) */
+.input-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  margin-top: 6px;
+}
+
+.percent-btn{
+  border: 2px solid #000;
+  background: #fff;
+  border-radius: 7px;
+  padding: 4px 6px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  line-height: 1;
+  min-width: 30px;
+}
+
+.percent-btn:hover{
+  transform: scale(1.05);
+}
+   
+    /* Compare buttons for < > = (problems 10–11) */
+.compare-btn{
+  border: 2px solid #000;
+  background: #fff;
+  border-radius: 7px;
+  padding: 4px 6px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  line-height: 1;
+  min-width: 30px;
+}
+
+
+.compare-btn:hover{
+  transform: scale(1.05);
+}
+
+
+
+
+
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+  <div class="menu">
+    <h1>Quiz 2</h1>
+
+    <div class="dropdown">
+      <button class="dropbtn">🎨 Color Theme</button>
+      <div class="dropdown-content">
+        <button onclick="changeBackgroundColor('#f5f5dc')">Beige</button>
+        <button onclick="changeBackgroundColor('#d3d3d3')">Light Gray</button>
+        <button onclick="changeBackgroundColor('#b6d0e2')">Powder Blue</button>
+        <button onclick="changeBackgroundColor('#98ff98')">Mint Green</button>
+        <button onclick="changeBackgroundColor('#36454f')">Charcoal</button>
+        <button onclick="changeBackgroundColor('#ff7f50')">Coral</button>
+        <button onclick="changeBackgroundColor('#008080')">Teal</button>
+        <button onclick="changeBackgroundColor('#e2725b')">Terracotta</button>
+        <button onclick="changeBackgroundColor('#e6e6fa')">Lavender</button>
+        <button onclick="changeBackgroundColor('#87ceeb')">Sky Blue</button>
+        <button onclick="changeBackgroundColor('#F8AD1E')">Golden Glow</button>
+        <button onclick="changeBackgroundColor('#BA74EE')">Violet</button>
+        <button onclick="changeBackgroundColor('#FF67B3')">Pink</button>
+        <button onclick="changeBackgroundColor('#FFFFFF')">White</button>
+        <button onclick="changeBackgroundColor('#0253B3')">Ocean Blue</button>
+        <button onclick="changeBackgroundColor('#FFCB59')">Golden Yellow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Sticky emoji leaderboard -->
+  <div id="emojiBar" class="emoji-bar">
+    <div class="emoji-title">Emoji streak tracker</div>
+    <div id="emojiLeaders" class="emoji-leaders"></div>
+    <div id="emojiGoal" class="emoji-goal">Goal: get any emoji to <b>3</b> across problems</div>
+  </div>
+</div>
+
+
+  <div id="problems"></div>
+
+  <script>
+ 
+  function zoomProblem(problemId) {
+    document.body.classList.add("zooming");
+
+    let problemBox = document.getElementById(problemId);
+   
+    // Save the original style if not already stored
+    if (!problemBox.hasAttribute("data-original-style")) {
+        problemBox.setAttribute("data-original-style", problemBox.style.cssText);
+    }
+
+    problemBox.classList.add("fullscreen");
+
+    let zoomButton = problemBox.querySelector(".zoom-btn");
+    if (zoomButton) {
+        zoomButton.style.display = "none";
+    }
+
+    // Hide the "Problem X:" label, but we let CSS handle the geometry labels
+    let problemLabel = problemBox.querySelector("label");
+    if (problemLabel) {
+        problemLabel.style.display = "none";
+    }
+
+    let closeButton = document.createElement("button");
+    closeButton.innerHTML = "&times;";
+    closeButton.classList.add("close-zoom-btn");
+    closeButton.onclick = function () {
+        closeZoom(problemId);
+    };
+    problemBox.appendChild(closeButton);
+
+    // --- FIX: Logic for margins moved to CSS to prevent misalignment ---
+   
+    let inputField = Array.from(problemBox.querySelectorAll("input"))
+        .find(inp => inp.offsetParent !== null && !inp.disabled);
+
+    // Handle Canvas Zoom
+    let canvas = problemBox.querySelector("canvas");
+    if (canvas) {
+        let ctx = canvas.getContext("2d");
+        problemBox.setAttribute("data-original-canvas", canvas.toDataURL());
+
+        if (!canvas.hasAttribute("data-original-transform")) {
+            canvas.setAttribute("data-original-transform", canvas.style.transform);
+        }
+
+        // Apply scale transform
+        canvas.style.transform = "scale(2.2)";
+        canvas.style.transformOrigin = "top center";
+    }
+
+    // Automatically focus on the first input field
+    setTimeout(() => {
+        if (inputField) {
+            inputField.focus();
+        }
+    }, 300);
+}
+
+function closeZoom(problemId) {
+  document.body.classList.remove("zooming");
+ 
+  let problemBox = document.getElementById(problemId);
+   
+    // Restore the original inline style
+    if (problemBox.hasAttribute("data-original-style")) {
+        problemBox.style.cssText = problemBox.getAttribute("data-original-style");
+    }
+
+    problemBox.classList.remove("fullscreen");
+
+    let zoomButton = problemBox.querySelector(".zoom-btn");
+    if (zoomButton) {
+        zoomButton.style.display = "";
+    }
+
+    let problemLabel = problemBox.querySelector("label");
+    if (problemLabel) {
+        problemLabel.style.display = "";
+    }
+
+    let closeButton = problemBox.querySelector(".close-zoom-btn");
+    if (closeButton) {
+        closeButton.remove();
+    }
+
+    // Check button restoration logic
+    let checkButton = problemBox.querySelector("button:not(.close-zoom-btn):not(.zoom-btn)");
+    if (checkButton) {
+        checkButton.style.position = "";
+        checkButton.style.marginTop = "";
+        checkButton.style.display = "block";
+        checkButton.style.visibility = "visible";
+    }
+
+    // **Restore the graph (canvas) position after zoom-out**
+    let canvas = problemBox.querySelector("canvas");
+    if (canvas) {
+        // Reset transform
+        if (canvas.hasAttribute("data-original-transform")) {
+            canvas.style.transform = canvas.getAttribute("data-original-transform");
+        } else {
+            canvas.style.transform = "scale(1)";
+        }
+        canvas.style.transformOrigin = "";
+       
+        // Redraw original image to prevent blurriness
+        let ctx = canvas.getContext("2d");
+        let originalCanvasData = problemBox.getAttribute("data-original-canvas");
+        if (originalCanvasData) {
+            let img = new Image();
+            img.src = originalCanvasData;
+            img.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+        }
+    }
+   
+    // Focus back on input
+    let inputField = Array.from(problemBox.querySelectorAll("input"))
+      .find(inp => inp.offsetParent !== null && !inp.disabled);
+    setTimeout(() => {
+      if (inputField) inputField.focus();
+    }, 300);
+}
+
+function closeProblem(problemId) {
+    // 1. IMPORTANT: Remove the global zoom class so CSS knows we are back to normal
+    document.body.classList.remove("zooming");
+
+    let problemBox = document.getElementById(problemId);
+
+    problemBox.classList.remove("fullscreen");
+    problemBox.classList.add("disabled");
+
+    // Restore original styles first
+    problemBox.style.cssText = problemBox.getAttribute("data-original-style") || "";
+
+    // THEN reapply the green border to ensure it stays
+    problemBox.style.border = "4px solid green";
+
+    let closeButton = problemBox.querySelector(".close-zoom-btn");
+    if (closeButton) {
+        closeButton.remove();
+    }
+
+    let zoomButton = problemBox.querySelector(".zoom-btn");
+    if (zoomButton) {
+        zoomButton.style.display = "block";
+    }
+
+    // Ensure the streak container is visible (in case CSS hid it)
+    let streakContainer = problemBox.querySelector(".correct-streak");
+    if (streakContainer) {
+        streakContainer.style.display = "block"; // Force container visibility
+    }
+
+    let checkboxes = problemBox.querySelectorAll(".correct-streak span");
+    checkboxes.forEach(box => {
+        box.style.display = "inline-block";
+    });
+
+    let label = problemBox.querySelector("label");
+    if (label) {
+        label.style.display = "block";
+    }
+
+    let canvas = problemBox.querySelector("canvas");
+    if (canvas) {
+        canvas.style.transform = "scale(1)";
+        canvas.style.transformOrigin = "center";
+        let ctx = canvas.getContext("2d");
+        let originalCanvasData = problemBox.getAttribute("data-original-canvas");
+        if (originalCanvasData) {
+            let img = new Image();
+            img.src = originalCanvasData;
+            img.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+        }
+    }
+
+    let index = parseInt(problemId.replace("problem", ""));
+    focusNextProblem(index);
+}
+    // -----------------------------------------------------------
+    // 1) Page background color
+    // -----------------------------------------------------------
+    function changeBackgroundColor(color) {
+    document.body.style.backgroundColor = color;
+    let themeButton = document.querySelector(".dropbtn");
+
+    function darkenColor(hex, percent) {
+        let r = parseInt(hex.substring(1, 3), 16);
+        let g = parseInt(hex.substring(3, 5), 16);
+        let b = parseInt(hex.substring(5, 7), 16);
+        r = Math.max(0, Math.min(255, r - (r * percent / 100)));
+        g = Math.max(0, Math.min(255, g - (g * percent / 100)));
+        b = Math.max(0, Math.min(255, b - (b * percent / 100)));
+        return `#${((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1)}`;
+    }
+    let darkerColor = darkenColor(color, 20);
+    themeButton.style.backgroundColor = darkerColor;
+    themeButton.style.color = "#ffffff";
+}
+
+    // -----------------------------------------------------------
+    // 2) Problem Generators
+    // -----------------------------------------------------------
+
+    function generateAdditionProblem() {
+    let num1 = Math.floor(Math.random() * 10) + 1;
+    let num2 = Math.floor(Math.random() * 10) + 1;
+    let answer = num1 + num2;
+    return {
+        text: `${num1} + ${num2}`,
+        answer: answer,
+        hint: "Think of adding smaller parts first.",
+        validate: (userInput) => parseInt(userInput) === answer
+    };
+}
+
+    function generateMultiplicationProblem() {
+    let num1 = Math.floor(Math.random() * 10) + 1;
+    let num2 = Math.floor(Math.random() * 10) + 1;
+    let answer = num1 * num2;
+    return {
+        text: `${num1} × ${num2}`,
+        answer: answer,
+        hint: "Multiplication is repeated addition.",
+        validate: (userInput) => parseInt(userInput) === answer
+    };
+}
+
+    function generateSubtractionProblem() {
+    let num1 = Math.floor(Math.random() * 20) + 1;
+    let num2 = Math.floor(Math.random() * num1) + 1;
+    let answer = num1 - num2;
+    return {
+        text: `${num1} - ${num2}`,
+        answer: answer,
+        hint: "Think of counting backward.",
+        validate: (userInput) => parseInt(userInput) === answer
+    };
+}    
+   
+    function generateDivisionSingleProblem() {
+    let num1 = Math.floor(Math.random() * 899) + 100;
+    let num2 = Math.floor(Math.random() * 8) + 2;
+    let roundingType = Math.floor(Math.random() * 2);
+    let answer, roundingInstruction;
+
+    if (roundingType === 0) {
+        answer = parseFloat((num1 / num2).toFixed(1));
+        roundingInstruction = "Round your answer to the nearest tenth.";
+    } else {
+        answer = parseFloat((num1 / num2).toFixed(2));
+        roundingInstruction = "Round your answer to the nearest hundredth.";
+    }
+
+    const question = `What is ${num1} divided by ${num2}? ${roundingInstruction}`;
+    const wholeNumberPart = Math.floor(num1 / num2);
+    const fractionalPart = num1 / num2 - wholeNumberPart;
+    const roundingPrecision = roundingType === 0 ? 1 : 2;
+    const roundedFractionalPart = parseFloat(fractionalPart.toFixed(roundingPrecision));
+    const fractionalString = roundedFractionalPart === 0 ? "" : roundedFractionalPart.toString().slice(1);
+
+    const hint = `<table style="border-collapse: collapse;"><tr><td style="text-align: right;">&nbsp;</td><td style="text-align: right;">${wholeNumberPart}</td><td style="text-align: left;">${fractionalString}</td></tr><tr><td style="border-right: 1px solid black;">${num2}</td><td style="border-top: 1px solid black;">${num1}</td></tr></table><br> ${roundingInstruction}`;
+
+    return {
+        text: question,
+        answer: answer,
+        hint: hint,
+        validate: (userInput) => {
+            const parsedInput = parseFloat(userInput);
+            if (isNaN(parsedInput)) return false;
+            const comparisonPrecision = roundingType === 0 ? 1 : 2;
+            return parsedInput.toFixed(comparisonPrecision) == answer.toFixed(comparisonPrecision);
+        }
+    };
+}
+    function generateDivisionDoubleProblem() {
+    let num1 = Math.floor(Math.random() * 899) + 100;
+    let num2 = Math.floor(Math.random() * 14) + 10;
+    let roundingType = Math.floor(Math.random() * 2);
+    let answer, roundingInstruction;
+
+    if (roundingType === 0) {
+        answer = parseFloat((num1 / num2).toFixed(1));
+        roundingInstruction = "Round your answer to the nearest tenth.";
+    } else {
+        answer = parseFloat((num1 / num2).toFixed(2));
+        roundingInstruction = "Round your answer to the nearest hundredth.";
+    }
+    const question = `What is ${num1} divided by ${num2}? ${roundingInstruction}`;
+    // Reuse similar hint logic as Single for brevity, or expand if needed
+    return {
+        text: question,
+        answer: answer,
+        hint: `Divide ${num1} by ${num2}. ${roundingInstruction}`,
+        validate: (userInput) => {
+            const parsedInput = parseFloat(userInput);
+            if (isNaN(parsedInput)) return false;
+            const comparisonPrecision = roundingType === 0 ? 1 : 2;
+            return parsedInput.toFixed(comparisonPrecision) == answer.toFixed(comparisonPrecision);
+        }
+    };
+}
+   
+    function generatePercentConversionProblem() {
+    let percent = Math.floor(Math.random() * 99) + 1;
+    let convertToFraction = Math.random() < 0.5;
+    let decimal = (percent / 100).toFixed(2);
+    let denominator = 100;
+    let numerator = percent;
+   
+    const simplifyFraction = (numerator, denominator) => {
+        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+        let gcdValue = gcd(numerator, denominator);
+        return { numerator: numerator / gcdValue, denominator: denominator / gcdValue };
+    };
+    let fraction = simplifyFraction(numerator, denominator);
+   
+    let question, answer, hint;
+    if (convertToFraction) {
+        question = `Convert ${percent}% to a fraction`;
+        answer = `${fraction.numerator}/${fraction.denominator}`;
+        hint = `To convert ${percent}% to a fraction, write it as ${percent}/100 and simplify it.`;
+    } else {
+        question = `Convert ${percent}% to a decimal`;
+        answer = decimal;
+        hint = `To convert ${percent}% to a decimal, divide by 100.`;
+    }
+   
+    return {
+        text: question,
+        answer: answer,
+        hint: hint,
+        validate: (userInput) => convertToFraction ? userInput.trim() === answer : parseFloat(userInput).toFixed(2) === answer
+    };
+}
+    function generateFractionConversionProblem() {
+    let denominators = [5, 10, 20, 25, 50, 100];
+    let denominator = denominators[Math.floor(Math.random() * denominators.length)];
+    let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+    let decimal = (numerator / denominator).toFixed(2);
+    let percentValue = (decimal * 100);
+    let percent = `${percentValue}%`;
+    let convertToPercent = Math.random() < 0.5;
+   
+    let question, answer, hint;
+    if (convertToPercent) {
+        question = `Convert ${numerator}/${denominator} to a percentage`;
+        answer = percent;
+        hint = `Divide ${numerator} by ${denominator} and multiply by 100.`;
+    } else {
+        question = `Convert ${numerator}/${denominator} to a decimal`;
+        answer = decimal;
+        hint = `${numerator} ÷ ${denominator} = ?`;
+    }
+
+    return {
+        text: question,
+        answer: answer,
+        hint: hint,
+        validate: (userInput) => {
+            let trimmedInput = userInput.trim();
+            if (convertToPercent) {
+                if (!trimmedInput.endsWith('%')) return false;
+                return parseFloat(trimmedInput.replace('%', '')).toFixed(2) === percentValue.toFixed(2);
+            } else {
+                return parseFloat(trimmedInput).toFixed(2) === decimal;
+            }
+        }
+    };
+}
+    function generateNumberConversionProblem() {
+    let wholePart = Math.random() < 0.5 ? Math.floor(Math.random() * 10) : 0;
+    let decimalPart = Math.floor(Math.random() * 100);
+    let decimalValue = decimalPart / 100;
+    let number = wholePart + decimalValue;
+    let decimalString = number.toFixed(2);
+
+    const decimalToFraction = (decimal) => {
+        let denominator = 100;
+        let numerator = Math.round(decimal * denominator);
+        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+        let gcdValue = gcd(numerator, denominator);
+        return { numerator: numerator / gcdValue, denominator: denominator / gcdValue };
+    };
+
+    let fraction = decimalToFraction(number - wholePart);
+    let mixedFraction = wholePart > 0 ? `${wholePart} ${fraction.numerator}/${fraction.denominator}` : `${fraction.numerator}/${fraction.denominator}`;
+    let percentValue = (number * 100).toFixed(2);
+    let percent = `${percentValue}%`;
+    let convertToFraction = Math.random() < 0.5;
+   
+    let question, answer, hint;
+    if (convertToFraction) {
+        question = `Convert ${decimalString} to a fraction`;
+        answer = mixedFraction;
+        hint = `Express the decimal part over 100 and simplify.`;
+    } else {
+        question = `Convert ${decimalString} to a percentage`;
+        answer = percent;
+        hint = `Multiply by 100 and add "%".`;
+    }
+
+    return {
+        text: question,
+        answer: answer,
+        hint: hint,
+        validate: (userInput) => {
+            let trimmedInput = userInput.trim();
+            if (convertToFraction) return trimmedInput === answer;
+            if (!trimmedInput.endsWith('%')) return false;
+            return parseFloat(trimmedInput.replace('%', '')).toFixed(2) === percentValue;
+        }
+    };
+}
+    function generatePercentageProblem() {
+    let percent = Math.random() < 0.5 ? Math.floor(Math.random() * 96) + 5 : (Math.floor(Math.random() * 10) * 10);
+    let number = Math.floor(Math.random() * 96) + 5;
+    let result = ((percent / 100) * number).toFixed(2);
+    return {
+        text: `What is ${percent}% of ${number}?`,
+        answer: result,
+        hint: `Multiply ${number} by ${percent}/100.`,
+        validate: (userInput) => parseFloat(userInput).toFixed(2) === result
+    };
+}
+
+    function generateUnknownProblem() {
+    let num1, num2, num3, question, answer, hint;
+    const type = Math.floor(Math.random() * 4) + 1;
+    switch (type) {
+        case 1:
+            num1 = Math.floor(Math.random() * 9) + 2; num2 = Math.floor(Math.random() * 9) + 2; num3 = Math.floor(Math.random() * 9) + 2;
+            question = `${num3} × ${num1 + num2} = ${num3} × (${num2} + _________)`; answer = num1.toString();
+            break;
+        case 2:
+            num1 = Math.floor(Math.random() * 9) + 2; num2 = Math.floor(Math.random() * 9) + 2; num3 = Math.floor(Math.random() * 9) + 2;
+            question = `${num3} × ${num1 + num2} = (${num3} × ${num2}) + (${num3} × _______)`; answer = num1.toString();
+            break;
+        case 3:
+            num1 = Math.floor(Math.random() * 9) + 2; num2 = Math.floor(Math.random() * 9) + 2; num3 = Math.floor(Math.random() * 9) + 2;
+            question = `${num3} × (${num1} + ${num2}) = ${num3} × _________`; answer = (num1 + num2).toString();
+            break;
+        case 4:
+            num1 = Math.floor(Math.random() * 9) + 2; num2 = Math.floor(Math.random() * 6) + 2; num3 = Math.floor(Math.random() * 6) + 2;
+            question = `${num1} × (${num2} + ${num3}) = _________`; answer = (num1 * (num2 + num3)).toString();
+            break;
+    }
+    return {
+        text: question, answer: answer, hint: "Balance the equation.", validate: (userInput) => userInput.trim() === answer
+    };
+}
+   function generateDecimalComparisonProblem() {
+    let decimal1, decimal2;
+    do {
+        decimal1 = ((Math.floor(Math.random() * 99) + 1) / 100).toFixed(2);
+        decimal2 = ((Math.floor(Math.random() * 99) + 1) / 100).toFixed(2);
+    } while (decimal1 === decimal2);
+
+    let correctAnswer = parseFloat(decimal1) > parseFloat(decimal2) ? ">" : "<";
+    return {
+        text: `Compare: ${decimal1} __ ${decimal2}`,
+        answer: correctAnswer,
+        hint: `Use > for greater than, < for less than.`,
+        validate: (userInput) => userInput.trim() === correctAnswer
+    };
+}
+    function generateFractionComparisonProblem() {
+    let d1 = Math.floor(Math.random() * 8) + 3;
+    let n1 = Math.floor(Math.random() * d1) + 1;
+    let mult = Math.floor(Math.random() * 9) + 2;
+    let d2 = d1 * mult;
+    let n2 = Math.floor(Math.random() * (d2 - 1)) + 2;
+   
+    let dec1 = n1/d1, dec2 = n2/d2;
+    let ans = dec1 > dec2 ? ">" : dec1 < dec2 ? "<" : "=";
+
+    return {
+        text: `Compare: ${n1}/${d1} __ ${n2}/${d2}`,
+        answer: ans,
+        hint: `Convert to decimals or find common denominator.`,
+        validate: (userInput) => userInput.trim() === ans
+    };
+}
+    function generateFractionToDecimalProblem() {
+    let n = Math.floor(Math.random() * 99) + 1;
+    let d = Math.random() < 0.5 ? 10 : 100;
+    let ans = (n/d).toFixed(2);
+    return {
+        text: `Write as a decimal: ${n}/${d}`,
+        answer: ans,
+        hint: `Divide numerator by denominator.`,
+        validate: (userInput) => parseFloat(userInput).toFixed(2) === ans
+    };
+}
+    function generateDecimalToFractionProblem() {
+    let dec = Math.floor(Math.random() * 99) + 1;
+    let isTenth = Math.random() < 0.5;
+    let val = isTenth ? (Math.floor(Math.random()*9)+1)/10 : dec/100;
+    let question = `Write as a fraction: ${val}`;
+   
+    // Simplification logic omitted for brevity, simple answer check
+    // Actually need strict match for simplified fraction? Let's use flexible string matching
+    // Re-implementing simplified fraction generation for answer key
+    const simplify = (n,d) => {
+        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+        let g = gcd(n,d);
+        return `${n/g}/${d/g}`;
+    }
+    let num = isTenth ? val*10 : val*100;
+    let den = isTenth ? 10 : 100;
+    let ans = simplify(num, den);
+
+    return {
+        text: question,
+        answer: ans,
+        hint: `Write over 10 or 100 and simplify.`,
+        validate: (userInput) => userInput.trim() === ans
+    };
+}
+    function generateBasicMathFactProblem() {
+    let num1 = Math.floor(Math.random() * 12) + 1;
+    let num2 = Math.floor(Math.random() * 12) + 1;
+    let product = num1 * num2;
+    let type = Math.floor(Math.random() * 3);
+    let q, a;
+    if (type === 0) { q = `${num1} × ${num2} = _______`; a = product; }
+    else if (type === 1) { q = `${num1} × _______ = ${product}`; a = num2; }
+    else { q = `${product} ÷ ${num1} = _______`; a = num2; }
+
+    return {
+        text: q,
+        answer: a.toString(),
+        hint: `Use multiplication/division rules.`,
+        validate: (userInput) => parseInt(userInput.trim()) === a
+    };
+}
+
+    // -----------------------------------------------------------
+    // 3) Geometry Generators
+    // -----------------------------------------------------------
+   
+    function generateTriangleProblem() {
+      let xLeft  = Math.floor(Math.random() * 3) + 1;
+      let xRight = Math.floor(Math.random() * 10) + 5;
+      let yTop   = Math.floor(Math.random() * 7) + 2;
+      let xApex  = Math.floor(Math.random() * (xRight - xLeft - 1)) + (xLeft + 1);
+      let base   = xRight - xLeft;
+      let area   = 0.5 * base * yTop;
+
+      return {
+        text: "Use the grid to find the area of this triangle.",
+        hint: "Area = ½ × base × height.",
+        answer: area.toFixed(2),
+        validate: function(userInput) { return Math.abs(parseFloat(userInput) - parseFloat(this.answer)) < 0.001; },
+        corners: { xLeft, xRight, xApex, yTop },
+        drawFunc: drawTriangleWithGrid
+      };
+    }
+    function drawTriangleWithGrid(canvasId, corners) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+      const XMAX = 15, YMAX = 8, scale = 20, marginLeft = 30, marginBottom = 30;
+      canvas.width = XMAX * scale + marginLeft + 20;
+      canvas.height = YMAX * scale + marginBottom + 20;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      function toCanvasCoords(gx, gy) { return { cx: marginLeft + gx * scale, cy: canvas.height - marginBottom - gy * scale }; }
+     
+      // Grid
+      ctx.strokeStyle = "#ccc"; ctx.lineWidth = 1;
+      for (let gx = 0; gx <= XMAX; gx++) {
+          let s = toCanvasCoords(gx, 0), e = toCanvasCoords(gx, YMAX);
+          ctx.beginPath(); ctx.moveTo(s.cx, s.cy); ctx.lineTo(e.cx, e.cy); ctx.stroke();
+      }
+      for (let gy = 0; gy <= YMAX; gy++) {
+          let s = toCanvasCoords(0, gy), e = toCanvasCoords(XMAX, gy);
+          ctx.beginPath(); ctx.moveTo(s.cx, s.cy); ctx.lineTo(e.cx, e.cy); ctx.stroke();
+      }
+      // Axes
+      ctx.strokeStyle = "#000"; ctx.lineWidth = 2;
+      let xa = toCanvasCoords(0,0), xb = toCanvasCoords(XMAX,0); ctx.beginPath(); ctx.moveTo(xa.cx, xa.cy); ctx.lineTo(xb.cx, xb.cy); ctx.stroke();
+      let ya = toCanvasCoords(0,0), yb = toCanvasCoords(0,YMAX); ctx.beginPath(); ctx.moveTo(ya.cx, ya.cy); ctx.lineTo(yb.cx, yb.cy); ctx.stroke();
+     
+      // Shape
+      const { xLeft, xRight, xApex, yTop } = corners;
+      let p1 = toCanvasCoords(xLeft, 0), p2 = toCanvasCoords(xRight, 0), p3 = toCanvasCoords(xApex, yTop);
+      ctx.beginPath(); ctx.moveTo(p1.cx, p1.cy); ctx.lineTo(p2.cx, p2.cy); ctx.lineTo(p3.cx, p3.cy); ctx.closePath();
+      ctx.fillStyle = "rgba(255, 0, 0, 0.5)"; ctx.strokeStyle = "blue"; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+      // --- Axis labels ---
+ctx.fillStyle = "black";
+ctx.font = "14px Arial";
+
+// x-axis labels (0..XMAX)
+for (let gx = 0; gx <= XMAX; gx++) {
+  const p = toCanvasCoords(gx, 0);
+  ctx.fillText(gx.toString(), p.cx - 4, p.cy + 16);
+}
+
+// y-axis labels (1..YMAX)  (skip 0 to avoid crowding at origin)
+for (let gy = 1; gy <= YMAX; gy++) {
+  const p = toCanvasCoords(0, gy);
+  ctx.fillText(gy.toString(), p.cx - 20, p.cy + 5);
+}
+
+    }
+
+    function generateTrapezoidProblem() {
+      let yTop = Math.floor(Math.random() * 3) + 3;
+      let xLeftB = Math.floor(Math.random() * 3) + 1;
+      let xRightB = Math.floor(Math.random() * 4) + 10;
+      let xLeftT = Math.floor(Math.random() * 3) + 5;
+      let xRightT = Math.floor(Math.random() * 3) + 8;
+      if (xLeftT > xRightT) [xLeftT, xRightT] = [xRightT, xLeftT];
+      let baseBottom = xRightB - xLeftB, baseTop = xRightT - xLeftT;
+      let area = 0.5 * (baseBottom + baseTop) * yTop;
+      return {
+        text: "Use the grid to find the area of this trapezoid.",
+        hint: "Area = ½ × (base1 + base2) × height.",
+        answer: area.toFixed(2),
+        validate: function(userInput) { return Math.abs(parseFloat(userInput) - parseFloat(this.answer)) < 0.001; },
+        corners: { xLeftB, xRightB, xLeftT, xRightT, yTop },
+        drawFunc: drawTrapezoidWithGrid
+      };
+    }
+    function drawTrapezoidWithGrid(canvasId, corners) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+      const XMAX = 15, YMAX = 6, scale = 20, marginLeft = 30, marginBottom = 30;
+      canvas.width = XMAX * scale + marginLeft + 20; canvas.height = YMAX * scale + marginBottom + 20;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      function toCanvasCoords(x, y) { return { cx: marginLeft + x * scale, cy: canvas.height - marginBottom - y * scale }; }
+     
+      ctx.strokeStyle = "#ccc"; ctx.lineWidth = 1;
+      for (let gx = 0; gx <= XMAX; gx++) { let s = toCanvasCoords(gx, 0), e = toCanvasCoords(gx, YMAX); ctx.beginPath(); ctx.moveTo(s.cx, s.cy); ctx.lineTo(e.cx, e.cy); ctx.stroke(); }
+      for (let gy = 0; gy <= YMAX; gy++) { let s = toCanvasCoords(0, gy), e = toCanvasCoords(XMAX, gy); ctx.beginPath(); ctx.moveTo(s.cx, s.cy); ctx.lineTo(e.cx, e.cy); ctx.stroke(); }
+     
+      const { xLeftB, xRightB, xLeftT, xRightT, yTop } = corners;
+      let bl = toCanvasCoords(xLeftB, 0), br = toCanvasCoords(xRightB, 0), tr = toCanvasCoords(xRightT, yTop), tl = toCanvasCoords(xLeftT, yTop);
+      ctx.beginPath(); ctx.moveTo(bl.cx, bl.cy); ctx.lineTo(br.cx, br.cy); ctx.lineTo(tr.cx, tr.cy); ctx.lineTo(tl.cx, tl.cy); ctx.closePath();
+      ctx.fillStyle = "rgba(135, 206, 250, 0.5)"; ctx.strokeStyle = "blue"; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+      // --- Axis labels ---
+ctx.fillStyle = "black";
+ctx.font = "14px Arial";
+
+// x-axis labels (0..XMAX)
+for (let gx = 0; gx <= XMAX; gx++) {
+  const p = toCanvasCoords(gx, 0);
+  ctx.fillText(gx.toString(), p.cx - 4, p.cy + 16);
+}
+
+// y-axis labels (1..YMAX)  (skip 0 to avoid crowding at origin)
+for (let gy = 1; gy <= YMAX; gy++) {
+  const p = toCanvasCoords(0, gy);
+  ctx.fillText(gy.toString(), p.cx - 20, p.cy + 5);
+}
+
+    }
+   
+    function generateParallelogramProblem() {
+      let xLeft = Math.floor(Math.random() * 3) + 1;
+      let xRight = Math.floor(Math.random() * 4) + 10;
+      if (xLeft > xRight) [xLeft, xRight] = [xRight, xLeft];
+      let height = Math.floor(Math.random() * 3) + 3;
+      let shift = Math.floor(Math.random() * 3) + 1;
+      let area = (xRight - xLeft) * height;
+      return {
+        text: "Use the grid to find the area of this parallelogram.",
+        hint: "Area = base × height.",
+        answer: area.toFixed(2),
+        validate: function(userInput) { return Math.abs(parseFloat(userInput) - parseFloat(this.answer)) < 0.001; },
+        corners: { xLeft, xRight, height, shift },
+        drawFunc: drawParallelogramWithGrid
+      };
+    }
+    function drawParallelogramWithGrid(canvasId, corners) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+      const XMAX = 15, YMAX = 6, scale = 20, marginLeft = 30, marginBottom = 30;
+      canvas.width = XMAX * scale + marginLeft + 20; canvas.height = YMAX * scale + marginBottom + 20;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      function toCanvasCoords(x, y) { return { cx: marginLeft + x * scale, cy: canvas.height - marginBottom - y * scale }; }
+     
+      ctx.strokeStyle = "#ccc"; ctx.lineWidth = 1;
+      for (let gx = 0; gx <= XMAX; gx++) { let s = toCanvasCoords(gx, 0), e = toCanvasCoords(gx, YMAX); ctx.beginPath(); ctx.moveTo(s.cx, s.cy); ctx.lineTo(e.cx, e.cy); ctx.stroke(); }
+      for (let gy = 0; gy <= YMAX; gy++) { let s = toCanvasCoords(0, gy), e = toCanvasCoords(XMAX, gy); ctx.beginPath(); ctx.moveTo(s.cx, s.cy); ctx.lineTo(e.cx, e.cy); ctx.stroke(); }
+     
+      const { xLeft, xRight, height, shift } = corners;
+      let bl = toCanvasCoords(xLeft, 0), br = toCanvasCoords(xRight, 0), tl = toCanvasCoords(xLeft + shift, height), tr = toCanvasCoords(xRight + shift, height);
+      ctx.beginPath(); ctx.moveTo(bl.cx, bl.cy); ctx.lineTo(br.cx, br.cy); ctx.lineTo(tr.cx, tr.cy); ctx.lineTo(tl.cx, tl.cy); ctx.closePath();
+      ctx.fillStyle = "rgba(0, 255, 0, 0.5)"; ctx.strokeStyle = "green"; ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+      // --- Axis labels ---
+ctx.fillStyle = "black";
+ctx.font = "14px Arial";
+
+// x-axis labels (0..XMAX)
+for (let gx = 0; gx <= XMAX; gx++) {
+  const p = toCanvasCoords(gx, 0);
+  ctx.fillText(gx.toString(), p.cx - 4, p.cy + 16);
+}
+
+// y-axis labels (1..YMAX)  (skip 0 to avoid crowding at origin)
+for (let gy = 1; gy <= YMAX; gy++) {
+  const p = toCanvasCoords(0, gy);
+  ctx.fillText(gy.toString(), p.cx - 20, p.cy + 5);
+}
+
+    }
+   
+    function generateSquareProblem() {
+      const side = Math.floor(Math.random() * 7) + 3;
+      const type = Math.random() < 0.5 ? "area" : "perimeter";
+      let ans = type === "area" ? side * side : side * 4;
+      return {
+        text: `A square has side length = ${side}. Find its ${type.toUpperCase()}.`,
+        hint: type === "area" ? "Area = side × side" : "Perimeter = 4 × side",
+        answer: ans.toString(),
+        validate: (userInput) => Math.abs(parseFloat(userInput) - ans) < 0.001,
+        corners: { side, type },
+        drawFunc: drawSquareNoGrid
+      };
+    }
+    function drawSquareNoGrid(canvasId, corners) {
+      const { side } = corners;
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+      canvas.width = 120; canvas.height = 120;
+      ctx.clearRect(0, 0, 120, 120);
+      let s = 60, offX = (120-s)/2, offY = (120-s)/2 - 10;
+      ctx.strokeStyle = "black"; ctx.lineWidth = 2; ctx.strokeRect(offX, offY, s, s);
+      ctx.fillStyle = "black"; ctx.font = "14px Arial";
+      let txt = side.toString(), w = ctx.measureText(txt).width;
+      ctx.fillText(txt, offX + s/2 - w/2, offY + s + 15);
+    }
+   
+    function generateTwoRectanglesProblem() {
+        const height = Math.floor(Math.random() * 7) + 3;
+        const leftWidth = Math.floor(Math.random() * 7) + 3;
+        const rightWidth = Math.floor(Math.random() * 5) + 1;
+        const type = Math.random() < 0.5 ? "area" : "perimeter";
+        let ans = type === "area" ? height * (leftWidth + rightWidth) : 2 * height + 2 * (leftWidth + rightWidth);
+        return {
+            text: `Find the total ${type.toUpperCase()} of these two rectangles.`,
+            hint: `Combine widths first.`,
+            answer: ans.toFixed(2),
+            validate: (userInput) => Math.abs(parseFloat(userInput) - ans) < 0.001,
+            corners: { height, leftWidth, rightWidth },
+            drawFunc: drawTwoRectanglesNoGrid
+        };
+    }
+    function drawTwoRectanglesNoGrid(canvasId, corners) {
+        const { height, leftWidth, rightWidth } = corners;
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext("2d");
+        const scale = 8, margin = 30;
+        canvas.width = (leftWidth+rightWidth)*scale + margin*2; canvas.height = height*scale + margin*2;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        let tl = {x: margin, y: margin}, br = {x: margin+(leftWidth+rightWidth)*scale, y: margin+height*scale};
+        ctx.strokeStyle="black"; ctx.lineWidth=2; ctx.strokeRect(tl.x, tl.y, br.x-tl.x, br.y-tl.y);
+        ctx.beginPath(); ctx.moveTo(margin+leftWidth*scale, margin); ctx.lineTo(margin+leftWidth*scale, br.y); ctx.stroke();
+        ctx.fillStyle="black"; ctx.font="14px Arial";
+        ctx.fillText(height, 5, (tl.y+br.y)/2);
+        ctx.fillText(leftWidth, margin+leftWidth*scale/2 - 5, br.y+15);
+        ctx.fillText(rightWidth, margin+leftWidth*scale + rightWidth*scale/2 - 5, br.y+15);
+    }
+
+    function generateLShapedProblem(forcedType) {
+  const BW = Math.floor(Math.random() * 5) + 5;  // bottom width
+  const BH = Math.floor(Math.random() * 5) + 3;  // bottom height
+
+  const TH = Math.floor(Math.random() * 3) + 1;  // step height (NOT labeled)
+  const TW = Math.floor(Math.random() * (BW - 1)) + 1; // top width
+
+  const type = forcedType || (Math.random() < 0.5 ? "area" : "perimeter");
+
+  // Area = big rectangle + top rectangle
+  const area = (BW * BH) + (TW * TH);
+
+  // Perimeter for this L-shape outline:
+  // BW (bottom) + BH (right) + (BW - TW) (inner horizontal) + TH (inner vertical)
+  // + TW (top) + (BH+TH) (left)
+  // simplifies to: 2*BW + 2*BH + 2*TH
+  const perimeter = 2 * BW + 2 * BH + 2 * TH;
+
+  const ans = type === "area" ? area : perimeter;
+
+  return {
+    text: `Find the ${type.toUpperCase()} of this L-shape.`,
+    hint: type === "area"
+      ? "Break it into 2 rectangles and add their areas."
+      : "Add all outside side lengths. You may need to find the step height.",
+    answer: ans.toString(),
+    validate: (userInput) => Math.abs(parseFloat(userInput) - ans) < 0.001,
+    corners: { BW, BH, TW, TH, type },
+    drawFunc: drawLShapedNoGrid
+  };
+}
+
+    function drawLShapedNoGrid(canvasId, corners) {
+  const { BW, BH, TW, TH } = corners;
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext("2d");
+  const scale = 10, margin = 30;
+
+  canvas.width = BW * scale + margin * 2;
+  canvas.height = (BH + TH) * scale + margin * 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  function tc(x, y) {
+    return { x: margin + x * scale, y: canvas.height - margin - y * scale };
+  }
+
+  // Points (counter-clockwise)
+  let p0 = tc(0, 0);
+  let p1 = tc(BW, 0);
+  let p2 = tc(BW, BH);
+  let p3 = tc(TW, BH);
+  let p4 = tc(TW, BH + TH);
+  let p5 = tc(0, BH + TH);
+
+  // Shape
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(p0.x, p0.y);
+  ctx.lineTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.lineTo(p3.x, p3.y);
+  ctx.lineTo(p4.x, p4.y);
+  ctx.lineTo(p5.x, p5.y);
+  ctx.closePath();
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = "black";
+  ctx.font = "14px Arial";
+
+  // Bottom BW
+  ctx.fillText(BW.toString(), (p0.x + p1.x) / 2 - 5, p0.y + 15);
+
+  // Left total height BH+TH
+  ctx.fillText((BH + TH).toString(), p0.x - 24, (p0.y + p5.y) / 2 + 5);
+
+  // Top width TW
+  ctx.fillText(TW.toString(), (p4.x + p5.x) / 2 - 5, p4.y - 6);
+
+  // ✅ Missing right-side label: BH (right vertical segment)
+  // This is the segment from (BW,0) to (BW,BH)
+  ctx.fillText(BH.toString(), p1.x + 8, (p1.y + p2.y) / 2 + 5);
+
+  // (Optional but helpful) inner step vertical TH label
+  // segment from (TW,BH) to (TW,BH+TH)
+  // ctx.fillText(TH.toString(), p3.x + 8, (p3.y + p4.y) / 2 + 5);
+}
+
+
+    // -----------------------------------------------------------
+    // 4) Logic Mapping
+    // -----------------------------------------------------------
+    function generateProblem(index) {
+        if (index <= 2) return generateBasicMathFactProblem();
+        if (index === 3) return generateUnknownProblem();
+        if (index === 4) return generateDivisionSingleProblem();
+        if (index === 5) return generateDivisionDoubleProblem();
+        if (index === 6) return generatePercentConversionProblem();
+        if (index === 7) return generateFractionConversionProblem();
+        if (index === 8) return generateNumberConversionProblem();
+        if (index === 9) return generatePercentageProblem();
+        if (index === 10) return generateDecimalComparisonProblem();
+        if (index === 11) return generateFractionComparisonProblem();
+        if (index === 12) return generateFractionToDecimalProblem();
+        if (index === 13) return generateDecimalToFractionProblem();
+        if (index === 14) return generateLShapedProblem("area");
+if (index === 15) return generateLShapedProblem("perimeter");
+
+        if (index === 16) return generateSquareProblem();
+        if (index === 17) return generateTwoRectanglesProblem();
+        if (index === 18) return generateTriangleProblem();
+        if (index === 19) return generateParallelogramProblem();
+        if (index === 20) return generateTrapezoidProblem();
+        return generateAdditionProblem();
+    }
+
+    function focusNextProblem(index) {
+      let nextIndex = index + 1;
+      while (nextIndex <= 20) {
+        let nextInput = document.getElementById(`answer${nextIndex}`);
+        if (nextInput && !nextInput.parentElement.parentElement.classList.contains("disabled")) {
+          nextInput.focus();
+          break;
+        }
+        nextIndex++;
+      }
+    }
+   
+    // -----------------------------------------------------------
+// Emoji Leaderboard (top 1..3 emojis across the whole quiz)
+// -----------------------------------------------------------
+let emojiFirstSeen = {};   // emoji -> order index
+let emojiOrderCounter = 0; // increases as new emojis are seen
+
+function updateEmojiTracker() {
+  const counts = {};
+
+  document.querySelectorAll(".correct-streak span").forEach(span => {
+    const e = (span.textContent || "").trim();
+    if (!e) return;
+    counts[e] = (counts[e] || 0) + 1;
+
+    // tie-breaker: remember which emoji showed up first, ever
+    if (emojiFirstSeen[e] === undefined) {
+      emojiFirstSeen[e] = emojiOrderCounter++;
+    }
+  });
+
+  const entries = Object.entries(counts);
+
+  // sort: count desc, then first seen asc
+  entries.sort((a, b) => {
+    const countDiff = b[1] - a[1];
+    if (countDiff !== 0) return countDiff;
+    return (emojiFirstSeen[a[0]] ?? 999999) - (emojiFirstSeen[b[0]] ?? 999999);
+  });
+
+  const tracker = document.getElementById("emojiTracker");
+  if (!tracker) return;
+
+  // Build display: show up to top 3
+  tracker.innerHTML = "";
+
+  // Friendly instruction line
+  const note = document.createElement("div");
+  note.className = "emoji-note";
+  note.textContent = "Goal: try to get 3 of the same emoji across different problems!";
+  tracker.appendChild(note);
+
+  if (entries.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "emoji-chip";
+    empty.innerHTML = `<span class="emoji">🧩</span><span style="font-weight:800;">No emojis yet</span>`;
+    tracker.appendChild(empty);
+    return;
+  }
+
+  const top3 = entries.slice(0, 3);
+  top3.forEach(([emoji, count]) => {
+    const chip = document.createElement("div");
+    chip.className = "emoji-chip";
+    chip.innerHTML = `<span class="emoji">${emoji}</span><span class="count">${count}</span>`;
+    tracker.appendChild(chip);
+  });
+}
+
+
+    function updateStreak(index, correct) {
+    let problemBox = document.getElementById(`problem${index}`);
+    let streaks = problemBox.querySelectorAll(".correct-streak span");
+    const emojis = [
+        "⭐", "🌟", "✨", "💫", "⚡", "🔥", "🌈", "☀️", "🌤️", "⛅",
+        "🌙", "☁️", "🌧️", "❄️", "☃️", "🌊", "🍀", "🌸", "🌼", "🌻",
+        "🌺", "🌷", "🌹", "🪻", "🍄", "🌲", "🌳", "🪵", "🦋", "🐝",
+        "🐞", "🦜", "🐢", "🦊", "🐶", "🐱", "🐼", "🐨", "🦁", "🐸",
+        "🐙", "🦈", "🐬", "🦄", "🐉", "🎈", "🎉", "🎊", "🎁", "🎀",
+        "🏆", "🥇", "🥈", "🥉", "🎖️", "🏅", "🎯", "🧠", "📚", "✏️",
+        "🖍️", "🧩", "🔍", "🧪", "🔬", "🧲", "🛠️", "⚙️", "💡", "🔑",
+        "💎", "🪙", "💰", "🍕", "🍎", "🍉", "🍓", "🍪", "🍩", "🍦",
+        "🎵", "🎶", "🎸", "🥁", "🎹", "🎺", "🚀", "🛸", "🛰️", "🏰",
+        "🗺️", "🧭", "🏔️", "🏝️", "🎮", "🕹️", "✅", "👍", "🙌"
+    ];
+
+    if (correct) {
+        let filled = Array.from(streaks).filter(span => span.textContent !== "").length;
+        let totalBoxes = streaks.length; // Automatically detects 3 or 6
+
+        // SAFETY CHECK: If full, stop (prevents errors if loop tries to add too many)
+        if (filled >= totalBoxes) return;
+
+        // If we are NOT at the last box yet...
+        if (filled < totalBoxes - 1) {
+            streaks[filled].textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        }
+        // If this IS the last box...
+        else {
+            streaks[filled].textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            setTimeout(() => {
+                problemBox.style.border = "4px solid green";
+                setTimeout(() => closeProblem(`problem${index}`), 500);
+            }, 500);
+        }
+    } else {
+        streaks.forEach(span => span.textContent = "");
+    }
+   
+    updateEmojiTracker();
+    updateEmojiLeaderboard();
+}
+   
+    // Track which emojis have already triggered the "got 3!" celebration
+const unlockedEmojis = new Set();
+
+function computeEmojiCounts() {
+  const counts = {};
+  document.querySelectorAll(".correct-streak span").forEach(sp => {
+    const e = (sp.textContent || "").trim();
+    if (!e) return;
+    counts[e] = (counts[e] || 0) + 1;
+  });
+  return counts;
+}
+
+function updateEmojiLeaderboard() {
+  const counts = computeEmojiCounts();
+  const entries = Object.entries(counts);
+
+  // Sort by count desc, tie-break by first appearance on the page
+  entries.sort((a,b) => b[1] - a[1]);
+
+  const leadersDiv = document.getElementById("emojiLeaders");
+  if (!leadersDiv) return;
+
+  // If nobody has any yet
+  if (entries.length === 0) {
+    leadersDiv.innerHTML = `<span style="opacity:.75;">No emojis yet — get one correct to start!</span>`;
+    return;
+  }
+
+  // Show top 3
+  const top3 = entries.slice(0, 3);
+
+  leadersDiv.innerHTML = top3.map(([emoji, count]) => {
+    return `
+      <div class="emoji-pill">
+        <span class="emoji">${emoji}</span>
+        <span class="count">${count}</span>
+      </div>
+    `;
+  }).join("");
+
+  // Celebrate when any emoji reaches 3 (only once per emoji)
+  top3.forEach(([emoji, count]) => {
+    if (count >= 3 && !unlockedEmojis.has(emoji)) {
+      unlockedEmojis.add(emoji);
+      celebrateEmoji3(emoji);
+    }
+  });
+}
+
+function celebrateEmoji3(emoji) {
+  const bar = document.getElementById("emojiBar");
+  const goal = document.getElementById("emojiGoal");
+  if (!bar || !goal) return;
+
+  bar.classList.add("celebrate");
+  goal.innerHTML = `🎉 You got <b>3</b> of ${emoji}! Great job!`;
+
+  // Optional: reset the message after a moment
+  setTimeout(() => {
+    goal.innerHTML = `Goal: get any emoji to <b>3</b> across problems`;
+    bar.classList.remove("celebrate");
+  }, 3500);
+}
+
+
+    function nearlyEqual(a, b) { return Math.abs(a - b) < 0.001; }
+
+    function checkAnswer(index) {
+    let hintDiv = document.getElementById(`hint${index}`);
+    let problem = problems[index - 1];
+
+    // --- Scaffolded Geometry Logic (Kept exactly as is) ---
+    if (index >= 18 && index <= 20) {
+        const step2 = document.getElementById(`step2_${index}`);
+        const step1 = document.getElementById(`step1_${index}`);
+
+        if (step2 && step2.style.display === "none") {
+            let ok = false;
+            if (index === 18) {
+                ok = nearlyEqual(parseFloat(document.getElementById(`baseIn${index}`).value), problem.corners.xRight - problem.corners.xLeft) &&
+                     nearlyEqual(parseFloat(document.getElementById(`heightIn${index}`).value), problem.corners.yTop);
+            } else if (index === 19) {
+                ok = nearlyEqual(parseFloat(document.getElementById(`baseIn${index}`).value), problem.corners.xRight - problem.corners.xLeft) &&
+                     nearlyEqual(parseFloat(document.getElementById(`heightIn${index}`).value), problem.corners.height);
+            } else if (index === 20) {
+                ok = nearlyEqual(parseFloat(document.getElementById(`base1In${index}`).value), problem.corners.xRightB - problem.corners.xLeftB) &&
+                     nearlyEqual(parseFloat(document.getElementById(`base2In${index}`).value), problem.corners.xRightT - problem.corners.xLeftT) &&
+                     nearlyEqual(parseFloat(document.getElementById(`heightIn${index}`).value), problem.corners.yTop);
+            }
+           
+            if (ok) {
+                step2.style.display = "block";
+                if (step1) {
+                     step1.style.opacity = "0.5";
+                     step1.querySelectorAll("input").forEach(inp => inp.disabled = true);
+                }
+                hintDiv.style.display = "none";
+                setTimeout(() => document.getElementById(`answer${index}`)?.focus(), 0);
+            } else {
+                hintDiv.innerHTML = "❌ Check your measurements on the grid.";
+                hintDiv.style.display = "block";
+                updateStreak(index, false);
+            }
+            return;
+        }
+    }
+    // -----------------------------------------------------
+
+    let inputField = document.getElementById(`answer${index}`);
+    let userInput = (inputField?.value ?? "").trim();
+    let isCorrect = problem.validate(userInput);
+
+    if (isCorrect) {
+        // === NEW LOGIC START ===
+        // If problem 4 or 5, award 2 points. Otherwise award 1.
+        const points = (index === 4 || index === 5) ? 2 : 1;
+       
+        // Loop to run updateStreak multiple times if needed
+        for (let i = 0; i < points; i++) {
+            updateStreak(index, true);
+        }
+        // === NEW LOGIC END ===
+
+        hintDiv.style.display = "none";
+        if (inputField) inputField.value = "";
+       
+        // Regenerate
+        let newProblem = generateProblem(index);
+        problems[index - 1] = newProblem;
+        document.querySelector(`#problem${index} p`).textContent = newProblem.text;
+        hintDiv.innerHTML = newProblem.hint;
+       
+        // Reset scaffolding
+        if (index >= 18 && index <= 20) {
+            const step1 = document.getElementById(`step1_${index}`);
+            const step2 = document.getElementById(`step2_${index}`);
+            if (step2) step2.style.display = "none";
+            if (step1) {
+                step1.style.opacity = "1";
+                step1.querySelectorAll("input").forEach(inp => { inp.disabled = false; inp.value = ""; });
+            }
+        }
+       
+        // Redraw
+        let canvasId = `canvas${index}`;
+        let canvasEl = document.getElementById(canvasId);
+        if (newProblem.drawFunc && canvasEl) {
+            canvasEl.style.display = "block";
+            setTimeout(() => newProblem.drawFunc(canvasId, newProblem.corners), 50);
+        }
+    } else {
+        hintDiv.style.display = "block";
+        updateStreak(index, false);
+    }
+}
+   
+    function insertPercent(index){
+  const input = document.getElementById(`answer${index}`);
+  if (!input) return;
+
+  input.focus();
+
+  // Insert at cursor position (or append if cursor info isn't available)
+  const value = input.value || "";
+  const start = input.selectionStart ?? value.length;
+  const end = input.selectionEnd ?? value.length;
+
+  // Avoid inserting multiple % in a row
+  const before = value.slice(0, start);
+  const after = value.slice(end);
+  if (before.endsWith("%")) return;
+
+  input.value = before + "%" + after;
+
+  // Put cursor after the inserted %
+  const newPos = start + 1;
+  input.setSelectionRange(newPos, newPos);
+}
+    function insertCompareSymbol(index, symbol){
+  const input = document.getElementById(`answer${index}`);
+  if (!input) return;
+
+  // For compare problems, it's easiest to just set/replace the value
+  input.value = symbol;
+  input.focus();
+  input.setSelectionRange(1, 1);
+}
+   
+    function handleScaffoldEnter(event, index) {
+  if (event.key !== "Enter") return;
+
+  event.preventDefault(); // stop form-like submit behavior
+
+  // only for 18-20
+  if (index < 18 || index > 20) return;
+
+  const isTrap = (index === 20);
+
+  // Gather the scaffold inputs in the order we want Enter to move through
+  const ids = isTrap
+    ? [`base1In${index}`, `base2In${index}`, `heightIn${index}`]
+    : [`baseIn${index}`, `heightIn${index}`];
+
+  const inputs = ids
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
+
+  const active = document.activeElement;
+  const currentPos = inputs.indexOf(active);
+
+  // If we're on one of the scaffold inputs and it's not the last one, move forward
+  if (currentPos !== -1 && currentPos < inputs.length - 1) {
+    inputs[currentPos + 1].focus();
+    inputs[currentPos + 1].select?.();
+    return;
+  }
+
+  // If we're on the last scaffold input (or Enter was hit in any scaffold field)
+  // and all fields have values, run checkAnswer (same as clicking Check).
+  const allFilled = inputs.every(inp => (inp.value ?? "").trim() !== "");
+
+  if (allFilled) {
+    checkAnswer(index);
+  } else {
+    // Otherwise, jump to the first empty field
+    const firstEmpty = inputs.find(inp => (inp.value ?? "").trim() === "");
+    if (firstEmpty) {
+      firstEmpty.focus();
+      firstEmpty.select?.();
+    }
+  }
+}
+
+
+
+
+    function handleEnter(event, index) { if (event.key === "Enter") checkAnswer(index); }
+
+    let problems = [];
+    function initializeProblems() {
+  let problemsDiv = document.getElementById('problems');
+  problemsDiv.innerHTML = '';
+  problems = [];
+
+  for (let i = 1; i <= 20; i++) {
+    let problem = generateProblem(i);
+    problems.push(problem);
+
+    let problemDiv = document.createElement('div');
+    problemDiv.className = "problem-box";
+    problemDiv.id = `problem${i}`;
+
+    const isScaffolded = (i >= 18 && i <= 20);
+    const isTrap = (i === 20);
+
+    let scaffoldHTML = "";
+
+    if (isScaffolded) {
+      // ✅ Scaffold inputs now include onkeydown to support Enter navigation
+      let inputs = isTrap ? `
+        <div class="field"><label for="base1In${i}">Base 1</label><input type="number" id="base1In${i}" onkeydown="handleScaffoldEnter(event, ${i})"></div>
+        <div class="field"><label for="base2In${i}">Base 2</label><input type="number" id="base2In${i}" onkeydown="handleScaffoldEnter(event, ${i})"></div>
+        <div class="field"><label for="heightIn${i}">Height</label><input type="number" id="heightIn${i}" onkeydown="handleScaffoldEnter(event, ${i})"></div>
+      ` : `
+        <div class="field"><label for="baseIn${i}">Base</label><input type="number" id="baseIn${i}" onkeydown="handleScaffoldEnter(event, ${i})"></div>
+        <div class="field"><label for="heightIn${i}">Height</label><input type="number" id="heightIn${i}" onkeydown="handleScaffoldEnter(event, ${i})"></div>
+      `;
+
+      scaffoldHTML = `
+        <div class="scaffold-container">
+          <div id="step1_${i}" class="scaffold-row ${isTrap ? "trap" : ""}">${inputs}</div>
+
+          <div id="step2_${i}" style="display:none; width:100%; text-align:center; margin-top:10px;">
+            <div class="field" style="width:60%; margin:0 auto;">
+              <label for="answer${i}">Area</label>
+              <input type="text" id="answer${i}" onkeydown="handleEnter(event, ${i})">
+            </div>
+          </div>
+
+          <button onclick="checkAnswer(${i})" style="margin-top:10px;">Check</button>
+        </div>
+      `;
+    } else {
+      // ✅ KEEP your % and compare button logic exactly
+      if (i >= 6 && i <= 8) {
+        scaffoldHTML = `
+          <div class="input-row">
+            <input type="text" id="answer${i}" onkeydown="handleEnter(event, ${i})">
+            <button class="percent-btn" type="button" onclick="insertPercent(${i})">%</button>
+          </div>
+          <button onclick="checkAnswer(${i})">Check</button>
+        `;
+      } else if (i === 10 || i === 11) {
+        scaffoldHTML = `
+          <div class="input-row">
+            <input type="text" id="answer${i}" onkeydown="handleEnter(event, ${i})" style="max-width:80px; text-align:center;">
+            <button class="compare-btn" type="button" onclick="insertCompareSymbol(${i}, '<')">&lt;</button>
+            <button class="compare-btn" type="button" onclick="insertCompareSymbol(${i}, '>')">&gt;</button>
+            <button class="compare-btn" type="button" onclick="insertCompareSymbol(${i}, '=')">=</button>
+          </div>
+          <button onclick="checkAnswer(${i})">Check</button>
+        `;
+      } else {
+        scaffoldHTML = `
+          <input type="text" id="answer${i}" onkeydown="handleEnter(event, ${i})">
+          <button onclick="checkAnswer(${i})">Check</button>
+        `;
+      }
+    }
+
+    // === NEW LOGIC START ===
+    // Define how many boxes to show: 6 for Prob 4 & 5, 3 for everyone else
+    let streakHTML = "";
+    let boxCount = (i === 4 || i === 5) ? 6 : 3;
+   
+    for (let b = 0; b < boxCount; b++) {
+        streakHTML += "<span></span>";
+    }
+    // === NEW LOGIC END ===
+
+    problemDiv.innerHTML = `
+      <button class="zoom-btn" onclick="zoomProblem('problem${i}')">&#128269;</button>
+      <label for="answer${i}">Problem ${i}:</label>
+      <p>${problem.text}</p>
+      ${scaffoldHTML}
+      <div class="correct-streak">${streakHTML}</div>
+      <div class="hint" id="hint${i}">${problem.hint}</div>
+      <canvas id="canvas${i}" style="display:none;"></canvas>
+    `;
+
+    problemsDiv.appendChild(problemDiv);
+
+    const canvasId = `canvas${i}`;
+    const canvasEl = document.getElementById(canvasId);
+
+    if (problem.drawFunc && canvasEl) {
+      canvasEl.style.display = "block";
+      setTimeout(() => problem.drawFunc(canvasId, problem.corners), 50);
+    } else if (canvasEl) {
+      canvasEl.style.display = "none";
+    }
+  }
+
+  updateEmojiTracker();
+  updateEmojiLeaderboard();
+}
+
+
+    window.onload = function () {
+        initializeProblems();
+        const themeColors = ["#f5f5dc","#d3d3d3","#b6d0e2","#98ff98","#36454f","#ff7f50","#008080","#e2725b","#e6e6fa","#87ceeb","#F8AD1E","#BA74EE","#FF67B3","#FFFFFF","#0253B3","#FFCB59"];
+        changeBackgroundColor(themeColors[Math.floor(Math.random() * themeColors.length)]);
+    };
+  </script>
+</body>
+</html>

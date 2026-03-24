@@ -3,6 +3,7 @@ import {
   CognitoIdentityProviderClient,
   AdminCreateUserCommand,
   AdminAddUserToGroupCommand,
+  AdminSetUserPasswordCommand,
   UsernameExistsException,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -18,6 +19,7 @@ import { requireEnv } from '../shared/env';
 interface CreateStudentArgs {
   email: string;
   displayName: string;
+  password: string;
   classroomId?: string;
   parentId?: string;
 }
@@ -34,7 +36,7 @@ const PARENT_STUDENT_LINK_TABLE_NAME = requireEnv('PARENT_STUDENT_LINK_TABLE_NAM
 export const handler: AppSyncResolverHandler<CreateStudentArgs, unknown> = async (
   event
 ) => {
-  const { email, displayName, classroomId, parentId } = event.arguments;
+  const { email, displayName, password, classroomId, parentId } = event.arguments;
   const callerSub = event.identity && 'sub' in event.identity
     ? event.identity.sub
     : undefined;
@@ -75,6 +77,16 @@ export const handler: AppSyncResolverHandler<CreateStudentArgs, unknown> = async
     }
     throw err;
   }
+
+  // Set a permanent password so the student never hits NEW_PASSWORD_REQUIRED
+  await cognitoClient.send(
+    new AdminSetUserPasswordCommand({
+      UserPoolId: USER_POOL_ID,
+      Username: email,
+      Password: password,
+      Permanent: true,
+    })
+  );
 
   const studentSub = createUserResult.User?.Attributes?.find(
     (attr) => attr.Name === 'sub'

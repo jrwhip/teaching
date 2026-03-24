@@ -1,0 +1,1572 @@
+diff --git a/.planning/ROADMAP.md b/.planning/ROADMAP.md
+index 72e4eba..5714cc5 100644
+--- a/.planning/ROADMAP.md
++++ b/.planning/ROADMAP.md
+@@ -61,7 +61,7 @@ Plans:
+ 
+ Plans:
+ - [x] 04-01: Dashboard & results components (remove ngOnInit, use rxResource/signals for data loading)
+-- [ ] 04-02: Legacy MathComponent rewrite (full signals + OnPush + modern patterns)
++- [x] 04-02: Legacy MathComponent rewrite (full signals + OnPush + modern patterns)
+ - [ ] 04-03: Word Study overhaul (fix everything: switchMap, typing, dedup shuffle, remove tap mutation)
+ 
+ ## Progress
+@@ -71,4 +71,4 @@ Plans:
+ | 1. Angular 21 Upgrade | v1.1 | 3/3 | Complete | 2026-03-22 |
+ | 2. Mechanical Code Standards | v1.2 | 4/4 | Complete | 2026-03-23 |
+ | 3. Service Layer Modernization | v1.2 | 3/3 | Complete | 2026-03-23 |
+-| 4. Component Modernization | v1.2 | 1/3 | In progress | - |
++| 4. Component Modernization | v1.2 | 2/3 | In progress | - |
+diff --git a/src/app/app.routes.ts b/src/app/app.routes.ts
+index 827052c..6fcce96 100644
+--- a/src/app/app.routes.ts
++++ b/src/app/app.routes.ts
+@@ -45,6 +45,6 @@ export const appRoutes: Route[] = [
+   // 404
+   {
+     path: '**',
+-    loadComponent: () => import('./page-not-found/page-not-found.component').then(c => c.PageNotFoundComponent),
++    loadComponent: () => import('./page-not-found/page-not-found.component'),
+   },
+ ];
+diff --git a/src/app/auth/confirm/confirm.component.ts b/src/app/auth/confirm/confirm.component.ts
+index 25d9014..212589c 100644
+--- a/src/app/auth/confirm/confirm.component.ts
++++ b/src/app/auth/confirm/confirm.component.ts
+@@ -1,7 +1,8 @@
+-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
++import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
++import { toSignal } from '@angular/core/rxjs-interop';
+ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+-import { ActivatedRoute, RouterLink } from '@angular/router';
+-import { finalize } from 'rxjs';
++import { ActivatedRoute, Router, RouterLink } from '@angular/router';
++import { Subject, concat, of, exhaustMap, map, catchError } from 'rxjs';
+ import { AuthService } from '../../core/auth/auth.service';
+ 
+ @Component({
+@@ -15,10 +16,10 @@ import { AuthService } from '../../core/auth/auth.service';
+           <p class="text-muted">Enter the 6-digit code sent to <strong>{{ email }}</strong></p>
+         </div>
+ 
+-        @if (auth.authError()) {
++        @if (error()) {
+           <div class="alert alert-danger mb-3">
+             <i class="fas fa-exclamation-circle"></i>
+-            <span>{{ auth.authError() }}</span>
++            <span>{{ error() }}</span>
+           </div>
+         }
+ 
+@@ -60,26 +61,53 @@ import { AuthService } from '../../core/auth/auth.service';
+   `
+ })
+ export default class ConfirmComponent {
+-  readonly auth = inject(AuthService);
++  private readonly auth = inject(AuthService);
+   private readonly fb = inject(NonNullableFormBuilder);
+   private readonly route = inject(ActivatedRoute);
++  private readonly router = inject(Router);
+ 
+   readonly form = this.fb.group({
+     code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+   });
+ 
+-  readonly email: string;
+-  readonly loading = signal(false);
++  readonly email = this.route.snapshot.queryParams['email'] ?? '';
++
++  private readonly submit$ = new Subject<void>();
++
++  private readonly result = toSignal(
++    this.submit$.pipe(
++      exhaustMap(() => {
++        const { code } = this.form.getRawValue();
++        return concat(
++          of({ status: 'loading' as const }),
++          this.auth.confirmSignUp(this.email, code).pipe(
++            map(() => ({ status: 'success' as const })),
++            catchError(err => of({
++              status: 'error' as const,
++              message: err instanceof Error ? err.message : 'Confirmation failed',
++            })),
++          ),
++        );
++      }),
++    ),
++  );
++
++  readonly loading = computed(() => this.result()?.status === 'loading');
++  readonly error = computed(() => {
++    const r = this.result();
++    if (!r || r.status !== 'error') return null;
++    return r.message;
++  });
+ 
+   constructor() {
+-    this.email = this.route.snapshot.queryParams['email'] ?? '';
++    effect(() => {
++      if (this.result()?.status === 'success') {
++        this.router.navigate(['/login'], { queryParams: { confirmed: true } });
++      }
++    });
+   }
+ 
+   onSubmit(): void {
+-    this.loading.set(true);
+-    const { code } = this.form.getRawValue();
+-    this.auth.confirmSignUp(this.email, code).pipe(
+-      finalize(() => this.loading.set(false)),
+-    ).subscribe();
++    this.submit$.next();
+   }
+ }
+diff --git a/src/app/auth/forgot-password/forgot-password.component.ts b/src/app/auth/forgot-password/forgot-password.component.ts
+index fdc2912..de162e1 100644
+--- a/src/app/auth/forgot-password/forgot-password.component.ts
++++ b/src/app/auth/forgot-password/forgot-password.component.ts
+@@ -1,7 +1,8 @@
+-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
++import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
++import { toSignal } from '@angular/core/rxjs-interop';
+ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+-import { RouterLink } from '@angular/router';
+-import { finalize } from 'rxjs';
++import { Router, RouterLink } from '@angular/router';
++import { Subject, concat, of, exhaustMap, map, catchError } from 'rxjs';
+ import { AuthService } from '../../core/auth/auth.service';
+ 
+ @Component({
+@@ -13,7 +14,7 @@ import { AuthService } from '../../core/auth/auth.service';
+         <div class="text-center mb-4">
+           <h2>Reset Password</h2>
+           <p class="text-muted">
+-            @if (!codeSent) {
++            @if (!codeSent()) {
+               Enter your email and we'll send a reset code
+             } @else {
+               Enter the code sent to <strong>{{ emailForm.getRawValue().email }}</strong>
+@@ -21,16 +22,16 @@ import { AuthService } from '../../core/auth/auth.service';
+           </p>
+         </div>
+ 
+-        @if (auth.authError()) {
++        @if (error()) {
+           <div class="alert alert-danger mb-3">
+             <i class="fas fa-exclamation-circle"></i>
+-            <span>{{ auth.authError() }}</span>
++            <span>{{ error() }}</span>
+           </div>
+         }
+ 
+         <div class="card">
+           <div class="card-body">
+-            @if (!codeSent) {
++            @if (!codeSent()) {
+               <form [formGroup]="emailForm" (ngSubmit)="requestCode()">
+                 <div class="form-group">
+                   <label class="form-label" for="email">Email address</label>
+@@ -106,8 +107,9 @@ import { AuthService } from '../../core/auth/auth.service';
+   `
+ })
+ export default class ForgotPasswordComponent {
+-  readonly auth = inject(AuthService);
++  private readonly auth = inject(AuthService);
+   private readonly fb = inject(NonNullableFormBuilder);
++  private readonly router = inject(Router);
+ 
+   readonly emailForm = this.fb.group({
+     email: ['', [Validators.required, Validators.email]],
+@@ -118,25 +120,73 @@ export default class ForgotPasswordComponent {
+     newPassword: ['', [Validators.required, Validators.minLength(8)]],
+   });
+ 
+-  codeSent = false;
+-  readonly loading = signal(false);
++  private readonly requestCode$ = new Subject<void>();
++  private readonly resetPw$ = new Subject<void>();
+ 
+-  requestCode(): void {
+-    this.loading.set(true);
+-    const { email } = this.emailForm.getRawValue();
+-    this.auth.resetPassword(email).pipe(
+-      finalize(() => this.loading.set(false)),
+-    ).subscribe({
+-      complete: () => { this.codeSent = true; },
++  private readonly requestCodeResult = toSignal(
++    this.requestCode$.pipe(
++      exhaustMap(() => {
++        const { email } = this.emailForm.getRawValue();
++        return concat(
++          of({ status: 'loading' as const }),
++          this.auth.resetPassword(email).pipe(
++            map(() => ({ status: 'sent' as const })),
++            catchError(err => of({
++              status: 'error' as const,
++              message: err instanceof Error ? err.message : 'Reset request failed',
++            })),
++          ),
++        );
++      }),
++    ),
++  );
++
++  private readonly resetResult = toSignal(
++    this.resetPw$.pipe(
++      exhaustMap(() => {
++        const { email } = this.emailForm.getRawValue();
++        const { code, newPassword } = this.resetForm.getRawValue();
++        return concat(
++          of({ status: 'loading' as const }),
++          this.auth.confirmResetPassword(email, code, newPassword).pipe(
++            map(() => ({ status: 'success' as const })),
++            catchError(err => of({
++              status: 'error' as const,
++              message: err instanceof Error ? err.message : 'Password reset failed',
++            })),
++          ),
++        );
++      }),
++    ),
++  );
++
++  readonly codeSent = computed(() => this.requestCodeResult()?.status === 'sent');
++
++  readonly loading = computed(() =>
++    this.requestCodeResult()?.status === 'loading' || this.resetResult()?.status === 'loading',
++  );
++
++  readonly error = computed(() => {
++    const rc = this.requestCodeResult();
++    if (rc?.status === 'error') return rc.message;
++    const rr = this.resetResult();
++    if (rr?.status === 'error') return rr.message;
++    return null;
++  });
++
++  constructor() {
++    effect(() => {
++      if (this.resetResult()?.status === 'success') {
++        this.router.navigate(['/login'], { queryParams: { reset: true } });
++      }
+     });
+   }
+ 
++  requestCode(): void {
++    this.requestCode$.next();
++  }
++
+   resetPassword(): void {
+-    this.loading.set(true);
+-    const { email } = this.emailForm.getRawValue();
+-    const { code, newPassword } = this.resetForm.getRawValue();
+-    this.auth.confirmResetPassword(email, code, newPassword).pipe(
+-      finalize(() => this.loading.set(false)),
+-    ).subscribe();
++    this.resetPw$.next();
+   }
+ }
+diff --git a/src/app/auth/login/login.component.ts b/src/app/auth/login/login.component.ts
+index c535057..9a4533c 100644
+--- a/src/app/auth/login/login.component.ts
++++ b/src/app/auth/login/login.component.ts
+@@ -1,7 +1,8 @@
+-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
++import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
++import { toSignal } from '@angular/core/rxjs-interop';
+ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+-import { RouterLink, ActivatedRoute } from '@angular/router';
+-import { finalize } from 'rxjs';
++import { Router, RouterLink, ActivatedRoute } from '@angular/router';
++import { Subject, concat, of, exhaustMap, map, catchError } from 'rxjs';
+ import { AuthService } from '../../core/auth/auth.service';
+ 
+ @Component({
+@@ -29,10 +30,10 @@ import { AuthService } from '../../core/auth/auth.service';
+           </div>
+         }
+ 
+-        @if (auth.authError()) {
++        @if (error()) {
+           <div class="alert alert-danger mb-3">
+             <i class="fas fa-exclamation-circle"></i>
+-            <span>{{ auth.authError() }}</span>
++            <span>{{ error() }}</span>
+           </div>
+         }
+ 
+@@ -91,30 +92,56 @@ import { AuthService } from '../../core/auth/auth.service';
+   `
+ })
+ export default class LoginComponent {
+-  readonly auth = inject(AuthService);
++  private readonly auth = inject(AuthService);
+   private readonly fb = inject(NonNullableFormBuilder);
+   private readonly route = inject(ActivatedRoute);
++  private readonly router = inject(Router);
+ 
+   readonly form = this.fb.group({
+     email: ['', [Validators.required, Validators.email]],
+     password: ['', [Validators.required, Validators.minLength(8)]],
+   });
+ 
+-  readonly loading = signal(false);
+-  confirmed = false;
+-  resetSuccess = false;
++  readonly confirmed = this.route.snapshot.queryParams['confirmed'] === 'true';
++  readonly resetSuccess = this.route.snapshot.queryParams['reset'] === 'true';
++
++  private readonly submit$ = new Subject<void>();
++
++  private readonly result = toSignal(
++    this.submit$.pipe(
++      exhaustMap(() => {
++        const { email, password } = this.form.getRawValue();
++        return concat(
++          of({ status: 'loading' as const }),
++          this.auth.signIn(email, password).pipe(
++            map(() => ({ status: 'success' as const })),
++            catchError(err => of({
++              status: 'error' as const,
++              message: err instanceof Error ? err.message : 'Sign in failed',
++            })),
++          ),
++        );
++      }),
++    ),
++  );
++
++  readonly loading = computed(() => this.result()?.status === 'loading');
++  readonly error = computed(() => {
++    const r = this.result();
++    if (!r || r.status !== 'error') return null;
++    return r.message;
++  });
+ 
+   constructor() {
+-    const params = this.route.snapshot.queryParams;
+-    this.confirmed = params['confirmed'] === 'true';
+-    this.resetSuccess = params['reset'] === 'true';
++    effect(() => {
++      if (this.result()?.status === 'success') {
++        this.auth.reloadProfile();
++        this.router.navigate(['/dashboard']);
++      }
++    });
+   }
+ 
+   onSubmit(): void {
+-    this.loading.set(true);
+-    const { email, password } = this.form.getRawValue();
+-    this.auth.signIn(email, password).pipe(
+-      finalize(() => this.loading.set(false)),
+-    ).subscribe();
++    this.submit$.next();
+   }
+ }
+diff --git a/src/app/auth/register/register.component.ts b/src/app/auth/register/register.component.ts
+index 0b540b6..68e5b98 100644
+--- a/src/app/auth/register/register.component.ts
++++ b/src/app/auth/register/register.component.ts
+@@ -1,7 +1,8 @@
+-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
++import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
++import { toSignal } from '@angular/core/rxjs-interop';
+ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+-import { RouterLink } from '@angular/router';
+-import { finalize } from 'rxjs';
++import { Router, RouterLink } from '@angular/router';
++import { Subject, concat, of, EMPTY, exhaustMap, map, catchError } from 'rxjs';
+ import { AuthService } from '../../core/auth/auth.service';
+ import { UserRole } from '../../core/auth/auth.types';
+ 
+@@ -16,10 +17,10 @@ import { UserRole } from '../../core/auth/auth.types';
+           <p class="text-muted">Sign up as a Teacher or Parent</p>
+         </div>
+ 
+-        @if (auth.authError()) {
++        @if (error()) {
+           <div class="alert alert-danger mb-3">
+             <i class="fas fa-exclamation-circle"></i>
+-            <span>{{ auth.authError() }}</span>
++            <span>{{ error() }}</span>
+           </div>
+         }
+ 
+@@ -68,16 +69,16 @@ import { UserRole } from '../../core/auth/auth.types';
+                   <button
+                     type="button"
+                     class="btn w-full"
+-                    [class]="role === 'TEACHER' ? 'btn-primary' : 'btn-light'"
+-                    (click)="role = 'TEACHER'"
++                    [class]="role() === 'TEACHER' ? 'btn-primary' : 'btn-light'"
++                    (click)="role.set('TEACHER')"
+                   >
+                     <i class="fas fa-chalkboard-teacher"></i> Teacher
+                   </button>
+                   <button
+                     type="button"
+                     class="btn w-full"
+-                    [class]="role === 'PARENT' ? 'btn-primary' : 'btn-light'"
+-                    (click)="role = 'PARENT'"
++                    [class]="role() === 'PARENT' ? 'btn-primary' : 'btn-light'"
++                    (click)="role.set('PARENT')"
+                   >
+                     <i class="fas fa-user-friends"></i> Parent
+                   </button>
+@@ -87,7 +88,7 @@ import { UserRole } from '../../core/auth/auth.types';
+               <button
+                 type="submit"
+                 class="btn btn-primary w-full btn-lg mt-2"
+-                [disabled]="loading() || form.invalid || !role"
++                [disabled]="loading() || form.invalid || !role()"
+               >
+                 @if (loading()) {
+                   <span class="spinner"></span>
+@@ -108,8 +109,9 @@ import { UserRole } from '../../core/auth/auth.types';
+   `
+ })
+ export default class RegisterComponent {
+-  readonly auth = inject(AuthService);
++  private readonly auth = inject(AuthService);
+   private readonly fb = inject(NonNullableFormBuilder);
++  private readonly router = inject(Router);
+ 
+   readonly form = this.fb.group({
+     displayName: ['', Validators.required],
+@@ -117,15 +119,47 @@ export default class RegisterComponent {
+     password: ['', [Validators.required, Validators.minLength(8)]],
+   });
+ 
+-  role: UserRole | null = null;
+-  readonly loading = signal(false);
++  readonly role = signal<UserRole | null>(null);
++
++  private readonly submit$ = new Subject<void>();
++
++  private readonly result = toSignal(
++    this.submit$.pipe(
++      exhaustMap(() => {
++        const r = this.role();
++        if (!r) return EMPTY;
++        const { email, password, displayName } = this.form.getRawValue();
++        return concat(
++          of({ status: 'loading' as const }),
++          this.auth.signUp(email, password, displayName, r).pipe(
++            map(() => ({ status: 'success' as const })),
++            catchError(err => of({
++              status: 'error' as const,
++              message: err instanceof Error ? err.message : 'Sign up failed',
++            })),
++          ),
++        );
++      }),
++    ),
++  );
++
++  readonly loading = computed(() => this.result()?.status === 'loading');
++  readonly error = computed(() => {
++    const r = this.result();
++    if (!r || r.status !== 'error') return null;
++    return r.message;
++  });
++
++  constructor() {
++    effect(() => {
++      if (this.result()?.status === 'success') {
++        const { email } = this.form.getRawValue();
++        this.router.navigate(['/confirm'], { queryParams: { email } });
++      }
++    });
++  }
+ 
+   onSubmit(): void {
+-    if (!this.role) return;
+-    this.loading.set(true);
+-    const { email, password, displayName } = this.form.getRawValue();
+-    this.auth.signUp(email, password, displayName, this.role).pipe(
+-      finalize(() => this.loading.set(false)),
+-    ).subscribe();
++    this.submit$.next();
+   }
+ }
+diff --git a/src/app/core/auth/auth.service.ts b/src/app/core/auth/auth.service.ts
+index 80573fc..f1c54cd 100644
+--- a/src/app/core/auth/auth.service.ts
++++ b/src/app/core/auth/auth.service.ts
+@@ -1,5 +1,4 @@
+ import { computed, inject, Injectable, signal } from '@angular/core';
+-import { Router } from '@angular/router';
+ import { rxResource } from '@angular/core/rxjs-interop';
+ import {
+   signUp,
+@@ -21,10 +20,6 @@ const client = generateClient<Schema>();
+ 
+ @Injectable({ providedIn: 'root' })
+ export class AuthService {
+-  private readonly router = inject(Router);
+-
+-  readonly authError = signal<string | null>(null);
+-
+   /**
+    * Trigger signal for profile loading. Incrementing this causes rxResource to re-fetch.
+    * Starts at 0 so the resource fires on construction.
+@@ -77,8 +72,11 @@ export class AuthService {
+     this.profileTrigger.update(v => v + 1);
+   }
+ 
++  clearProfile(): void {
++    this.profileResource.set(null);
++  }
++
+   signUp(email: string, password: string, displayName: string, role: UserRole): Observable<void> {
+-    this.authError.set(null);
+     return defer(() =>
+       signUp({
+         username: email,
+@@ -91,88 +89,40 @@ export class AuthService {
+           },
+         },
+       }),
+-    ).pipe(
+-      switchMap(() => {
+-        this.router.navigate(['/confirm'], { queryParams: { email } });
+-        return EMPTY;
+-      }),
+-      catchError(err => {
+-        this.authError.set(err instanceof Error ? err.message : 'Sign up failed');
+-        throw err;
+-      }),
+-    );
++    ).pipe(map(() => undefined));
+   }
+ 
+   confirmSignUp(email: string, code: string): Observable<void> {
+-    this.authError.set(null);
+     return defer(() => confirmSignUp({ username: email, confirmationCode: code })).pipe(
+-      switchMap(() => {
+-        this.router.navigate(['/login'], { queryParams: { confirmed: true } });
+-        return EMPTY;
+-      }),
+-      catchError(err => {
+-        this.authError.set(err instanceof Error ? err.message : 'Confirmation failed');
+-        throw err;
+-      }),
++      map(() => undefined),
+     );
+   }
+ 
+   signIn(email: string, password: string): Observable<void> {
+-    this.authError.set(null);
+     return defer(() => signIn({ username: email, password })).pipe(
+       switchMap(result => {
+         if (!result.isSignedIn) return EMPTY;
+         return defer(() => getCurrentUser()).pipe(
+           switchMap(user => this.ensureProfileExists(user.userId)),
+-          switchMap(() => {
+-            this.reloadProfile();
+-            this.router.navigate(['/dashboard']);
+-            return EMPTY;
+-          }),
+         );
+       }),
+-      catchError(err => {
+-        this.authError.set(err instanceof Error ? err.message : 'Sign in failed');
+-        throw err;
+-      }),
+     );
+   }
+ 
+   signOut(): Observable<void> {
+-    return defer(() => signOut()).pipe(
+-      switchMap(() => {
+-        this.profileResource.set(null);
+-        this.router.navigate(['/login']);
+-        return EMPTY;
+-      }),
+-    );
++    return defer(() => signOut()).pipe(map(() => undefined));
+   }
+ 
+   resetPassword(email: string): Observable<void> {
+-    this.authError.set(null);
+     return defer(() => resetPassword({ username: email })).pipe(
+       map(() => undefined),
+-      catchError(err => {
+-        this.authError.set(err instanceof Error ? err.message : 'Reset request failed');
+-        throw err;
+-      }),
+     );
+   }
+ 
+   confirmResetPassword(email: string, code: string, newPassword: string): Observable<void> {
+-    this.authError.set(null);
+     return defer(() =>
+       confirmResetPassword({ username: email, confirmationCode: code, newPassword }),
+-    ).pipe(
+-      switchMap(() => {
+-        this.router.navigate(['/login'], { queryParams: { reset: true } });
+-        return EMPTY;
+-      }),
+-      catchError(err => {
+-        this.authError.set(err instanceof Error ? err.message : 'Password reset failed');
+-        throw err;
+-      }),
+-    );
++    ).pipe(map(() => undefined));
+   }
+ 
+   /**
+diff --git a/src/app/math/math.component.html b/src/app/math/math.component.html
+index 5850579..d19235c 100644
+--- a/src/app/math/math.component.html
++++ b/src/app/math/math.component.html
+@@ -7,9 +7,9 @@
+       <div class="card-body">
+         <h4 class="mb-2">
+           Round the number below to the nearest:
+-          {{ roundingFactor | nthPlainText }}
++          {{ roundingPlaceText() }}
+         </h4>
+-        <p class="display-heading" style="font-size: 2.5rem;">{{ randomNumber | number }}</p>
++        <p class="display-heading" style="font-size: 2.5rem;">{{ randomNumber() | number }}</p>
+ 
+         <div class="input-group mb-3" style="max-width: 400px;">
+           <input
+@@ -31,11 +31,11 @@
+           </button>
+         </div>
+ 
+-        @if (result) {
+-          <p class="fw-bold" [style.color]="resultColor" style="font-size: var(--text-xl);">{{ result }}</p>
++        @if (feedback(); as fb) {
++          <p class="fw-bold" [style.color]="fb.color" style="font-size: var(--text-xl);">{{ fb.message }}</p>
+         }
+ 
+-        <app-streak-display [current]="correctStreak" [best]="highestStreak" />
++        <app-streak-display [current]="correctStreak()" [best]="highestStreak()" />
+       </div>
+     </div>
+ 
+@@ -47,7 +47,7 @@
+         <ag-grid-angular
+           style="width: 100%; height: 500px"
+           class="ag-theme-alpine"
+-          [rowData]="roundedNumbers"
++          [rowData]="rowData()"
+           [columnDefs]="columnDefs"
+         >
+         </ag-grid-angular>
+diff --git a/src/app/math/math.component.ts b/src/app/math/math.component.ts
+index ee73767..da42bad 100644
+--- a/src/app/math/math.component.ts
++++ b/src/app/math/math.component.ts
+@@ -1,9 +1,9 @@
+-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
++import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+ import { DecimalPipe } from '@angular/common';
+ import { FormControl, ReactiveFormsModule } from '@angular/forms';
+ import { AgGridModule } from 'ag-grid-angular';
+ import { ColDef } from 'ag-grid-community';
+-import { NthPlainTextPipe } from '../nth-plain-text.pipe';
++import { MathResultsService } from '../practice/math/shared/math-results.service';
+ import { StreakDisplayComponent } from '../shared/components/streak-display.component';
+ 
+ interface RoundedNumberEntry {
+@@ -15,24 +15,60 @@ interface RoundedNumberEntry {
+   userAnswer: number;
+ }
+ 
+-@Component({
+-    imports: [AgGridModule, DecimalPipe, NthPlainTextPipe, ReactiveFormsModule, StreakDisplayComponent],
+-    templateUrl: './math.component.html',
+-    changeDetection: ChangeDetectionStrategy.OnPush,
+-})
+-export class MathComponent implements OnInit {
+-  roundedNumbers: RoundedNumberEntry[] = [];
+-  correctStreak = 0;
+-  highestStreak = 0;
+-  roundingFactor = 10;
+-  randomNumber = '';
+-  readonly answerControl = new FormControl<number | null>(null);
+-  result = '';
+-  resultColor = '';
++const ROUNDING_OPTIONS = [10, 100, 0.1, 0.01] as const;
+ 
+-  columnDefs: ColDef[] = [
++function placeText(value: number): string {
++  switch (value) {
++    case 10: return 'tens';
++    case 100: return 'hundreds';
++    case 0.1: return 'tenths';
++    case 0.01: return 'hundredths';
++    default: return 'unknown';
++  }
++}
++
++function generateRandomNumber(): string {
++  const min = 10.0;
++  const max = 9999.999;
++  return (Math.random() * (max - min) + min).toFixed(3);
++}
++
++function pickRandomRoundingFactor(): number {
++  return ROUNDING_OPTIONS[Math.floor(Math.random() * ROUNDING_OPTIONS.length)];
++}
++
++function roundNumber(value: number, factor: number): number {
++  if (factor === 0.1) return Math.round(value * 10) / 10;
++  if (factor === 0.01) return Math.round(value * 100) / 100;
++  return Math.round(value / factor) * factor;
++}
++
++@Component({
++  imports: [AgGridModule, DecimalPipe, ReactiveFormsModule, StreakDisplayComponent],
++  templateUrl: './math.component.html',
++  changeDetection: ChangeDetectionStrategy.OnPush,
++})
++export default class MathComponent {
++  private readonly results = inject(MathResultsService);
++
++  // --- State ---
++  readonly roundingFactor = signal(pickRandomRoundingFactor());
++  readonly randomNumber = signal(generateRandomNumber());
++  readonly answerControl = new FormControl<number | null>(null);
++  readonly correctStreak = signal(0);
++  readonly highestStreak = signal(0);
++  readonly rowData = signal<RoundedNumberEntry[]>([]);
++
++  // Feedback after answer check — null when no feedback shown
++  readonly feedback = signal<{ message: string; color: string } | null>(null);
++
++  // --- Computed ---
++  readonly roundingPlaceText = computed(() => placeText(this.roundingFactor()));
++
++  // --- ag-Grid ---
++  readonly columnDefs: ColDef[] = [
+     { field: 'original', headerName: 'Original Number', filter: 'agNumberColumnFilter' },
+-    { field: 'roundingFactor', headerName: 'Rounding Factor', valueFormatter: this.getPlaceText, filter: 'agTextColumnFilter' },
++    { field: 'roundingFactor', headerName: 'Rounding Factor', valueFormatter: (p) => placeText(p.value), filter: 'agTextColumnFilter' },
+     { field: 'rounded', headerName: 'Correct Answer', filter: 'agNumberColumnFilter' },
+     { field: 'userAnswer', headerName: 'User Answer', filter: 'agNumberColumnFilter' },
+     {
+@@ -45,98 +81,86 @@ export class MathComponent implements OnInit {
+       field: 'dateEntered',
+       headerName: 'Date Entered',
+       filter: 'agDateColumnFilter',
+-      valueFormatter: (params) => {
+-        return params.value
++      valueFormatter: (params) =>
++        params.value
+           ? new Intl.DateTimeFormat('en-US', {
+               year: 'numeric', month: '2-digit', day: '2-digit',
+               hour: '2-digit', minute: '2-digit',
+             }).format(new Date(params.value))
+-          : '';
+-      },
++          : '',
+     },
+   ];
+ 
+-  ngOnInit(): void {
+-    this.generateNewNumber();
+-    const storedHighestStreak = localStorage.getItem('highestStreak');
+-    if (storedHighestStreak) {
+-      this.highestStreak = JSON.parse(storedHighestStreak);
+-    }
+-    const storedData = localStorage.getItem('roundedNumbers');
+-    if (storedData) {
+-      this.roundedNumbers = JSON.parse(storedData);
+-    }
++  constructor() {
++    this.results.startNewSession();
++    this.loadFromLocalStorage();
+   }
+ 
+   checkAnswer(): void {
+     const userAnswer = this.answerControl.value;
+-    const parsedRandomNumber = parseFloat(this.randomNumber);
++    const parsedRandomNumber = parseFloat(this.randomNumber());
+ 
+-    if (userAnswer !== null && !isNaN(userAnswer)) {
+-      let roundedNumber: number;
++    if (userAnswer === null || isNaN(userAnswer)) return;
+ 
+-      if (this.roundingFactor === 0.1) {
+-        roundedNumber = Math.round(parsedRandomNumber * 10) / 10;
+-      } else if (this.roundingFactor === 0.01) {
+-        roundedNumber = Math.round(parsedRandomNumber * 100) / 100;
+-      } else {
+-        roundedNumber = Math.round(parsedRandomNumber / this.roundingFactor) * this.roundingFactor;
++    const factor = this.roundingFactor();
++    const roundedNumber = roundNumber(parsedRandomNumber, factor);
++    const isCorrect = Number(userAnswer) === roundedNumber;
++
++    if (isCorrect) {
++      this.feedback.set({ message: 'Correct!', color: 'var(--color-success)' });
++      this.correctStreak.update(s => s + 1);
++      const newStreak = this.correctStreak();
++      if (newStreak > this.highestStreak()) {
++        this.highestStreak.set(newStreak);
++        localStorage.setItem('highestStreak', JSON.stringify(newStreak));
+       }
+-
+-      const isCorrect = Number(userAnswer) === roundedNumber;
+-
+-      if (isCorrect) {
+-        this.result = 'Correct!';
+-        this.resultColor = 'var(--color-success)';
+-        this.correctStreak++;
+-
+-        if (this.correctStreak > this.highestStreak) {
+-          this.highestStreak = this.correctStreak;
+-          localStorage.setItem('highestStreak', JSON.stringify(this.highestStreak));
+-        }
+-      } else {
+-        this.result = 'Incorrect. The correct answer is ' + roundedNumber;
+-        this.resultColor = 'var(--color-danger)';
+-        this.correctStreak = 0;
+-      }
+-
+-      const newEntry: RoundedNumberEntry = {
+-        dateEntered: new Date().toISOString(),
+-        original: parsedRandomNumber,
+-        rounded: roundedNumber,
+-        roundingFactor: this.roundingFactor,
+-        isCorrect,
+-        userAnswer: Number(userAnswer),
+-      };
+-
+-      const newRowData = [newEntry, ...this.roundedNumbers];
+-      this.roundedNumbers = newRowData;
+-      localStorage.setItem('roundedNumbers', JSON.stringify(newRowData));
+-
+-      this.answerControl.reset();
+-      this.randomizeRoundingFactor();
++    } else {
++      this.feedback.set({
++        message: 'Incorrect. The correct answer is ' + roundedNumber,
++        color: 'var(--color-danger)',
++      });
++      this.correctStreak.set(0);
+     }
++
++    const newEntry: RoundedNumberEntry = {
++      dateEntered: new Date().toISOString(),
++      original: parsedRandomNumber,
++      rounded: roundedNumber,
++      roundingFactor: factor,
++      isCorrect,
++      userAnswer: Number(userAnswer),
++    };
++
++    this.rowData.update(rows => [newEntry, ...rows]);
++    localStorage.setItem('roundedNumbers', JSON.stringify(this.rowData()));
++
++    this.results.recordAttempt({
++      problemType: 'rounding',
++      problemCategory: 'rounding',
++      question: `Round ${parsedRandomNumber} to the nearest ${placeText(factor)}`,
++      correctAnswer: String(roundedNumber),
++      studentAnswer: String(userAnswer),
++      isCorrect,
++    });
++
++    this.answerControl.reset();
++    this.nextProblem();
+   }
+ 
+-  private generateNewNumber(): void {
+-    const min = 10.0;
+-    const max = 9999.999;
+-    this.randomNumber = (Math.random() * (max - min) + min).toFixed(3);
++  private nextProblem(): void {
++    this.roundingFactor.set(pickRandomRoundingFactor());
++    this.randomNumber.set(generateRandomNumber());
+   }
+ 
+-  private randomizeRoundingFactor(): void {
+-    const roundingOptions = [10, 100, 0.1, 0.01];
+-    this.roundingFactor = roundingOptions[Math.floor(Math.random() * roundingOptions.length)];
+-    this.generateNewNumber();
+-  }
++  private loadFromLocalStorage(): void {
++    try {
++      const storedStreak = localStorage.getItem('highestStreak');
++      if (storedStreak) this.highestStreak.set(JSON.parse(storedStreak));
+ 
+-  private getPlaceText(params: { value: number }): string {
+-    switch (params.value) {
+-      case 10: return 'tens';
+-      case 100: return 'hundreds';
+-      case 0.1: return 'tenths';
+-      case 0.01: return 'hundredths';
+-      default: return 'unknown';
++      const storedData = localStorage.getItem('roundedNumbers');
++      if (storedData) this.rowData.set(JSON.parse(storedData));
++    } catch {
++      // Corrupted localStorage — start fresh
+     }
+   }
+ }
+diff --git a/src/app/next-step-word-study/next-step-word-study.component.html b/src/app/next-step-word-study/next-step-word-study.component.html
+index 82f2273..07efe46 100644
+--- a/src/app/next-step-word-study/next-step-word-study.component.html
++++ b/src/app/next-step-word-study/next-step-word-study.component.html
+@@ -1,15 +1,13 @@
+ <app-word-study-menu></app-word-study-menu>
+ 
+-@if (wordGroups$ | async; as wordGroups) {
++@if (wordGroupEntries().length) {
+   <div class="link-list">
+-    @for (wordGroup of wordGroups | keyvalue; track wordGroup) {
+-      <a role="button" (click)="suffleWords(wordGroup.value)">{{
+-        wordGroup.key
+-      }}</a>
++    @for (group of wordGroupEntries(); track group.key) {
++      <a role="button" (click)="shuffleWords(group.words)">{{ group.key }}</a>
+     }
+-    <a role="button" (click)="clearWordsArr()">Clear</a>
++    <a role="button" (click)="clearWords()">Clear</a>
+     <a role="button" (click)="randomize()">Randomize</a>
+   </div>
+ }
+ 
+-<app-word-list [words]="words"></app-word-list>
++<app-word-list [words]="words()"></app-word-list>
+diff --git a/src/app/next-step-word-study/next-step-word-study.component.ts b/src/app/next-step-word-study/next-step-word-study.component.ts
+index 6663934..6d88224 100644
+--- a/src/app/next-step-word-study/next-step-word-study.component.ts
++++ b/src/app/next-step-word-study/next-step-word-study.component.ts
+@@ -1,58 +1,60 @@
+-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+-import { AsyncPipe, KeyValuePipe } from '@angular/common';
++import { ChangeDetectionStrategy, Component, computed, inject, linkedSignal } from '@angular/core';
++import { toSignal } from '@angular/core/rxjs-interop';
+ import { ActivatedRoute } from '@angular/router';
+-import { Observable } from 'rxjs';
+-import { map, tap } from 'rxjs/operators';
++import { map } from 'rxjs';
+ 
+-import { WordService, WordSection } from '../word.service';
++import { WordService } from '../word.service';
+ 
+ import { WordStudyMenuComponent } from './word-study-menu/word-study-menu.component';
+ import { WordListComponent } from './word-list/word-list.component';
+ 
+ @Component({
+     selector: 'app-next-step-word-study',
+-    imports: [AsyncPipe, KeyValuePipe, WordStudyMenuComponent, WordListComponent],
++    imports: [WordStudyMenuComponent, WordListComponent],
+     templateUrl: './next-step-word-study.component.html',
+     styleUrls: ['./next-step-word-study.component.scss'],
+     changeDetection: ChangeDetectionStrategy.OnPush,
+ })
+-export class NextStepWordStudyComponent implements OnInit {
++export default class NextStepWordStudyComponent {
+   private readonly route = inject(ActivatedRoute);
+   private readonly wordService = inject(WordService);
+ 
+-  wordGroups$!: Observable<WordSection | undefined>;
+-  words!: string[];
++  private readonly sectionName = toSignal(
++    this.route.params.pipe(map(p => p['sectionName'] as string | undefined)),
++  );
+ 
+-  ngOnInit(): void {
+-    this.wordGroups$ = this.route.params.pipe(
+-      tap(() => this.words = []),
+-      map(({ sectionName }) => this.wordService.getSection(sectionName)),
+-    );
++  readonly wordGroupEntries = computed(() => {
++    const name = this.sectionName();
++    const groups = name ? this.wordService.getSection(name) : undefined;
++    if (!groups) return [];
++    return Object.entries(groups).map(([key, words]) => ({ key, words }));
++  });
++
++  readonly words = linkedSignal({
++    source: this.sectionName,
++    computation: () => [] as string[],
++  });
++
++  shuffleWords(newWords: string[]): void {
++    const combined = [...this.words(), ...newWords];
++    this.fisherYatesShuffle(combined);
++    this.words.set(combined);
+   }
+ 
+-  suffleWords(newWordsArr: string[]) {
+-    const wordsArr = this.words.concat(newWordsArr);
+-    wordsArr.forEach((_, i) => {
+-      const j = Math.floor(Math.random() * i);
+-      const temp = wordsArr[i];
+-      wordsArr[i] = wordsArr[j];
+-      wordsArr[j] = temp;
+-    });
+-    this.words = wordsArr;
++  clearWords(): void {
++    this.words.set([]);
+   }
+ 
+-  clearWordsArr() {
+-    this.words = [];
++  randomize(): void {
++    const shuffled = [...this.words()];
++    this.fisherYatesShuffle(shuffled);
++    this.words.set(shuffled);
+   }
+ 
+-  randomize() {
+-    const wordsArr = [...this.words];
+-    wordsArr.forEach((_, i) => {
+-      const j = Math.floor(Math.random() * i);
+-      const temp = wordsArr[i];
+-      wordsArr[i] = wordsArr[j];
+-      wordsArr[j] = temp;
+-    });
+-    this.words = wordsArr;
++  private fisherYatesShuffle(arr: string[]): void {
++    for (let i = arr.length - 1; i > 0; i--) {
++      const j = Math.floor(Math.random() * (i + 1));
++      [arr[i], arr[j]] = [arr[j], arr[i]];
++    }
+   }
+ }
+diff --git a/src/app/next-step-word-study/word-list/word-list.component.html b/src/app/next-step-word-study/word-list/word-list.component.html
+index b388385..3a5d7c2 100644
+--- a/src/app/next-step-word-study/word-list/word-list.component.html
++++ b/src/app/next-step-word-study/word-list/word-list.component.html
+@@ -1,5 +1,5 @@
+ <div class="container">
+-  @for (word of words; track word) {
++  @for (word of words(); track word) {
+     <a class="item">
+       <p>{{ word }}</p>
+     </a>
+diff --git a/src/app/next-step-word-study/word-list/word-list.component.ts b/src/app/next-step-word-study/word-list/word-list.component.ts
+index 2d557cb..6e92906 100644
+--- a/src/app/next-step-word-study/word-list/word-list.component.ts
++++ b/src/app/next-step-word-study/word-list/word-list.component.ts
+@@ -1,13 +1,12 @@
+-
+-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
++import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+ 
+ @Component({
+-    imports: [],
+     selector: 'app-word-list',
++    imports: [],
+     templateUrl: './word-list.component.html',
+     styleUrls: ['./word-list.component.scss'],
+     changeDetection: ChangeDetectionStrategy.OnPush,
+ })
+ export class WordListComponent {
+-  @Input() words: string[] = [];
++  readonly words = input<string[]>([]);
+ }
+diff --git a/src/app/next-step-word-study/word-study-menu/word-study-menu.component.ts b/src/app/next-step-word-study/word-study-menu/word-study-menu.component.ts
+index c6e743f..f6f0bd8 100644
+--- a/src/app/next-step-word-study/word-study-menu/word-study-menu.component.ts
++++ b/src/app/next-step-word-study/word-study-menu/word-study-menu.component.ts
+@@ -1,16 +1,11 @@
+-
+ import { ChangeDetectionStrategy, Component } from '@angular/core';
+-import { RouterModule } from '@angular/router';
++import { RouterLink, RouterLinkActive } from '@angular/router';
+ 
+ @Component({
+     selector: 'app-word-study-menu',
+-    imports: [RouterModule],
++    imports: [RouterLink, RouterLinkActive],
+     templateUrl: './word-study-menu.component.html',
+     styleUrls: ['./word-study-menu.component.scss'],
+     changeDetection: ChangeDetectionStrategy.OnPush,
+ })
+-export class WordStudyMenuComponent {
+-  constructor() {
+-  console.log('Hello from WordStudyMenuComponent');
+-  }
+-}
++export class WordStudyMenuComponent {}
+diff --git a/src/app/nth-plain-text.pipe.ts b/src/app/nth-plain-text.pipe.ts
+deleted file mode 100644
+index ab7b254..0000000
+--- a/src/app/nth-plain-text.pipe.ts
++++ /dev/null
+@@ -1,21 +0,0 @@
+-import { Pipe, PipeTransform } from '@angular/core';
+-
+-@Pipe({
+-  name: 'nthPlainText',
+-})
+-export class NthPlainTextPipe implements PipeTransform {
+-  transform(value: number): string {
+-     switch (value) {
+-      case 10:
+-        return 'tens';
+-      case 100:
+-        return 'hundreds';
+-      case 0.1:
+-        return 'tenths';
+-      case 0.01:
+-        return 'hundredths';
+-        default:
+-          return '';
+-    }
+-  }
+-}
+diff --git a/src/app/page-not-found/page-not-found.component.ts b/src/app/page-not-found/page-not-found.component.ts
+index 60e76a9..cb98827 100644
+--- a/src/app/page-not-found/page-not-found.component.ts
++++ b/src/app/page-not-found/page-not-found.component.ts
+@@ -8,4 +8,4 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
+     styleUrls: ['./page-not-found.component.scss'],
+     changeDetection: ChangeDetectionStrategy.OnPush,
+ })
+-export class PageNotFoundComponent {}
++export default class PageNotFoundComponent {}
+diff --git a/src/app/practice/math/area-perimeter/area-perimeter.component.ts b/src/app/practice/math/area-perimeter/area-perimeter.component.ts
+index ba22fae..d440dc5 100644
+--- a/src/app/practice/math/area-perimeter/area-perimeter.component.ts
++++ b/src/app/practice/math/area-perimeter/area-perimeter.component.ts
+@@ -28,7 +28,7 @@ export default class AreaPerimeterComponent {
+   readonly hintText = signal('');
+   readonly showHint = signal(false);
+ 
+-  private currentProblem: ShapeProblem | null = null;
++  private readonly currentProblem = signal<ShapeProblem | null>(null);
+ 
+   readonly shapes: Array<{ type: ShapeType; label: string }> = [
+     { type: 'rectangle', label: 'Rectangle' },
+@@ -58,9 +58,10 @@ export default class AreaPerimeterComponent {
+     this.showHint.set(false);
+ 
+     const isArea = shape === 'triangle' || shape === 'trapezoid' || Math.random() < 0.5;
+-    this.currentProblem = this.createShapeProblem(shape, isArea);
++    const problem = this.createShapeProblem(shape, isArea);
++    this.currentProblem.set(problem);
+     this.problemText.set(`Calculate the ${isArea ? 'area' : 'perimeter'} of the ${shape.replace(/-/g, ' ')}`);
+-    this.drawShape(shape, this.currentProblem.dimensions);
++    this.drawShape(shape, problem.dimensions);
+   }
+ 
+   insertUnit(unit: string): void {
+@@ -71,11 +72,12 @@ export default class AreaPerimeterComponent {
+   }
+ 
+   checkAnswer(): void {
+-    if (!this.currentProblem) return;
++    const problem = this.currentProblem();
++    if (!problem) return;
+ 
+     const userAnswer = this.userInput().trim();
+-    const expectedUnit = this.currentProblem.isArea ? 'u\u00B2' : 'u';
+-    const correctAnswer = `${this.currentProblem.answer} ${expectedUnit}`;
++    const expectedUnit = problem.isArea ? 'u\u00B2' : 'u';
++    const correctAnswer = `${problem.answer} ${expectedUnit}`;
+     const isCorrect = userAnswer === correctAnswer;
+ 
+     this.results.recordAttempt({
+@@ -86,7 +88,7 @@ export default class AreaPerimeterComponent {
+       studentAnswer: userAnswer,
+       isCorrect,
+       hint: this.showHint() ? this.hintText() : undefined,
+-    }).subscribe();
++    });
+ 
+     if (isCorrect) {
+       this.message.set('Correct!');
+@@ -111,9 +113,10 @@ export default class AreaPerimeterComponent {
+   }
+ 
+   showHintMessage(): void {
+-    if (!this.selectedShape() || !this.currentProblem) return;
++    const problem = this.currentProblem();
++    if (!this.selectedShape() || !problem) return;
+     this.showHint.set(true);
+-    this.hintText.set(this.getHintForShape(this.selectedShape()!, this.currentProblem.isArea));
++    this.hintText.set(this.getHintForShape(this.selectedShape()!, problem.isArea));
+   }
+ 
+   private randomInt(min: number, max: number): number {
+@@ -344,11 +347,12 @@ export default class AreaPerimeterComponent {
+   }
+ 
+   private showSolution(): void {
+-    if (!this.currentProblem || !this.selectedShape()) return;
++    const problem = this.currentProblem();
++    if (!problem || !this.selectedShape()) return;
+ 
+-    const d = this.currentProblem.dimensions;
+-    const answer = this.currentProblem.answer;
+-    const isArea = this.currentProblem.isArea;
++    const d = problem.dimensions;
++    const answer = problem.answer;
++    const isArea = problem.isArea;
+     const unit = isArea ? 'u\u00B2' : 'u';
+     const shape = this.selectedShape()!;
+ 
+diff --git a/src/app/practice/math/coordinate-grid/coordinate-grid.component.ts b/src/app/practice/math/coordinate-grid/coordinate-grid.component.ts
+index a9ab7f0..3fc5ff0 100644
+--- a/src/app/practice/math/coordinate-grid/coordinate-grid.component.ts
++++ b/src/app/practice/math/coordinate-grid/coordinate-grid.component.ts
+@@ -115,7 +115,7 @@ export default class CoordinateGridComponent {
+       correctAnswer: `(${target.x}, ${target.y})`,
+       studentAnswer: `(${user.x}, ${user.y})`,
+       isCorrect,
+-    }).subscribe();
++    });
+ 
+     if (isCorrect) {
+       this.feedback.set('Correct!');
+@@ -158,7 +158,7 @@ export default class CoordinateGridComponent {
+       correctAnswer: `(${target.x}, ${target.y}) + (${expectedReflection.x}, ${expectedReflection.y})`,
+       studentAnswer: `(${user.x}, ${user.y}) + (${userRef.x}, ${userRef.y})`,
+       isCorrect,
+-    }).subscribe();
++    });
+ 
+     let timeout: number;
+ 
+diff --git a/src/app/practice/math/inequality/inequality.component.ts b/src/app/practice/math/inequality/inequality.component.ts
+index 3a08490..da82768 100644
+--- a/src/app/practice/math/inequality/inequality.component.ts
++++ b/src/app/practice/math/inequality/inequality.component.ts
+@@ -32,8 +32,6 @@ export default class InequalityComponent {
+     Array.from({ length: this.tickCount }, (_, i) => ({ index: i, value: i - 10 }))
+   );
+ 
+-  private step = 0;
+-
+   constructor() {
+     this.results.startNewSession();
+     this.generateProblem();
+@@ -91,8 +89,8 @@ export default class InequalityComponent {
+ 
+     const rect = container.getBoundingClientRect();
+     const x = event.clientX - rect.left;
+-    this.step = container.offsetWidth / (this.tickCount - 1);
+-    const closestIndex = Math.round(x / this.step);
++    const step = container.offsetWidth / (this.tickCount - 1);
++    const closestIndex = Math.round(x / step);
+     this.markerPosition.set(closestIndex - 10);
+   }
+ 
+@@ -101,8 +99,8 @@ export default class InequalityComponent {
+     if (pos === null) return 0;
+     const container = this.containerRef()?.nativeElement;
+     if (!container) return 0;
+-    this.step = container.offsetWidth / (this.tickCount - 1);
+-    return (pos + 10) * this.step;
++    const step = container.offsetWidth / (this.tickCount - 1);
++    return (pos + 10) * step;
+   }
+ 
+   getLineStyle(): { left: string; width: string } | null {
+@@ -110,18 +108,18 @@ export default class InequalityComponent {
+     const container = this.containerRef()?.nativeElement;
+     if (!container) return null;
+ 
+-    this.step = container.offsetWidth / (this.tickCount - 1);
++    const step = container.offsetWidth / (this.tickCount - 1);
+     const startIndex = this.markerPosition()! + 10;
+ 
+     if (this.selectedDirection() === 'right') {
+       return {
+-        left: `${startIndex * this.step}px`,
+-        width: `${container.offsetWidth - startIndex * this.step}px`,
++        left: `${startIndex * step}px`,
++        width: `${container.offsetWidth - startIndex * step}px`,
+       };
+     } else {
+       return {
+         left: '0px',
+-        width: `${startIndex * this.step}px`,
++        width: `${startIndex * step}px`,
+       };
+     }
+   }
+@@ -166,7 +164,7 @@ export default class InequalityComponent {
+       correctAnswer,
+       studentAnswer,
+       isCorrect,
+-    }).subscribe();
++    });
+ 
+     if (isCorrect) {
+       this.errorMessage.set('');
+diff --git a/src/app/practice/math/number-line/number-line.component.ts b/src/app/practice/math/number-line/number-line.component.ts
+index 15abb3d..14361b7 100644
+--- a/src/app/practice/math/number-line/number-line.component.ts
++++ b/src/app/practice/math/number-line/number-line.component.ts
+@@ -122,7 +122,7 @@ export default class NumberLineComponent {
+         correctAnswer: `Markers at ${this.pointA()}, ${this.pointB()}; distance ${correctDistance}`,
+         studentAnswer: `Markers at ${this.userPlacedA()}, ${this.userPlacedB()}`,
+         isCorrect: false,
+-      }).subscribe();
++      });
+       return;
+     }
+ 
+@@ -135,7 +135,7 @@ export default class NumberLineComponent {
+       correctAnswer: String(correctDistance),
+       studentAnswer: this.distanceInput(),
+       isCorrect,
+-    }).subscribe();
++    });
+ 
+     if (isCorrect) {
+       this.feedback.set('Correct!');
+diff --git a/src/app/practice/math/quiz/quiz.component.ts b/src/app/practice/math/quiz/quiz.component.ts
+index 52fa681..d5844c2 100644
+--- a/src/app/practice/math/quiz/quiz.component.ts
++++ b/src/app/practice/math/quiz/quiz.component.ts
+@@ -123,7 +123,7 @@ export default class QuizComponent {
+         : this.userInput(),
+       isCorrect: correct,
+       hint: problem.hint,
+-    }).subscribe();
++    });
+ 
+     // Log the answer
+     const entry: AnswerLogEntry = {
+diff --git a/src/app/practice/math/quiz2/quiz2.component.ts b/src/app/practice/math/quiz2/quiz2.component.ts
+index 8d78438..76af01f 100644
+--- a/src/app/practice/math/quiz2/quiz2.component.ts
++++ b/src/app/practice/math/quiz2/quiz2.component.ts
+@@ -114,7 +114,7 @@ export default class Quiz2Component {
+       correctAnswer: item.problem.answer,
+       studentAnswer: input.trim(),
+       isCorrect,
+-    }).subscribe();
++    });
+ 
+     const updated = [...items];
+     if (isCorrect) {
+diff --git a/src/app/practice/math/quiz3/quiz3.component.ts b/src/app/practice/math/quiz3/quiz3.component.ts
+index 461e5f9..162197b 100644
+--- a/src/app/practice/math/quiz3/quiz3.component.ts
++++ b/src/app/practice/math/quiz3/quiz3.component.ts
+@@ -77,7 +77,7 @@ export default class Quiz3Component {
+       correctAnswer: item.problem.answer,
+       studentAnswer: input.trim(),
+       isCorrect,
+-    }).subscribe();
++    });
+ 
+     const updated = [...items];
+     if (isCorrect) {
+diff --git a/src/app/practice/math/shared/math-results.service.ts b/src/app/practice/math/shared/math-results.service.ts
+index b636ffa..1f7092e 100644
+--- a/src/app/practice/math/shared/math-results.service.ts
++++ b/src/app/practice/math/shared/math-results.service.ts
+@@ -1,5 +1,5 @@
+-import { computed, inject, Injectable, signal } from '@angular/core';
+-import { rxResource } from '@angular/core/rxjs-interop';
++import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
++import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+ import { catchError, defer, EMPTY, map, Observable, of, switchMap } from 'rxjs';
+ import { AuthService } from '../../../core/auth/auth.service';
+ import { DataService } from '../../../core/data/data.service';
+@@ -48,6 +48,7 @@ const LOCAL_KEY = 'mathResultsOffline';
+ export class MathResultsService {
+   private readonly auth = inject(AuthService);
+   private readonly data = inject(DataService);
++  private readonly destroyRef = inject(DestroyRef);
+ 
+   // --- Session state (local, synchronous) ---
+ 
+@@ -146,9 +147,9 @@ export class MathResultsService {
+     this.sessionIncorrect.set(0);
+   }
+ 
+-  // --- Mutation operations returning Observable ---
++  // --- Mutation operations ---
+ 
+-  recordAttempt(params: AttemptParams): Observable<void> {
++  recordAttempt(params: AttemptParams): void {
+     // Update local session state synchronously
+     if (params.isCorrect) {
+       this.sessionCorrect.update(c => c + 1);
+@@ -159,12 +160,12 @@ export class MathResultsService {
+     const profile = this.auth.userProfile();
+     if (!profile) {
+       this.storeLocally(params);
+-      return EMPTY;
++      return;
+     }
+ 
+     const attemptedAt = new Date().toISOString();
+ 
+-    return defer(() =>
++    defer(() =>
+       this.data.models.ProblemAttempt.create({
+         studentId: profile.id,
+         problemType: params.problemType,
+@@ -181,16 +182,13 @@ export class MathResultsService {
+       }),
+     ).pipe(
+       switchMap(() => this.upsertPerformanceCounter(profile.id, params, profile.readAccess)),
+-      map(() => {
+-        this.performanceCountersResource.reload();
+-        this.recentAttemptsResource.reload();
+-      }),
+       catchError(err => {
+         console.error('Failed to record attempt:', err);
+         this.storeLocally(params);
+         return EMPTY;
+       }),
+-    );
++      takeUntilDestroyed(this.destroyRef),
++    ).subscribe();
+   }
+ 
+   private upsertPerformanceCounter(
+diff --git a/src/app/practice/practice.routes.ts b/src/app/practice/practice.routes.ts
+index 9529e07..b9f8694 100644
+--- a/src/app/practice/practice.routes.ts
++++ b/src/app/practice/practice.routes.ts
+@@ -17,7 +17,7 @@ const routes: Routes = [
+       },
+       {
+         path: 'math/rounding',
+-        loadComponent: () => import('../math/math.component').then(c => c.MathComponent),
++        loadComponent: () => import('../math/math.component'),
+       },
+       {
+         path: 'math/number-line',
+@@ -59,11 +59,11 @@ const routes: Routes = [
+       },
+       {
+         path: 'word-study',
+-        loadComponent: () => import('../next-step-word-study/next-step-word-study.component').then(c => c.NextStepWordStudyComponent),
++        loadComponent: () => import('../next-step-word-study/next-step-word-study.component'),
+       },
+       {
+         path: 'word-study/:sectionName',
+-        loadComponent: () => import('../next-step-word-study/next-step-word-study.component').then(c => c.NextStepWordStudyComponent),
++        loadComponent: () => import('../next-step-word-study/next-step-word-study.component'),
+       },
+     ],
+   },
+diff --git a/src/app/shared/layout/navbar.component.ts b/src/app/shared/layout/navbar.component.ts
+index 4049ab8..e854bdf 100644
+--- a/src/app/shared/layout/navbar.component.ts
++++ b/src/app/shared/layout/navbar.component.ts
+@@ -1,5 +1,7 @@
+-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+-import { RouterLink, RouterLinkActive } from '@angular/router';
++import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
++import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
++import { Router, RouterLink, RouterLinkActive } from '@angular/router';
++import { Subject, EMPTY, exhaustMap, catchError } from 'rxjs';
+ import { AuthService } from '../../core/auth/auth.service';
+ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
+ 
+@@ -8,18 +10,18 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
+     imports: [RouterLink, RouterLinkActive],
+     changeDetection: ChangeDetectionStrategy.OnPush,
+     template: `
+-    <nav class="navbar" [class.scrolled]="scrolled">
++    <nav class="navbar" [class.scrolled]="scrolled()">
+       <div class="container navbar-inner">
+         <a routerLink="/dashboard" class="navbar-brand">
+           <i class="fas fa-graduation-cap"></i>
+           Teaching App
+         </a>
+ 
+-        <button class="nav-toggle" (click)="menuOpen = !menuOpen" aria-label="Toggle navigation">
+-          <i class="fas" [class.fa-bars]="!menuOpen" [class.fa-times]="menuOpen"></i>
++        <button class="nav-toggle" (click)="menuOpen.set(!menuOpen())" aria-label="Toggle navigation">
++          <i class="fas" [class.fa-bars]="!menuOpen()" [class.fa-times]="menuOpen()"></i>
+         </button>
+ 
+-        <ul class="nav-links" [class.open]="menuOpen" (click)="menuOpen = false">
++        <ul class="nav-links" [class.open]="menuOpen()" (click)="menuOpen.set(false)">
+           @switch (auth.userRole()) {
+             @case ('TEACHER') {
+               <li><a routerLink="/dashboard/teacher" routerLinkActive="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
+@@ -39,10 +41,10 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
+         <div class="nav-actions">
+           <!-- Accent color picker (light mode only) -->
+           @if (theme.theme() === 'light') {
+-            <div class="dropdown accent-picker" [class.open]="accentOpen">
++            <div class="dropdown accent-picker" [class.open]="accentOpen()">
+               <button
+                 class="icon-btn"
+-                (click)="accentOpen = !accentOpen"
++                (click)="accentOpen.set(!accentOpen())"
+                 aria-label="Background color"
+                 [style.background]="theme.effectiveAccent() || null"
+               >
+@@ -56,7 +58,7 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
+                       [class.active]="theme.accentBg() === color.value"
+                       [style.background]="color.value || 'var(--bg-surface)'"
+                       [title]="color.label"
+-                      (click)="theme.setAccent(color.value); accentOpen = false"
++                      (click)="theme.setAccent(color.value); accentOpen.set(false)"
+                     >
+                       @if (!color.value) {
+                         <i class="fas fa-ban" style="color: var(--gray-400);"></i>
+@@ -83,8 +85,8 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
+             </button>
+           </div>
+ 
+-          <div class="dropdown" [class.open]="profileOpen">
+-            <button class="icon-btn" (click)="profileOpen = !profileOpen" aria-label="Profile menu">
++          <div class="dropdown" [class.open]="profileOpen()">
++            <button class="icon-btn" (click)="profileOpen.set(!profileOpen())" aria-label="Profile menu">
+               <i class="fas fa-user"></i>
+             </button>
+             <div class="dropdown-menu">
+@@ -146,27 +148,40 @@ import { ThemeService, ACCENT_COLORS } from '../../core/theme.service';
+ export class NavbarComponent {
+   readonly auth = inject(AuthService);
+   readonly theme = inject(ThemeService);
++  private readonly router = inject(Router);
+   readonly accentColors = ACCENT_COLORS;
+ 
+-  scrolled = false;
+-  menuOpen = false;
+-  profileOpen = false;
+-  accentOpen = false;
++  readonly scrolled = signal(false);
++  readonly menuOpen = signal(false);
++  readonly profileOpen = signal(false);
++  readonly accentOpen = signal(false);
++
++  private readonly signOut$ = new Subject<void>();
++
++  constructor() {
++    this.signOut$.pipe(
++      exhaustMap(() => this.auth.signOut().pipe(catchError(() => EMPTY))),
++      takeUntilDestroyed(),
++    ).subscribe(() => {
++      this.auth.clearProfile();
++      this.router.navigate(['/login']);
++    });
++  }
+ 
+   onScroll(): void {
+-    this.scrolled = window.scrollY > 10;
++    this.scrolled.set(window.scrollY > 10);
+   }
+ 
+   onDocumentClick(event: MouseEvent): void {
+     const target = event.target as HTMLElement;
+     if (!target.closest('.dropdown')) {
+-      this.profileOpen = false;
+-      this.accentOpen = false;
++      this.profileOpen.set(false);
++      this.accentOpen.set(false);
+     }
+   }
+ 
+   onSignOut(): void {
+-    this.profileOpen = false;
+-    this.auth.signOut().subscribe();
++    this.profileOpen.set(false);
++    this.signOut$.next();
+   }
+ }

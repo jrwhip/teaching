@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { StudentAssignmentService } from '../../core/data/student-assignment.service';
+import { MathResultsService } from '../../practice/math/shared/math-results.service';
 import { StatCardComponent } from '../../shared/components/stat-card.component';
 import { StreakDisplayComponent } from '../../shared/components/streak-display.component';
 
@@ -13,12 +15,31 @@ import { StreakDisplayComponent } from '../../shared/components/streak-display.c
         <h2 class="mb-1">Hey, {{ auth.userProfile()?.displayName }}!</h2>
         <p class="text-muted mb-4">Ready to practice?</p>
 
-        <app-streak-display class="mb-4" [current]="0" [best]="0" />
+        <app-streak-display
+          class="mb-4"
+          [current]="currentStreak()"
+          [best]="mathResults.bestStreak()"
+        />
 
         <div class="grid grid-3 mb-4">
-          <app-stat-card icon="fas fa-check-circle" value="0" label="Problems Solved" color="success" />
-          <app-stat-card icon="fas fa-clipboard-list" value="0" label="Active Assignments" color="primary" />
-          <app-stat-card icon="fas fa-fire" value="0" label="Day Streak" color="orange" />
+          <app-stat-card
+            icon="fas fa-check-circle"
+            [value]="'' + problemsSolved()"
+            label="Problems Solved"
+            color="success"
+          />
+          <app-stat-card
+            icon="fas fa-clipboard-list"
+            [value]="'' + assignmentService.activeCount()"
+            label="Active Assignments"
+            color="primary"
+          />
+          <app-stat-card
+            icon="fas fa-fire"
+            [value]="'' + mathResults.bestStreak()"
+            label="Best Streak"
+            color="orange"
+          />
         </div>
 
         <h4 class="mb-2">Start Practicing</h4>
@@ -52,4 +73,15 @@ import { StreakDisplayComponent } from '../../shared/components/streak-display.c
 })
 export default class StudentHomeComponent {
   readonly auth = inject(AuthService);
+  readonly mathResults = inject(MathResultsService);
+  readonly assignmentService = inject(StudentAssignmentService);
+
+  readonly problemsSolved = computed(() =>
+    this.mathResults.totalCorrect() + this.mathResults.totalIncorrect(),
+  );
+
+  readonly currentStreak = computed(() => {
+    const counters = this.mathResults.performanceCounters();
+    return counters.reduce((max, c) => Math.max(max, c.currentStreak), 0);
+  });
 }

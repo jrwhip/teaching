@@ -242,6 +242,7 @@ const schema = a.schema({
     .arguments({
       email: a.string().required(),
       displayName: a.string().required(),
+      password: a.string().required(),
       classroomId: a.id(),
       parentId: a.id(),
     })

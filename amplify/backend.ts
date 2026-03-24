@@ -62,7 +62,8 @@ const createStudentLambda = backend.createStudentFn.resources.lambda as LambdaFu
 userPool.grant(
   createStudentLambda,
   'cognito-idp:AdminCreateUser',
-  'cognito-idp:AdminAddUserToGroup'
+  'cognito-idp:AdminAddUserToGroup',
+  'cognito-idp:AdminSetUserPassword'
 );
 createStudentLambda.addEnvironment('USER_POOL_ID', userPool.userPoolId);
 

@@ -15,12 +15,12 @@ const routes: Routes = [
       {
         path: 'teacher',
         canActivate: [roleGuard('TEACHER')],
-        loadComponent: () => import('./teacher/teacher-home.component'),
+        loadChildren: () => import('./teacher/teacher.routes'),
       },
       {
         path: 'parent',
         canActivate: [roleGuard('PARENT')],
-        loadComponent: () => import('./parent/parent-home.component'),
+        loadChildren: () => import('./parent/parent.routes'),
       },
       {
         path: 'student',
