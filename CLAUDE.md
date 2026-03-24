@@ -43,6 +43,11 @@ npm run lint    # Run ESLint
 - localStorage for persistence (streaks, answer history)
 - Build output: `dist/word-list`
 
+## Testing Rules
+
+- **NEVER use fake, made-up, or random email addresses** when testing features that create Cognito accounts (student creation, registration, etc.). Cognito creates real user records. Ask Jerry for an email address to use. No exceptions.
+- Always save test credentials (email + password) to the MCP notes immediately after creating or resetting an account.
+
 ## Angular Standards
 
 See `ANGULAR-GUIDE.md` in the workspace root.

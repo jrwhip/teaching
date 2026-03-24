@@ -1,4 +1,5 @@
 import { defineBackend } from '@aws-amplify/backend';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
 import { auth } from './auth/resource';
 import { data } from './data/resource';
@@ -52,6 +53,16 @@ for (const { lambda, tableNames } of lambdaGrants) {
     }
 
     table.grantReadWriteData(lambda);
+
+    // grantReadWriteData covers the base table but not GSIs in Amplify Gen 2.
+    // Explicitly grant query/scan on all indexes for this table.
+    lambda.addToRolePolicy(
+      new PolicyStatement({
+        actions: ['dynamodb:Query', 'dynamodb:Scan'],
+        resources: [`${table.tableArn}/index/*`],
+      }),
+    );
+
     lambda.addEnvironment(`${toEnvName(tableName)}_TABLE_NAME`, table.tableName);
   }
 }

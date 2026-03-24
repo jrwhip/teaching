@@ -40,7 +40,7 @@ export const handler: AppSyncResolverHandler<JoinClassroomArgs, unknown> = async
   const classroomQuery = await ddbClient.send(
     new QueryCommand({
       TableName: CLASSROOM_TABLE_NAME,
-      IndexName: 'byInviteCode',
+      IndexName: 'classroomsByInviteCode',
       KeyConditionExpression: 'inviteCode = :code',
       ExpressionAttributeValues: { ':code': inviteCode },
     })
@@ -59,7 +59,7 @@ export const handler: AppSyncResolverHandler<JoinClassroomArgs, unknown> = async
   const existingEnrollment = await ddbClient.send(
     new QueryCommand({
       TableName: CLASSROOM_ENROLLMENT_TABLE_NAME,
-      IndexName: 'byStudentId',
+      IndexName: 'classroomEnrollmentsByStudentId',
       KeyConditionExpression: 'studentId = :sid',
       FilterExpression: 'classroomId = :cid',
       ExpressionAttributeValues: {
@@ -104,7 +104,7 @@ export const handler: AppSyncResolverHandler<JoinClassroomArgs, unknown> = async
   const callerQuery = await ddbClient.send(
     new QueryCommand({
       TableName: USER_PROFILE_TABLE_NAME,
-      IndexName: 'byCognitoSub',
+      IndexName: 'userProfilesByCognitoSub',
       KeyConditionExpression: 'cognitoSub = :sub',
       ExpressionAttributeValues: { ':sub': callerSub },
     })
@@ -130,6 +130,7 @@ export const handler: AppSyncResolverHandler<JoinClassroomArgs, unknown> = async
     isActive: true,
     readAccess: enrollmentReadAccess,
     enrolledAt: now,
+    createdAt: now,
     updatedAt: now,
   };
 
@@ -181,9 +182,9 @@ export const handler: AppSyncResolverHandler<JoinClassroomArgs, unknown> = async
 
   // 8. Fan-out teacher sub into readAccess on all student's existing records
   await fanOutReadAccess(ddbClient, studentId, teacherSub, [
-    { tableName: PROBLEM_ATTEMPT_TABLE_NAME, indexName: 'byStudentId' },
-    { tableName: PERFORMANCE_COUNTER_TABLE_NAME, indexName: 'byStudentId' },
-    { tableName: ASSIGNMENT_TABLE_NAME, indexName: 'byStudentId' },
+    { tableName: PROBLEM_ATTEMPT_TABLE_NAME, indexName: 'problemAttemptsByStudentIdAndAttemptedAt' },
+    { tableName: PERFORMANCE_COUNTER_TABLE_NAME, indexName: 'performanceCountersByStudentId' },
+    { tableName: ASSIGNMENT_TABLE_NAME, indexName: 'assignmentsByStudentId' },
   ]);
 
   return enrollment;

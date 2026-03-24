@@ -39,7 +39,7 @@ export const handler: AppSyncResolverHandler<LinkStudentArgs, unknown> = async (
   const callerQuery = await ddbClient.send(
     new QueryCommand({
       TableName: USER_PROFILE_TABLE_NAME,
-      IndexName: 'byCognitoSub',
+      IndexName: 'userProfilesByCognitoSub',
       KeyConditionExpression: 'cognitoSub = :sub',
       ExpressionAttributeValues: { ':sub': callerSub },
     })
@@ -58,7 +58,7 @@ export const handler: AppSyncResolverHandler<LinkStudentArgs, unknown> = async (
   const existingLink = await ddbClient.send(
     new QueryCommand({
       TableName: PARENT_STUDENT_LINK_TABLE_NAME,
-      IndexName: 'byParentId',
+      IndexName: 'parentStudentLinksByParentId',
       KeyConditionExpression: 'parentId = :pid',
       FilterExpression: 'studentId = :sid',
       ExpressionAttributeValues: {
@@ -139,9 +139,9 @@ export const handler: AppSyncResolverHandler<LinkStudentArgs, unknown> = async (
 
   // 6. Fan-out parent sub into readAccess on all student's existing records
   await fanOutReadAccess(ddbClient, studentId, callerSub, [
-    { tableName: PROBLEM_ATTEMPT_TABLE_NAME, indexName: 'byStudentId' },
-    { tableName: PERFORMANCE_COUNTER_TABLE_NAME, indexName: 'byStudentId' },
-    { tableName: ASSIGNMENT_TABLE_NAME, indexName: 'byStudentId' },
+    { tableName: PROBLEM_ATTEMPT_TABLE_NAME, indexName: 'problemAttemptsByStudentIdAndAttemptedAt' },
+    { tableName: PERFORMANCE_COUNTER_TABLE_NAME, indexName: 'performanceCountersByStudentId' },
+    { tableName: ASSIGNMENT_TABLE_NAME, indexName: 'assignmentsByStudentId' },
   ]);
 
   return link;

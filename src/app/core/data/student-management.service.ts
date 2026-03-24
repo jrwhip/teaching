@@ -40,7 +40,7 @@ export class StudentManagementService {
             .listClassroomEnrollmentByClassroomId({ classroomId: c.id }),
         ).pipe(
           map(({ data }) =>
-            (data ?? []).map(e => ({
+            (data ?? []).filter(e => e != null).map(e => ({
               id: e.id,
               classroomId: e.classroomId,
               studentId: e.studentId,
@@ -182,7 +182,7 @@ export class StudentManagementService {
         .listClassroomEnrollmentByClassroomId({ classroomId }),
     ).pipe(
       map(({ data }) =>
-        (data ?? []).map(e => ({
+        (data ?? []).filter(e => e != null).map(e => ({
           id: e.id,
           classroomId: e.classroomId,
           studentId: e.studentId,

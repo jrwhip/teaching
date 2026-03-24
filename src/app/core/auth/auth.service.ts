@@ -13,7 +13,7 @@ import {
   confirmResetPassword,
 } from 'aws-amplify/auth';
 import { generateClient } from 'aws-amplify/data';
-import { defer, EMPTY, Observable, switchMap, map, catchError } from 'rxjs';
+import { defer, EMPTY, Observable, of, switchMap, map, catchError } from 'rxjs';
 import type { Schema } from '../../../../amplify/data/resource';
 import { UserProfile, UserRole } from './auth.types';
 
@@ -150,7 +150,7 @@ export class AuthService {
       client.models.UserProfile.listUserProfileByCognitoSub({ cognitoSub }),
     ).pipe(
       switchMap(({ data: existing }) => {
-        if (existing && existing.length > 0) return EMPTY;
+        if (existing && existing.length > 0) return of(undefined as void);
         return defer(() => fetchUserAttributes()).pipe(
           switchMap(attrs =>
             defer(() => fetchAuthSession()).pipe(

@@ -44,11 +44,11 @@ export class ClassroomService {
     this.trigger.update(v => v + 1);
   }
 
-  create(name: string): Observable<ClassroomRecord> {
+  create(name: string, inviteCode?: string): Observable<ClassroomRecord> {
     const profile = this.auth.userProfile();
     if (!profile) throw new Error('Not authenticated');
 
-    const inviteCode = generateInviteCode();
+    inviteCode ??= generateInviteCode();
     return defer(() =>
       this.data.models.Classroom.create({
         name,

@@ -49,7 +49,7 @@ export const handler: AppSyncResolverHandler<CreateStudentArgs, unknown> = async
   const callerQuery = await ddbClient.send(
     new QueryCommand({
       TableName: USER_PROFILE_TABLE_NAME,
-      IndexName: 'byCognitoSub',
+      IndexName: 'userProfilesByCognitoSub',
       KeyConditionExpression: 'cognitoSub = :sub',
       ExpressionAttributeValues: { ':sub': callerSub },
     })
@@ -181,6 +181,7 @@ export const handler: AppSyncResolverHandler<CreateStudentArgs, unknown> = async
           isActive: true,
           readAccess: enrollmentReadAccess,
           enrolledAt: now,
+          createdAt: now,
           updatedAt: now,
         },
       })

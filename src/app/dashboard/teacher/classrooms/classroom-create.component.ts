@@ -90,7 +90,7 @@ export default class ClassroomCreateComponent {
       const { name } = this.form.getRawValue();
       return concat(
         of({ status: 'loading' as const }),
-        this.classroomService.create(name).pipe(
+        this.classroomService.create(name, this.inviteCode).pipe(
           map(() => ({ status: 'success' as const })),
           catchError(err => of({
             status: 'error' as const,
