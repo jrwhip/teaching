@@ -1,11 +1,14 @@
-const nx = require('@nx/eslint-plugin');
+const angular = require('angular-eslint');
+const tseslint = require('typescript-eslint');
 
-module.exports = [
-  ...nx.configs['flat/base'],
-  ...nx.configs['flat/angular'],
-  ...nx.configs['flat/angular-template'],
+module.exports = tseslint.config(
   {
     files: ['**/*.ts'],
+    extends: [
+      ...tseslint.configs.recommended,
+      ...angular.configs.tsRecommended,
+    ],
+    processor: angular.processInlineTemplates,
     rules: {
       '@angular-eslint/directive-selector': [
         'error',
@@ -24,18 +27,22 @@ module.exports = [
         },
       ],
       '@angular-eslint/prefer-standalone': 'off',
-      // New in angular-eslint 21 tsRecommended; disable until codebase is migrated to inject()
+      // Disable until codebase is migrated to inject()
       '@angular-eslint/prefer-inject': 'off',
     },
   },
   {
     files: ['**/*.html'],
+    extends: [
+      ...angular.configs.templateRecommended,
+      ...angular.configs.templateAccessibility,
+    ],
     rules: {
-      // New in Nx 22 flat/angular-template (templateAccessibility); disable until codebase is fixed
+      // Disable until codebase is fixed
       '@angular-eslint/template/click-events-have-key-events': 'off',
       '@angular-eslint/template/interactive-supports-focus': 'off',
       '@angular-eslint/template/label-has-associated-control': 'off',
       '@angular-eslint/template/no-autofocus': 'off',
     },
   },
-];
+);

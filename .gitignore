@@ -40,8 +40,6 @@ Thumbs.db
 
 .angular
 
-.nx/cache
-.nx/workspace-data
 
 # Amplify Gen 2
 .amplify/
