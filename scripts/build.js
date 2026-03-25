@@ -3,54 +3,49 @@ const fs = require('fs');
 const path = require('path');
 
 const ARTIFACT = path.join('dist', 'word-list', 'browser', 'index.html');
-const POLL_MS = 2000;
-const TIMEOUT_MS = 120000;
 
 function log(msg) {
-  const ts = new Date().toISOString();
-  process.stderr.write(`[build.js ${ts}] ${msg}\n`);
+  process.stderr.write(`[build.js] ${msg}\n`);
 }
 
-log(`CWD: ${process.cwd()}`);
-log(`Artifact path: ${path.resolve(ARTIFACT)}`);
-log('Spawning ng build...');
+log('Spawning ng build with piped stdio...');
 
 const child = spawn('pnpm', ['exec', 'ng', 'build', '--no-progress'], {
-  stdio: 'inherit'
+  stdio: ['ignore', 'pipe', 'pipe']
+});
+
+// Forward child output to our stdout/stderr
+child.stdout.on('data', (d) => process.stdout.write(d));
+child.stderr.on('data', (d) => process.stderr.write(d));
+
+let buildDone = false;
+
+// Watch child stdout for the completion message
+child.stdout.on('data', (data) => {
+  const text = data.toString();
+  if (text.includes('Application bundle generation complete') || text.includes('Application bundle generation failed')) {
+    buildDone = true;
+    log('Build output detected completion. Waiting 2s then killing.');
+    setTimeout(() => {
+      log(`Artifact exists: ${fs.existsSync(ARTIFACT)}`);
+      log('Sending SIGKILL to child.');
+      child.kill('SIGKILL');
+    }, 2000);
+  }
 });
 
 child.on('exit', (code, signal) => {
   log(`Child exited: code=${code} signal=${signal}`);
-  process.exit(code || 0);
-});
-
-child.on('error', (err) => {
-  log(`Child error: ${err.message}`);
-  process.exit(1);
-});
-
-const poll = setInterval(() => {
-  const distExists = fs.existsSync('dist/word-list');
-  const browserExists = fs.existsSync('dist/word-list/browser');
-  const artifactExists = fs.existsSync(ARTIFACT);
-  log(`Poll: dist=${distExists} browser=${browserExists} index=${artifactExists}`);
-
-  if (artifactExists) {
-    clearInterval(poll);
-    clearTimeout(safety);
-    log('Artifact found. Sending SIGKILL.');
-    child.kill('SIGKILL');
-    setTimeout(() => {
-      log('Exiting.');
-      process.exit(0);
-    }, 500);
+  if (buildDone || fs.existsSync(ARTIFACT)) {
+    log('Build succeeded. Exiting 0.');
+    process.exit(0);
   }
-}, POLL_MS);
+  process.exit(code || 1);
+});
 
-const safety = setTimeout(() => {
-  clearInterval(poll);
-  const exists = fs.existsSync(ARTIFACT);
-  log(`Safety timeout. Artifact exists: ${exists}`);
+// Safety timeout
+setTimeout(() => {
+  log(`Safety timeout. Artifact exists: ${fs.existsSync(ARTIFACT)}`);
   child.kill('SIGKILL');
-  process.exit(exists ? 0 : 1);
-}, TIMEOUT_MS);
+  process.exit(fs.existsSync(ARTIFACT) ? 0 : 1);
+}, 120000);
