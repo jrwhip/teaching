@@ -9,7 +9,7 @@ frontend:
         - pnpm exec ampx generate outputs --app-id $AWS_APP_ID --branch $AWS_BRANCH
     build:
       commands:
-        - node scripts/build.js
+        - bash scripts/build.sh
   artifacts:
     baseDirectory: dist/word-list/browser
     files:
