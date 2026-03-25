@@ -1,11 +1,13 @@
 version: 1
-frontend:
+backend:
   phases:
-    preBuild:
+    build:
       commands:
         - corepack enable
         - pnpm install --frozen-lockfile
-        - pnpm dlx ampx generate outputs --app-id d2pf03dad8637l --branch $AWS_BRANCH
+        - pnpm exec ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+frontend:
+  phases:
     build:
       commands:
         - pnpm build
