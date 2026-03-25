@@ -201,8 +201,7 @@ export class MathResultsService {
       }),
     ).pipe(
       switchMap(() => this.upsertPerformanceCounter(profile.id, params, profile.readAccess)),
-      catchError(err => {
-        console.error('Failed to record attempt:', err);
+      catchError(() => {
         this.storeLocally(params);
         return EMPTY;
       }),

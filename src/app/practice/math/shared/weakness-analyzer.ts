@@ -65,12 +65,12 @@ export function calculateWeights(
 /** Pick a problem type using weighted random selection. */
 export function weightedRandomPick(weights: WeaknessWeight[]): string {
   const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0);
-  let random = Math.random() * totalWeight;
+  let remaining = Math.random() * totalWeight;
 
-  for (const w of weights) {
-    random -= w.weight;
-    if (random <= 0) return w.problemType;
-  }
+  const picked = weights.find(w => {
+    remaining -= w.weight;
+    return remaining <= 0;
+  });
 
-  return weights[weights.length - 1].problemType;
+  return (picked ?? weights[weights.length - 1]).problemType;
 }

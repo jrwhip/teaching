@@ -255,15 +255,15 @@ function analyzeRounding(question: string, ca: string, sa: string): ErrorAnalysi
 
   // Wrong place value: correctly rounded but to the wrong place
   const otherPlaces = ['tens', 'hundreds', 'thousands', 'tenths', 'hundredths'].filter(p => p !== placeType);
-  for (const place of otherPlaces) {
+  const wrongPlace = otherPlaces.find(place => {
     const pv = placeMap[place];
-    if (!pv) continue;
+    if (!pv) return false;
     const roundedToOtherPlace = Math.round(original / pv) * pv;
-    // For decimal places, handle precision
     const fixedOther = parseFloat(roundedToOtherPlace.toPrecision(10));
-    if (isClose(student, fixedOther) && !isClose(student, correct)) {
-      return { errorType: 'wrong-place-value', description: `Rounded to the ${place} place instead of ${placeType}` };
-    }
+    return isClose(student, fixedOther) && !isClose(student, correct);
+  });
+  if (wrongPlace) {
+    return { errorType: 'wrong-place-value', description: `Rounded to the ${wrongPlace} place instead of ${placeType}` };
   }
 
   // Truncated: just chopped off digits
