@@ -1,0 +1,33 @@
+.section-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp);
+  padding: var(--sp);
+}
+
+.section-menu__button {
+  background: rgba(var(--color-success-rgb), 0.1);
+  color: var(--color-success);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.85rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--ease);
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--color-success);
+    color: #fff;
+  }
+
+  &--active {
+    background: var(--color-primary);
+    color: #fff;
+  }
+
+  &--nowrap {
+    white-space: nowrap;
+  }
+}
