@@ -13,9 +13,6 @@ frontend:
       commands:
         - nvm use 20
         - pnpm build
-    postBuild:
-      commands:
-        - ls -la dist/word-list/browser/ | head -5 || echo "ERROR: dist/word-list/browser/ not found"
   artifacts:
     baseDirectory: dist/word-list/browser
     files:
