@@ -5,7 +5,7 @@ frontend:
       commands:
         - corepack enable
         - pnpm install --frozen-lockfile
-        - npx ampx generate outputs --app-id d2pf03dad8637l --branch $AWS_BRANCH
+        - pnpm exec ampx generate outputs --app-id d2pf03dad8637l --branch $AWS_BRANCH
     build:
       commands:
         - pnpm build
