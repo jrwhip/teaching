@@ -41,6 +41,15 @@ pnpm lint       # Run ESLint
 - **NEVER use fake, made-up, or random email addresses** when testing features that create Cognito accounts (student creation, registration, etc.). Cognito creates real user records. Ask Jerry for an email address to use. No exceptions.
 - Always save test credentials (email + password) to the MCP notes immediately after creating or resetting an account.
 
+## Deployment (AWS Amplify)
+
+- **Angular + Amplify works. It is not broken. There is no bug.**
+- A vanilla Angular 21 app deploys to Amplify with zero issues. If the teaching app fails to deploy, the problem is in this project's configuration — not in Angular, not in esbuild, not in Amplify.
+- **NEVER** treat a build/deploy failure as a framework bug to work around. Read the official Amplify and Angular deployment documentation and follow it.
+- **NEVER** use timeout hacks, process killers, wrapper scripts, or any workaround that treats the build process as broken. The build process is fine.
+- **NEVER** search GitHub issues for "esbuild hang" or "ng build won't exit" or similar. These are posted by people doing it wrong. Don't join them.
+- If deployment fails, the answer is in the documentation or in this project's configuration. Fix the configuration.
+
 ## Angular Standards
 
 See `ANGULAR-GUIDE.md` in the workspace root.
