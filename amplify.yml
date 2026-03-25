@@ -9,10 +9,8 @@ frontend:
         - pnpm exec ampx generate outputs --app-id $AWS_APP_ID --branch $AWS_BRANCH
     build:
       commands:
-        - pnpm build
-        - echo "Build exit code $?"
-        - ls dist/word-list/browser/index.html
-        - echo "Artifacts verified"
+        - pnpm exec nx build teaching --verbose 2>&1
+        - echo "Build complete"
   artifacts:
     baseDirectory: dist/word-list/browser
     files:
