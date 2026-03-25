@@ -13,32 +13,25 @@ The app should support multiple subjects. Math (6th grade and lower) is the star
 
 ## Technology Stack
 
-Currently on Angular 17 / Nx 18. Planned upgrade to latest stable Angular.
-
-**Current:**
-- Angular 17, Nx 18, TypeScript 5.3, RxJS 7.8
-- Bootstrap 5.3, ag-Grid 30, Font Awesome 6
-- SCSS, Jest 29, ESLint + Prettier
-
-**Upgrade targets:**
-- Latest stable Angular with zoneless change detection
-- Latest Nx
-- TypeScript 5.9+
-- pnpm (replacing npm, matching Verset)
+- Angular 21, TypeScript 5.9, RxJS 7.8
+- ag-Grid 35, Font Awesome 6
+- SCSS, Vitest, ESLint 9, Prettier
+- Angular CLI (no Nx), pnpm
+- AWS Amplify (Cognito + AppSync + DynamoDB)
 
 ## Commands
 
 ```bash
-npm start       # Dev server on :4200
-npm run build   # Production build
-npm test        # Run Jest tests
-npm run lint    # Run ESLint
+pnpm start      # Dev server on :4200
+pnpm build      # Production build
+pnpm test       # Run Vitest
+pnpm lint       # Run ESLint
 ```
 
 ## Architecture
 
-- Single Nx workspace (not a multi-app monorepo currently)
-- Standalone components (AppModule is the only remaining traditional module — remove during upgrade)
+- Single Angular CLI workspace
+- Standalone components
 - Lazy-loaded routes: `/`, `/next-step-word-study`, `/math`
 - localStorage for persistence (streaks, answer history)
 - Build output: `dist/word-list`
