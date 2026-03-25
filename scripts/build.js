@@ -6,38 +6,51 @@ const ARTIFACT = path.join('dist', 'word-list', 'browser', 'index.html');
 const POLL_MS = 2000;
 const TIMEOUT_MS = 120000;
 
-console.log('Starting Angular build...');
+function log(msg) {
+  const ts = new Date().toISOString();
+  process.stderr.write(`[build.js ${ts}] ${msg}\n`);
+}
+
+log(`CWD: ${process.cwd()}`);
+log(`Artifact path: ${path.resolve(ARTIFACT)}`);
+log('Spawning ng build...');
 
 const child = spawn('pnpm', ['exec', 'ng', 'build', '--no-progress'], {
-  stdio: 'inherit',
-  env: { ...process.env, CI: 'true', NG_CLI_ANALYTICS: 'false' }
+  stdio: 'inherit'
 });
 
-child.on('exit', (code) => {
-  console.log(`ng build exited with code ${code}`);
+child.on('exit', (code, signal) => {
+  log(`Child exited: code=${code} signal=${signal}`);
   process.exit(code || 0);
 });
 
-// Poll for artifacts — ng build hangs after writing files in some environments
+child.on('error', (err) => {
+  log(`Child error: ${err.message}`);
+  process.exit(1);
+});
+
 const poll = setInterval(() => {
-  if (fs.existsSync(ARTIFACT)) {
+  const distExists = fs.existsSync('dist/word-list');
+  const browserExists = fs.existsSync('dist/word-list/browser');
+  const artifactExists = fs.existsSync(ARTIFACT);
+  log(`Poll: dist=${distExists} browser=${browserExists} index=${artifactExists}`);
+
+  if (artifactExists) {
     clearInterval(poll);
     clearTimeout(safety);
-    console.log('Build artifacts verified. Killing hung process.');
-    child.kill();
-    setTimeout(() => process.exit(0), 1000);
+    log('Artifact found. Sending SIGKILL.');
+    child.kill('SIGKILL');
+    setTimeout(() => {
+      log('Exiting.');
+      process.exit(0);
+    }, 500);
   }
 }, POLL_MS);
 
 const safety = setTimeout(() => {
   clearInterval(poll);
-  if (fs.existsSync(ARTIFACT)) {
-    console.log('Timeout but artifacts exist. Forcing exit.');
-    child.kill();
-    process.exit(0);
-  } else {
-    console.error('Build timed out with no artifacts.');
-    child.kill();
-    process.exit(1);
-  }
+  const exists = fs.existsSync(ARTIFACT);
+  log(`Safety timeout. Artifact exists: ${exists}`);
+  child.kill('SIGKILL');
+  process.exit(exists ? 0 : 1);
 }, TIMEOUT_MS);
