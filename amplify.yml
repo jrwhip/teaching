@@ -9,7 +9,7 @@ frontend:
         - pnpm exec ampx generate outputs --app-id $AWS_APP_ID --branch $AWS_BRANCH
     build:
       commands:
-        - pnpm exec nx build teaching --verbose 2>&1
+        - pnpm exec nx build teaching --skip-nx-cache --verbose 2>&1
         - echo "Build complete"
   artifacts:
     baseDirectory: dist/word-list/browser
