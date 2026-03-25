@@ -1,0 +1,10 @@
+onlyBuiltDependencies:
+  - '@aws-amplify/cli-internal'
+  - '@fortawesome/fontawesome-free'
+  - '@parcel/watcher'
+  - core-js
+  - esbuild
+  - lmdb
+  - msgpackr-extract
+  - nx
+  - unrs-resolver
