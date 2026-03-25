@@ -6,9 +6,9 @@ backend:
         - nvm use 20
         - rm -rf node_modules
         - npm install
-        - echo "=== Before cleanup ===" && find node_modules -path "*/node_modules/graphql/package.json" -exec grep -l version {} \; 2>/dev/null | head -20
-        - find node_modules -mindepth 3 -name "graphql" -path "*/node_modules/graphql" -type d -exec rm -rf {} + 2>/dev/null || true
-        - echo "=== After cleanup ===" && find node_modules -path "*/graphql/package.json" -not -path "*/graphql-*" -not -path "*/@graphql*" -not -path "*-graphql/*" -exec sh -c 'echo "$1: $(grep \"version\" "$1")"' _ {} \;
+        - "echo '=== Before cleanup ===' && find node_modules -path '*/node_modules/graphql/package.json' | head -20"
+        - "find node_modules -mindepth 3 -name graphql -path '*/node_modules/graphql' -type d -exec rm -rf {} + 2>/dev/null || true"
+        - "echo '=== After cleanup ===' && find node_modules -name graphql -type d -maxdepth 4 | head -20"
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
