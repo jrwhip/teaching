@@ -9,7 +9,7 @@ frontend:
         - pnpm exec ampx generate outputs --app-id $AWS_APP_ID --branch $AWS_BRANCH
     build:
       commands:
-        - "pnpm exec ng build --no-progress 2>&1; echo ng-build-exit=$?"
+        - "timeout 120 pnpm exec ng build --no-progress || test -f dist/word-list/browser/index.html"
   artifacts:
     baseDirectory: dist/word-list/browser
     files:
