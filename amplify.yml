@@ -4,14 +4,17 @@ backend:
     build:
       commands:
         - nvm use 20
+        - corepack enable
+        - corepack prepare pnpm@10.24.0 --activate
         - rm -rf node_modules
-        - npm install
-        - "echo '=== Before cleanup ===' && find node_modules -path '*/node_modules/graphql/package.json' | head -20"
-        - "find node_modules -mindepth 3 -name graphql -path '*/node_modules/graphql' -type d -exec rm -rf {} + 2>/dev/null || true"
-        - "echo '=== After cleanup ===' && find node_modules -name graphql -type d -maxdepth 4 | head -20"
-        - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+        - pnpm install --frozen-lockfile
+        - pnpm exec ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
+    preBuild:
+      commands:
+        - rm -rf node_modules
+        - npm install
     build:
       commands:
         - npx ng build --configuration=production
@@ -20,5 +23,4 @@ frontend:
     files:
       - '**/*'
   cache:
-    paths:
-      - node_modules/**/*
+    paths: []

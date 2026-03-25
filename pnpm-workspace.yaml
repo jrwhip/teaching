@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - '@aws-amplify/cli-internal'
+  - '@fortawesome/fontawesome-free'
+  - core-js
+  - esbuild
+  - unrs-resolver
