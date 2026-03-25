@@ -9,7 +9,7 @@ frontend:
         - pnpm exec ampx generate outputs --app-id $AWS_APP_ID --branch $AWS_BRANCH
     build:
       commands:
-        - pnpm build 2>&1
+        - CI=1 NG_CLI_ANALYTICS=false pnpm exec ng build 2>&1
   artifacts:
     baseDirectory: dist/word-list/browser
     files:
