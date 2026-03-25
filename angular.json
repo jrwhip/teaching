@@ -79,6 +79,8 @@
     }
   },
   "cli": {
+    "packageManager": "pnpm",
+    "analytics": false,
     "schematicCollections": ["@schematics/angular"]
   }
 }
