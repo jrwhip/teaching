@@ -10,6 +10,9 @@ frontend:
     build:
       commands:
         - pnpm build
+        - echo "Build exit code $?"
+        - ls dist/word-list/browser/index.html
+        - echo "Artifacts verified"
   artifacts:
     baseDirectory: dist/word-list/browser
     files:
