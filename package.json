@@ -9,7 +9,6 @@
     "lint": "ng lint"
   },
   "private": true,
-  "packageManager": "pnpm@10.24.0",
   "dependencies": {
     "@angular/animations": "21.2.5",
     "@angular/common": "21.2.5",
@@ -56,6 +55,6 @@
     "prettier": "^2.6.2",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.57.1",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.8"
   }
 }

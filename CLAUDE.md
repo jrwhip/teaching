@@ -16,16 +16,16 @@ The app should support multiple subjects. Math (6th grade and lower) is the star
 - Angular 21, TypeScript 5.9, RxJS 7.8
 - ag-Grid 35, Font Awesome 6
 - SCSS, Vitest, ESLint 9, Prettier
-- Angular CLI (no Nx), pnpm
+- Angular CLI (no Nx), npm
 - AWS Amplify (Cognito + AppSync + DynamoDB)
 
 ## Commands
 
 ```bash
-pnpm start      # Dev server on :4200
-pnpm build      # Production build
-pnpm test       # Run Vitest
-pnpm lint       # Run ESLint
+npm start       # Dev server on :4200
+npm run build   # Production build
+npm test        # Run Vitest
+npm run lint    # Run ESLint
 ```
 
 ## Architecture
