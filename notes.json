@@ -23,6 +23,18 @@
         "permanent"
       ],
       "created": "2026-03-23T02:56:47.223792"
+    },
+    {
+      "id": "d03b5abb",
+      "content": "## Teaching App Build Process Research (2026-03-25)\n\n### Current State\nDual package manager hack in amplify.yml: pnpm for backend CDK deploy, npm for frontend Angular build. 69 builds to get working. Two root bugs:\n\n1. **pnpm hangs `ng build` in non-TTY (CI) environments** \u2014 pnpm's shell wrapper + bash shims in `.bin/` prevent esbuild's `unref()` from letting Node exit. Multiple open pnpm issues (#7374, #9945, #6162, #10357). No fix from pnpm team.\n\n2. **npm can't deduplicate graphql across bundled dependencies** \u2014 `@aws-amplify/data-construct` ships graphql in its tarball (127 bundledDependencies, enforced by pre-commit hook). npm `overrides` cannot affect bundled deps (left as unresolved question in RFC #0036). pnpm's content-addressable store solves this at the filesystem level. This will never be fixed on the npm side.\n\n### Already Tried (from the 69 builds)\n- CI=1 + disabled analytics \u2192 did nothing (mistake #7)\n- node-linker=hoisted \u2192 caused glob/minimatch conflict (mistake #17)\n- npx ng build \u2192 tried but only inside a timeout wrapper (mistake #11)\n- Deleting nested graphql copies \u2192 error persisted, module identity is path-based (mistake #23)\n- npm overrides for graphql \u2192 can't affect bundledDependencies (mistake #22)\n\n### Quick Fix Test Matrix (NOT yet tried, try in order)\n1. `NG_CLI_ANALYTICS=false pnpm exec ng build --configuration=production --no-progress` \u2014 `pnpm exec` runs WITHOUT a shell (unlike `pnpm run` which ALWAYS wraps in shell). `--no-progress` also untested.\n2. Same + `< /dev/null` \u2014 forces stdin EOF so esbuild detects parent is done\n3. `./node_modules/.bin/ng build --configuration=production --no-progress` \u2014 direct binary invocation without timeout wrapper (mistake #11 used timeout, not raw invocation)\n\nNOTE: `node-linker=hoisted` (option #4 originally) was already tried and failed. Removed from matrix.\n\n### Clean Architecture (if quick fixes fail)\nMove `ampx pipeline-deploy` to GitHub Actions with pnpm. Simplify amplify.yml to frontend-only: `npx ampx generate outputs` + `npm install` + `npx ng build`. Officially documented at docs.amplify.aws/react/deploy-and-host/fullstack-branching/custom-pipelines/\n\n### Key Sources\n- pnpm exec vs pnpm run: exec runs WITHOUT a shell, run ALWAYS wraps in shell\n- pnpm bash shims vs npm symlinks in .bin/\n- graphql instanceof checks require single physical copy (graphql-js #1951)\n- jsii CDK constructs bundle all deps by design (verify-construct-dependencies.ts enforces it)\n- SST v3 is in maintenance mode \u2014 not recommended\n- Amplify supports custom pipelines, separate frontend/backend repos, and custom Docker images",
+      "tags": [
+        "teaching",
+        "amplify",
+        "build",
+        "pnpm",
+        "research"
+      ],
+      "created": "2026-03-25T19:09:06.232297"
     }
   ]
 }
