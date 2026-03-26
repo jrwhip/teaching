@@ -6,7 +6,7 @@ backend:
         - nvm use 20
         - corepack enable
         - corepack prepare pnpm@10.24.0 --activate
-        - rm -rf node_modules package-lock.json
+        - rm -rf node_modules
         - pnpm install --frozen-lockfile
         - pnpm exec ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
@@ -19,4 +19,5 @@ frontend:
     files:
       - '**/*'
   cache:
-    paths: []
+    paths:
+      - node_modules/.pnpm
